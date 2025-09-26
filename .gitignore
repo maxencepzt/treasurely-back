@@ -18,3 +18,20 @@
 /public/assets/
 /assets/vendor/
 ###< symfony/asset-mapper ###
+
+###> IDEs ###
+.idea/
+.vscode/
+###< IDEs ###
+###> php-cs-fixer/shim ###
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+###< php-cs-fixer/shim ###
+
+###> phpstan/phpstan ###
+phpstan.neon
+###< phpstan/phpstan ###
+
+###> vincentlanglet/twig-cs-fixer ###
+/.twig-cs-fixer.cache
+###< vincentlanglet/twig-cs-fixer ###

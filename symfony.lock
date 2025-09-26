@@ -35,6 +35,30 @@
             "migrations/.gitignore"
         ]
     },
+    "php-cs-fixer/shim": {
+        "version": "3.88",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "3.0",
+            "ref": "16422bf8eac6c3be42afe07d37e2abc89d2bdf6b"
+        },
+        "files": [
+            ".php-cs-fixer.dist.php"
+        ]
+    },
+    "phpstan/phpstan": {
+        "version": "2.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "5e490cc197fb6bb1ae22e5abbc531ddc633b6767"
+        },
+        "files": [
+            "phpstan.dist.neon"
+        ]
+    },
     "phpunit/phpunit": {
         "version": "12.3",
         "recipe": {
@@ -292,5 +316,14 @@
     },
     "twig/extra-bundle": {
         "version": "v3.21.0"
+    },
+    "vincentlanglet/twig-cs-fixer": {
+        "version": "3.10",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "3.0",
+            "ref": "d42582ae1bce86fd43491d6264c738b0867f8ffe"
+        }
     }
 }
