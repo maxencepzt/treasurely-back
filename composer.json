@@ -1,6 +1,6 @@
 {
     "type": "project",
-    "name": "poiz0002/sae5-01-back",
+    "name": "treasurely/sae5-01-back",
     "description": "Backend Symfony de l'application mobile Treasurely, une application de chasse au trésor avec des énigmes.",
     "license": "proprietary",
     "minimum-stability": "stable",
