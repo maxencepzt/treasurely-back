@@ -27,7 +27,7 @@ Ce projet utilise Symfony. Pour l'installation :
 composer install
 ```
 
-#### Pour réinitialiser la base de donnée.
+#### Pour réinitialiser la base de données.
 
 ```bash
 composer db
@@ -42,5 +42,6 @@ composer db
 - `test:twig` : Teste le code PHP avec Twig CS Fixer
 - `test:yaml` : Vérifie les fichiers dans le répertoire config
 - `test` : Lance tous les tests
-- `fix` : Lances tous les scripts de correction
+- `fix` : Lance tous les scripts de correction
 - `db` : Supprime, crée, migre et charge les fixtures dans la base de données  
+- `start` : Démarre le serveur
