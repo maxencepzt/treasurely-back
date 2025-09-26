@@ -96,6 +96,7 @@
         }
     },
     "require-dev": {
+        "php-cs-fixer/shim": "^3.88",
         "phpunit/phpunit": "^12.3",
         "symfony/browser-kit": "7.1.*",
         "symfony/css-selector": "7.1.*",
