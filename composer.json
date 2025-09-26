@@ -1,5 +1,7 @@
 {
     "type": "project",
+    "name": "poiz0002/sae5-01-back",
+    "description": "Backend Symfony de l'application mobile Treasurely, une application de chasse au trésor avec des énigmes.",
     "license": "proprietary",
     "minimum-stability": "stable",
     "prefer-stable": true,
@@ -48,6 +50,7 @@
     "config": {
         "allow-plugins": {
             "php-http/discovery": true,
+            "phpro/grumphp": true,
             "phpstan/extension-installer": true,
             "symfony/flex": true,
             "symfony/runtime": true
@@ -87,43 +90,44 @@
             "@auto-scripts"
         ],
         "start" : [
-          "Composer\\Config::disableProcessTimeout",
-          "symfony serve"
+            "Composer\\Config::disableProcessTimeout",
+            "symfony serve"
         ],
         "test:csfixer" : [
-          "php-cs-fixer fix --dry-run"
+            "php-cs-fixer fix --dry-run"
         ],
         "fix:csfixer": [
-          "php-cs-fixer fix"
+            "php-cs-fixer fix"
         ],
         "test:phpstan": [
-          "phpstan analyse"
+            "phpstan analyse"
         ],
         "test:twig" : [
-          "twig-cs-fixer lint"
+            "twig-cs-fixer lint"
         ],
         "fix:twig" : [
-          "twig-cs-fixer lint --fix"
+            "twig-cs-fixer lint --fix"
         ],
         "test:yaml" : [
-          "php bin/console lint:yaml config"
+            "php bin/console lint:yaml config"
         ],
         "test" : [
-          "test:csfixer",
-          "@test:phpstan",
-          "@test:twig",
-          "@test:yaml"
+            "@test:csfixer",
+            "@test:phpstan",
+            "@test:twig",
+            "@test:yaml"
         ],
         "fix" : [
-          "@fix:csfixer",
-          "@fix:twig"
+            "@fix:csfixer",
+            "@fix:twig"
         ],
         "db" : [
-          "php bin/console doctrine:database:drop --force --if-exists",
-          "php bin/console doctrine:database:create --if-not-exists",
-          "php bin/console doctrine:migrations:migrate --no-interaction",
-          "php bin/console doctrine:fixtures:load --no-interaction"
+            "php bin/console doctrine:database:drop --force --if-exists",
+            "php bin/console doctrine:database:create --if-not-exists",
+            "php bin/console doctrine:migrations:migrate --no-interaction",
+            "php bin/console doctrine:fixtures:load --no-interaction"
         ]
+
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -136,6 +140,7 @@
     },
     "require-dev": {
         "php-cs-fixer/shim": "^3.88",
+        "phpro/grumphp": "^2.15",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-doctrine": "^2.0",
