@@ -64,6 +64,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', enumType: Gender::class)]
     private Gender $gender;
 
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private Picture $profilePicture;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -250,5 +254,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setGender(?Gender $gender): void
     {
         $this->gender = $gender;
+    }
+
+    public function getProfilePicture(): ?Picture
+    {
+        return $this->profilePicture;
+    }
+
+    public function setProfilePicture(Picture $profilePicture): static
+    {
+        $this->profilePicture = $profilePicture;
+
+        return $this;
     }
 }
