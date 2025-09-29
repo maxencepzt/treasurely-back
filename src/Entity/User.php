@@ -2,19 +2,14 @@
 
 namespace App\Entity;
 
-use App\Enum\Gender;
 use App\Repository\UserRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-#[UniqueEntity(fields: ['email', 'nickname'])]
-#[ORM\UniqueConstraint(name: 'UNIQUE_IDENTIFIERS', fields: ['nickname', 'email'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_NICKNAME', fields: ['nickname'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -37,54 +32,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private string $password;
 
-    #[ORM\Column(length: 100)]
-    private string $firstname;
-
-    #[ORM\Column(length: 100)]
-    private string $lastname;
-
-    #[ORM\Column(length: 50)]
-    private string $email;
-
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private \DateTime $birthDate;
-
-    #[ORM\Column(length: 13)]
-    private string $phone;
-
-    #[ORM\Column]
-    private bool $activated;
-
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    #[Gedmo\Timestampable(on: 'create')]
-    private \DateTimeImmutable $creationDate;
-
-    // TODO Gérer comment connaitre la dernière fois que quelqu'un s'est connecté (peut pas fonctionner avec Timestampable)
-    #[ORM\Column]
-    private \DateTime $lastLogin;
-
-    #[ORM\Column]
-    private bool $public;
-
-    #[ORM\Column(type: 'string', enumType: Gender::class)]
-    private Gender $gender;
-
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private Picture $profilePicture;
-
-    #[ORM\Column]
-    private int $totalTime;
-
-    #[ORM\Column]
-    private int $totalHunt;
-
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getNickname(): string
+    public function getNickname(): ?string
     {
         return $this->nickname;
     }
@@ -131,7 +84,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see PasswordAuthenticatedUserInterface
      */
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
@@ -147,159 +100,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // @deprecated, to be removed when upgrading to Symfony 8
-    }
-
-    public function getFirstname(): string
-    {
-        return $this->firstname;
-    }
-
-    public function setFirstname(string $firstname): static
-    {
-        $this->firstname = $firstname;
-
-        return $this;
-    }
-
-    public function getLastname(): string
-    {
-        return $this->lastname;
-    }
-
-    public function setLastname(string $lastname): static
-    {
-        $this->lastname = $lastname;
-
-        return $this;
-    }
-
-    public function getEmail(): string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    public function getBirthDate(): \DateTime
-    {
-        return $this->birthDate;
-    }
-
-    public function setBirthDate(\DateTime $birthDate): static
-    {
-        $this->birthDate = $birthDate;
-
-        return $this;
-    }
-
-    public function getPhone(): string
-    {
-        return $this->phone;
-    }
-
-    public function setPhone(string $phone): static
-    {
-        $this->phone = $phone;
-
-        return $this;
-    }
-
-    public function isActivated(): bool
-    {
-        return $this->activated;
-    }
-
-    public function setActivated(bool $activated): static
-    {
-        $this->activated = $activated;
-
-        return $this;
-    }
-
-    public function getCreationDate(): \DateTimeImmutable
-    {
-        return $this->creationDate;
-    }
-
-    public function setCreationDate(\DateTimeImmutable $creationDate): static
-    {
-        $this->creationDate = $creationDate;
-
-        return $this;
-    }
-
-    public function getLastLogin(): \DateTime
-    {
-        return $this->lastLogin;
-    }
-
-    public function setLastLogin(\DateTime $lastLogin): static
-    {
-        $this->lastLogin = $lastLogin;
-
-        return $this;
-    }
-
-    public function isPublic(): bool
-    {
-        return $this->public;
-    }
-
-    public function setPublic(bool $public): static
-    {
-        $this->public = $public;
-
-        return $this;
-    }
-
-    public function getGender(): Gender
-    {
-        return $this->gender;
-    }
-
-    public function setGender(Gender $gender): void
-    {
-        $this->gender = $gender;
-    }
-
-    public function getProfilePicture(): Picture
-    {
-        return $this->profilePicture;
-    }
-
-    public function setProfilePicture(Picture $profilePicture): static
-    {
-        $this->profilePicture = $profilePicture;
-
-        return $this;
-    }
-
-    public function getTotalTime(): int
-    {
-        return $this->totalTime;
-    }
-
-    public function setTotalTime(int $totalTime): static
-    {
-        $this->totalTime = $totalTime;
-
-        return $this;
-    }
-
-    public function getTotalHunt(): int
-    {
-        return $this->totalHunt;
-    }
-
-    public function setTotalHunt(int $totalHunt): static
-    {
-        $this->totalHunt = $totalHunt;
-
-        return $this;
     }
 }
