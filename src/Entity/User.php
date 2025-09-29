@@ -52,8 +52,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $activated;
 
-    #[ORM\Column]
-    private \DateTime $creationDate;
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    private \DateTimeImmutable $creationDate;
 
     #[ORM\Column]
     private \DateTime $lastLogin;
