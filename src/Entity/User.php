@@ -6,6 +6,7 @@ use App\Enum\Gender;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -55,8 +56,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $activated;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Gedmo\Timestampable(on: 'create')]
     private \DateTimeImmutable $creationDate;
 
+    // TODO Gérer comment connaitre la dernière fois que quelqu'un s'est connecté (peut pas fonctionner avec Timestampable)
     #[ORM\Column]
     private \DateTime $lastLogin;
 
