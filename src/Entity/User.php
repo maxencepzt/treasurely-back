@@ -93,10 +93,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Team::class, mappedBy: 'members')]
     private Collection $teams;
 
+    /**
+     * @var Collection<int, TreasureHunt>
+     */
+    #[ORM\OneToMany(targetEntity: TreasureHunt::class, mappedBy: 'owner')]
+    private Collection $treasureHunts;
+
     public function __construct()
     {
         $this->ownedTeams = new ArrayCollection();
         $this->teams = new ArrayCollection();
+        $this->treasureHunts = new ArrayCollection();
     }
 
     public function getId(): int
@@ -375,6 +382,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->teams->removeElement($team)) {
             $team->removeMember($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TreasureHunt>
+     */
+    public function getTreasureHunts(): Collection
+    {
+        return $this->treasureHunts;
+    }
+
+    public function addTreasureHunt(TreasureHunt $treasureHunt): static
+    {
+        if (!$this->treasureHunts->contains($treasureHunt)) {
+            $this->treasureHunts->add($treasureHunt);
+            $treasureHunt->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTreasureHunt(TreasureHunt $treasureHunt): static
+    {
+        if ($this->treasureHunts->removeElement($treasureHunt)) {
+            // set the owning side to null (unless already changed)
+            if ($treasureHunt->getOwner() === $this) {
+                $treasureHunt->setOwner(null);
+            }
         }
 
         return $this;

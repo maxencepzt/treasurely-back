@@ -17,19 +17,19 @@ class TreasureHunt
     private ?int $id = null;
 
     #[ORM\Column(length: 20)]
-    private ?string $title;
+    private string $title;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
     #[ORM\Column]
-    private ?bool $public;
+    private bool $public;
 
     #[ORM\Column]
-    private ?int $difficulty;
+    private int $difficulty;
 
     #[ORM\Column]
-    private ?int $riddleCount;
+    private int $riddleCount;
 
     /**
      * @var Collection<int, HuntType>
@@ -39,14 +39,14 @@ class TreasureHunt
 
     #[ORM\ManyToOne(inversedBy: 'treasureHunts')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Team $team;
+    private Team $team;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?Picture $image = null;
 
     #[ORM\ManyToOne(inversedBy: 'treasureHunts')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $owner;
+    private User $owner;
 
     public function __construct()
     {

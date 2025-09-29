@@ -34,9 +34,16 @@ class Team
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'teams')]
     private Collection $members;
 
+    /**
+     * @var Collection<int, TreasureHunt>
+     */
+    #[ORM\OneToMany(targetEntity: TreasureHunt::class, mappedBy: 'teamId', orphanRemoval: true)]
+    private Collection $treasureHunts;
+
     public function __construct()
     {
         $this->members = new ArrayCollection();
+        $this->treasureHunts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -112,6 +119,36 @@ class Team
     public function removeMember(User $member): static
     {
         $this->members->removeElement($member);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TreasureHunt>
+     */
+    public function getTreasureHunts(): Collection
+    {
+        return $this->treasureHunts;
+    }
+
+    public function addTreasureHunt(TreasureHunt $treasureHunt): static
+    {
+        if (!$this->treasureHunts->contains($treasureHunt)) {
+            $this->treasureHunts->add($treasureHunt);
+            $treasureHunt->setTeamId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTreasureHunt(TreasureHunt $treasureHunt): static
+    {
+        if ($this->treasureHunts->removeElement($treasureHunt)) {
+            // set the owning side to null (unless already changed)
+            if ($treasureHunt->getTeamId() === $this) {
+                $treasureHunt->setTeamId(null);
+            }
+        }
 
         return $this;
     }
