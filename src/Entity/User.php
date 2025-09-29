@@ -6,15 +6,12 @@ use App\Enum\Gender;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-#[UniqueEntity(fields: ['email', 'nickname'])]
-#[ORM\UniqueConstraint(name: 'UNIQUE_IDENTIFIERS', fields: ['nickname', 'email'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_NICKNAME', fields: ['nickname'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -55,11 +52,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $activated;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    #[Gedmo\Timestampable(on: 'create')]
-    private \DateTimeImmutable $creationDate;
+    #[ORM\Column]
+    private \DateTime $creationDate;
 
-    // TODO Gérer comment connaitre la dernière fois que quelqu'un s'est connecté (peut pas fonctionner avec Timestampable)
     #[ORM\Column]
     private \DateTime $lastLogin;
 
@@ -73,18 +68,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinColumn(nullable: false)]
     private Picture $profilePicture;
 
-    #[ORM\Column]
-    private int $totalTime;
-
-    #[ORM\Column]
-    private int $totalHunt;
-
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getNickname(): string
+    public function getNickname(): ?string
     {
         return $this->nickname;
     }
@@ -131,7 +120,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see PasswordAuthenticatedUserInterface
      */
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
@@ -149,7 +138,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // @deprecated, to be removed when upgrading to Symfony 8
     }
 
-    public function getFirstname(): string
+    public function getFirstname(): ?string
     {
         return $this->firstname;
     }
@@ -161,7 +150,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getLastname(): string
+    public function getLastname(): ?string
     {
         return $this->lastname;
     }
@@ -173,7 +162,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -185,7 +174,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getBirthDate(): \DateTime
+    public function getBirthDate(): ?\DateTime
     {
         return $this->birthDate;
     }
@@ -197,7 +186,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getPhone(): string
+    public function getPhone(): ?string
     {
         return $this->phone;
     }
@@ -209,7 +198,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isActivated(): bool
+    public function isActivated(): ?bool
     {
         return $this->activated;
     }
@@ -221,19 +210,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getCreationDate(): \DateTimeImmutable
+    public function getCreationDate(): ?\DateTime
     {
         return $this->creationDate;
     }
 
-    public function setCreationDate(\DateTimeImmutable $creationDate): static
+    public function setCreationDate(\DateTime $creationDate): static
     {
         $this->creationDate = $creationDate;
 
         return $this;
     }
 
-    public function getLastLogin(): \DateTime
+    public function getLastLogin(): ?\DateTime
     {
         return $this->lastLogin;
     }
@@ -245,7 +234,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isPublic(): bool
+    public function isPublic(): ?bool
     {
         return $this->public;
     }
@@ -257,17 +246,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getGender(): Gender
+    public function getGender(): ?Gender
     {
         return $this->gender;
     }
 
-    public function setGender(Gender $gender): void
+    public function setGender(?Gender $gender): void
     {
         $this->gender = $gender;
     }
 
-    public function getProfilePicture(): Picture
+    public function getProfilePicture(): ?Picture
     {
         return $this->profilePicture;
     }
@@ -275,30 +264,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setProfilePicture(Picture $profilePicture): static
     {
         $this->profilePicture = $profilePicture;
-
-        return $this;
-    }
-
-    public function getTotalTime(): int
-    {
-        return $this->totalTime;
-    }
-
-    public function setTotalTime(int $totalTime): static
-    {
-        $this->totalTime = $totalTime;
-
-        return $this;
-    }
-
-    public function getTotalHunt(): int
-    {
-        return $this->totalHunt;
-    }
-
-    public function setTotalHunt(int $totalHunt): static
-    {
-        $this->totalHunt = $totalHunt;
 
         return $this;
     }
