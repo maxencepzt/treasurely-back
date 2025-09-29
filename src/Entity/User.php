@@ -216,12 +216,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getCreationDate(): \DateTime
+    public function getCreationDate(): \DateTimeImmutable
     {
         return $this->creationDate;
     }
 
-    public function setCreationDate(\DateTime $creationDate): static
+    public function setCreationDate(\DateTimeImmutable $creationDate): static
     {
         $this->creationDate = $creationDate;
 
