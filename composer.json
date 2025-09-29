@@ -154,6 +154,7 @@
         }
     },
     "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^4.1",
         "php-cs-fixer/shim": "^3.88",
         "phpro/grumphp": "^2.15",
         "phpstan/extension-installer": "^1.4",
@@ -167,6 +168,7 @@
         "symfony/maker-bundle": "^1.0",
         "symfony/stopwatch": "7.1.*",
         "symfony/web-profiler-bundle": "7.1.*",
-        "vincentlanglet/twig-cs-fixer": "^3.10"
+        "vincentlanglet/twig-cs-fixer": "^3.10",
+        "zenstruck/foundry": "^2.7"
     }
 }
