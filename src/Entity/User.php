@@ -68,6 +68,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinColumn(nullable: false)]
     private Picture $profilePicture;
 
+    #[ORM\Column]
+    private int $totalTime;
+
+    #[ORM\Column]
+    private int $totalHunt;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -264,6 +270,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setProfilePicture(Picture $profilePicture): static
     {
         $this->profilePicture = $profilePicture;
+
+        return $this;
+    }
+
+    public function getTotalTime(): ?int
+    {
+        return $this->totalTime;
+    }
+
+    public function setTotalTime(int $totalTime): static
+    {
+        $this->totalTime = $totalTime;
+
+        return $this;
+    }
+
+    public function getTotalHunt(): ?int
+    {
+        return $this->totalHunt;
+    }
+
+    public function setTotalHunt(int $totalHunt): static
+    {
+        $this->totalHunt = $totalHunt;
 
         return $this;
     }
