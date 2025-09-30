@@ -30,15 +30,15 @@ class ParticipateHunt
     private bool $finished = false;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    private ?\DateTimeImmutable $lastParticipate = null;
+    private \DateTimeImmutable $lastParticipate;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $hunter = null;
+    private User $hunter;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?TreasureHunt $hunt = null;
+    private TreasureHunt $hunt;
 
     public function getId(): ?int
     {
