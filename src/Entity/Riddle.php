@@ -30,8 +30,8 @@ class Riddle
     private int $orderNumber;
 
     #[ORM\ManyToOne(inversedBy: 'riddles')]
-    #[ORM\JoinColumn(nullable: false)]
-    private TreasureHunt $hunt;
+    #[ORM\JoinColumn(nullable: true)]
+    private ?TreasureHunt $hunt = null;
 
     public function getId(): int
     {
@@ -86,12 +86,12 @@ class Riddle
         return $this;
     }
 
-    public function getHunt(): TreasureHunt
+    public function getHunt(): ?TreasureHunt
     {
         return $this->hunt;
     }
 
-    public function setHunt(TreasureHunt $hunt): static
+    public function setHunt(?TreasureHunt $hunt): static
     {
         $this->hunt = $hunt;
 
