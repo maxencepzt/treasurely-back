@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\TreasureHuntRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -53,9 +52,16 @@ class TreasureHunt
     #[ORM\JoinColumn(nullable: false)]
     private User $owner;
 
+    /**
+     * @var Collection<int, Riddle>
+     */
+    #[ORM\OneToMany(targetEntity: Riddle::class, mappedBy: 'hunt', orphanRemoval: true)]
+    private Collection $riddles;
+
     public function __construct()
     {
         $this->huntType = new ArrayCollection();
+        $this->riddles = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -179,6 +185,36 @@ class TreasureHunt
     public function setOwner(?User $owner): static
     {
         $this->owner = $owner;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Riddle>
+     */
+    public function getRiddles(): Collection
+    {
+        return $this->riddles;
+    }
+
+    public function addRiddle(Riddle $riddle): static
+    {
+        if (!$this->riddles->contains($riddle)) {
+            $this->riddles->add($riddle);
+            $riddle->setHunt($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRiddle(Riddle $riddle): static
+    {
+        if ($this->riddles->removeElement($riddle)) {
+            // set the owning side to null (unless already changed)
+            if ($riddle->getHunt() === $this) {
+                $riddle->setHunt(null);
+            }
+        }
 
         return $this;
     }
