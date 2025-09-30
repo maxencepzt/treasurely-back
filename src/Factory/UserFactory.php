@@ -13,6 +13,7 @@ use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 final class UserFactory extends PersistentProxyObjectFactory
 {
     private UserPasswordHasherInterface $passwordHasher;
+    private static ?\Transliterator $transliterator;
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
@@ -22,11 +23,21 @@ final class UserFactory extends PersistentProxyObjectFactory
     public function __construct(UserPasswordHasherInterface $passwordHasher)
     {
         $this->passwordHasher = $passwordHasher;
+        self::$transliterator = \Transliterator::create('Any-Latin ; ASCII-Latin ; Any-Lower ; Latin-ASCII');
     }
 
     public static function class(): string
     {
         return User::class;
+    }
+
+    public static function normalizeName(string $name): string
+    {
+        $name = self::$transliterator->transliterate($name);
+        $name = strtolower($name);
+        $name = preg_replace('/[^a-z]/', '-', $name);
+
+        return $name;
     }
 
     /**
@@ -36,15 +47,20 @@ final class UserFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
+        $firstname = self::faker()->firstName();
+        $lastname = self::faker()->lastName();
+        $nickname = substr(self::normalizeName($firstname), 0, 1).self::normalizeName($lastname);
+        $email = $nickname.'@treasurely.com';
+
         return [
             'activated' => true,
             'birthDate' => self::faker()->dateTime(),
-            'email' => self::faker()->text(50),
-            'firstname' => self::faker()->name(),
+            'email' => $email,
+            'firstname' => $firstname,
             'gender' => self::faker()->randomElement(Gender::cases()),
             'lastLogin' => self::faker()->dateTime(),
-            'lastname' => self::faker()->lastName(),
-            'nickname' => self::faker()->name(),
+            'lastname' => $lastname,
+            'nickname' => $nickname,
             'password' => 'test',
             'phone' => self::faker()->numerify('## ## ## ## ##'),
             'profilePicture' => PictureFactory::new(),
