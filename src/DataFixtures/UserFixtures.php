@@ -12,9 +12,9 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
-        for ($i = 0; $i < 10; ++$i) {
-            UserFactory::createOne(['profilePicture' => PictureFactory::createOne()]);
-        }
+        UserFactory::createMany(10, fn () => [
+            'profilePicture' => PictureFactory::createOne(),
+        ]);
     }
 
     public function getDependencies(): array
