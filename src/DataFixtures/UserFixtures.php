@@ -28,11 +28,4 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
             PictureFixtures::class,
         ];
     }
-
-    public function getDependencies(): array
-    {
-        return [
-            PictureFixtures::class,
-        ];
-    }
 }
