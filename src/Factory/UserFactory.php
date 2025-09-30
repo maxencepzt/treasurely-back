@@ -62,7 +62,7 @@ final class UserFactory extends PersistentProxyObjectFactory
             'lastname' => $lastname,
             'nickname' => $nickname,
             'password' => 'test',
-            'phone' => self::faker()->numerify('## ## ## ## ##'),
+            'phone' => self::faker()->e164PhoneNumber(),
             'profilePicture' => PictureFactory::new(),
             'public' => true,
             'roles' => [],
