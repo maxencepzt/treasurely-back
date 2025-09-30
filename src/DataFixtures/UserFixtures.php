@@ -12,6 +12,11 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
+        UserFactory::createOne([
+            'profilePicture' => PictureFactory::createOne(),
+            'roles' => ['ROLE_ADMIN'],
+            'password' => 'admin',
+        ]);
         UserFactory::createMany(10, fn () => [
             'profilePicture' => PictureFactory::createOne(),
         ]);
