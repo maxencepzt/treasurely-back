@@ -4,9 +4,20 @@ namespace App\Entity;
 
 use App\Repository\RiddleRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\DiscriminatorColumn;
+use Doctrine\ORM\Mapping\DiscriminatorMap;
+use Doctrine\ORM\Mapping\InheritanceType;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RiddleRepository::class)]
+#[InheritanceType('SINGLE_TABLE')]
+#[DiscriminatorColumn(name: 'discriminator', type: 'string')]
+#[DiscriminatorMap([
+    'qrRiddle' => QRRiddle::class,
+    'mcqRiddle' => MCQRiddle::class,
+    'textRiddle' => TextRiddle::class,
+    'gpsRiddle' => GPSRiddle::class,
+])]
 class Riddle
 {
     #[ORM\Id]
