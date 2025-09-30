@@ -6,7 +6,7 @@ use App\Repository\GPSRiddleRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GPSRiddleRepository::class)]
-class GPSRiddle
+class GPSRiddle extends Riddle
 {
     #[ORM\Column]
     private float $latitude;
