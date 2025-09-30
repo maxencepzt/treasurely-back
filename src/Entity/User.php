@@ -51,7 +51,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private \DateTime $birthDate;
 
-    #[ORM\Column(length: 15)]
+    #[ORM\Column(length: 12)]
     private string $phone;
 
     #[ORM\Column]
