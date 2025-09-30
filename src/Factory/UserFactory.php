@@ -38,7 +38,7 @@ final class UserFactory extends PersistentProxyObjectFactory
     {
         return [
             'activated' => true,
-            'birthDate' => self::faker()->date(),
+            'birthDate' => self::faker()->dateTime(),
             'email' => self::faker()->text(50),
             'firstname' => self::faker()->name(),
             'gender' => self::faker()->randomElement(Gender::cases()),
