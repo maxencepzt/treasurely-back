@@ -133,6 +133,9 @@
       "php bin/console doctrine:database:create --if-not-exists",
       "php bin/console doctrine:migrations:migrate --no-interaction",
       "php bin/console doctrine:fixtures:load --no-interaction"
+    ],
+    "jwt:generate": [
+      "php bin/console lexik:jwt:generate-keypair"
     ]
   },
   "scripts-descriptions": {
@@ -145,7 +148,8 @@
     "test": "Lance tous les tests",
     "fix": "Lance tous les scripts de correction",
     "db": "Supprime, crée, migre et charge les fixtures dans la base de données",
-    "start": "Démarre le serveur"
+    "start": "Démarre le serveur",
+    "jwt:generate": "Génère une nouvelle paire de clés pour JWT"
   },
   "conflict": {
     "symfony/symfony": "*"
