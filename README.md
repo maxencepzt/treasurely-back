@@ -33,6 +33,12 @@ composer install
 composer db
 ```
 
+#### Pour générer les clés JWT
+
+```bash
+composer jwt:generate
+```
+
 ### Documentation des commandes
 
 - `fix:csfixer` : Corrige le code PHP avec PHP CS Fixer
@@ -45,3 +51,4 @@ composer db
 - `fix` : Lance tous les scripts de correction
 - `db` : Supprime, crée, migre et charge les fixtures dans la base de données  
 - `start` : Démarre le serveur
+- `jwt:generate` : Génère les clés JWT
