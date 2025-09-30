@@ -33,7 +33,7 @@ class TreasureHunt
     private int $difficulty;
 
     #[ORM\Column]
-    #[Assert\NotNull]
+    #[Assert\PositiveOrZero]
     private int $riddleCount;
 
     /**
