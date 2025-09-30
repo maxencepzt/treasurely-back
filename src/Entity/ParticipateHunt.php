@@ -16,6 +16,7 @@ class ParticipateHunt
     private ?int $id = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Choice(choices: [0, 1, 2, 3, 4, 5])]
     private ?int $rate = null;
 
     #[ORM\Column]
