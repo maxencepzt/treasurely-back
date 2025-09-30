@@ -10,6 +10,6 @@ class PictureFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        PictureFactory::createMany(10);
+        PictureFactory::createMany(3);
     }
 }
