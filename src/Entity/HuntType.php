@@ -58,7 +58,7 @@ class HuntType
     {
         if (!$this->treasureHunts->contains($treasureHunt)) {
             $this->treasureHunts->add($treasureHunt);
-            $treasureHunt->addHuntTypeId($this);
+            $treasureHunt->addHuntType($this);
         }
 
         return $this;
@@ -67,7 +67,7 @@ class HuntType
     public function removeTreasureHunt(TreasureHunt $treasureHunt): static
     {
         if ($this->treasureHunts->removeElement($treasureHunt)) {
-            $treasureHunt->removeHuntTypeId($this);
+            $treasureHunt->removeHuntType($this);
         }
 
         return $this;

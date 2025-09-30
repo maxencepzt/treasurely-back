@@ -135,7 +135,7 @@ class Team
     {
         if (!$this->treasureHunts->contains($treasureHunt)) {
             $this->treasureHunts->add($treasureHunt);
-            $treasureHunt->setTeamId($this);
+            $treasureHunt->setTeam($this);
         }
 
         return $this;
@@ -145,8 +145,8 @@ class Team
     {
         if ($this->treasureHunts->removeElement($treasureHunt)) {
             // set the owning side to null (unless already changed)
-            if ($treasureHunt->getTeamId() === $this) {
-                $treasureHunt->setTeamId(null);
+            if ($treasureHunt->getTeam() === $this) {
+                $treasureHunt->setTeam(null);
             }
         }
 

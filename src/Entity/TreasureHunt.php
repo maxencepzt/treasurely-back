@@ -142,12 +142,12 @@ class TreasureHunt
         return $this;
     }
 
-    public function getTeamId(): ?Team
+    public function getTeam(): ?Team
     {
         return $this->team;
     }
 
-    public function setTeamId(?Team $team): static
+    public function setTeam(?Team $team): static
     {
         $this->team = $team;
 
