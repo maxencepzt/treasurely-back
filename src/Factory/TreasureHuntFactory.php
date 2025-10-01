@@ -38,11 +38,15 @@ final class TreasureHuntFactory extends PersistentProxyObjectFactory
 
         return [
             'title' => self::faker()->text(20),
+            'description' => self::faker()->text(3000),
+            'public' => self::faker()->boolean(),
             'difficulty' => self::faker()->numberBetween(1, 3),
             'riddleCount' => $minRiddle + self::faker()->randomNumber(),
-            'public' => self::faker()->boolean(),
-            'owner' => $owner,
+            // 'huntType' => null,
             'team' => $team,
+            'image' => PictureFactory::new(),
+            'owner' => $owner,
+            // 'riddles' => null,
         ];
     }
 
