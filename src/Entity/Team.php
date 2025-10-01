@@ -37,7 +37,7 @@ class Team
     /**
      * @var Collection<int, TreasureHunt>
      */
-    #[ORM\OneToMany(targetEntity: TreasureHunt::class, mappedBy: 'teamId', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: TreasureHunt::class, mappedBy: 'team', orphanRemoval: true)]
     private Collection $treasureHunts;
 
     public function __construct()
