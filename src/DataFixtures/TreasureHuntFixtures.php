@@ -14,15 +14,17 @@ class TreasureHuntFixtures extends Fixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
-        $team = TeamFactory::random();
-        $members = $team->getMembers();
-        $owner = $members[array_rand($members->toArray())];
+        TreasureHuntFactory::createMany(10, function () {
+            $team = TeamFactory::random();
+            $members = $team->getMembers();
+            $owner = $members[array_rand($members->toArray())];
 
-        TreasureHuntFactory::createMany(10, fn () => [
-            'image' => PictureFactory::createOne(),
-            'team' => $team,
-            'owner' => $owner,
-        ]);
+            return [
+                'image' => PictureFactory::createOne(),
+                'team' => $team,
+                'owner' => $owner,
+            ];
+        });
     }
 
     /**
