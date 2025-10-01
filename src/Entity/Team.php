@@ -22,8 +22,8 @@ class Team
     private ?string $description = null;
 
     #[ORM\ManyToOne(inversedBy: 'ownedTeams')]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?User $owner = null;
+    #[ORM\JoinColumn(nullable: false)]
+    private User $owner;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?Picture $image = null;
@@ -31,7 +31,7 @@ class Team
     /**
      * @var Collection<int, User>
      */
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'teams')]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'teams', cascade: ['persist'])]
     private Collection $members;
 
     /**
