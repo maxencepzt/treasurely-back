@@ -5,6 +5,7 @@ $finder = (new PhpCsFixer\Finder())
     ->exclude([
         'var',
         'vendor',
+        'tests/Support/_generated',
     ])
 ;
 
