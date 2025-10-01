@@ -39,6 +39,12 @@ composer db
 composer jwt:generate
 ```
 
+#### Pour générer la documentation OpenAPI de API Platform
+
+```bash
+bin/console api:openapi:export --output=public/openapi.json
+```
+
 ### Documentation des commandes
 
 - `fix:csfixer` : Corrige le code PHP avec PHP CS Fixer

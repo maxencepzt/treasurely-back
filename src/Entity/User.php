@@ -2,6 +2,13 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation;
 use App\Enum\Gender;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -12,19 +19,72 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[UniqueEntity(fields: ['email', 'nickname'])]
 #[ORM\UniqueConstraint(name: 'UNIQUE_IDENTIFIERS', fields: ['nickname', 'email'])]
+#[ApiResource(
+    operations: [
+        // Get collection of users (non-sensitive data only)
+        new GetCollection(
+            openapi: new Operation(
+                summary: 'List of users',
+                description: 'Retrieve all users with non-sensitive data only. Each entry represents a "User" resource. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['user:read']],
+            security: "is_granted('ROLE_USER')",
+        ),
+        // Register a new user
+        new Post(
+            uriTemplate: 'register',
+            openapi: new Operation(
+                summary: 'User registration',
+                description: 'Register a new user by providing necessary details. This endpoint is publicly accessible.'
+            ),
+            normalizationContext: ['groups' => ['user:read', 'user:id']],
+            denormalizationContext: ['groups' => ['user:write', 'user:password']],
+        ),
+        // Get a specific user by ID (detailed information, sensitive data excluded)
+        new Get(
+            openapi: new Operation(
+                summary: 'User details',
+                description: 'Retrieve detailed information about a specific user by their ID. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['user:read']],
+            security: "is_granted('ROLE_USER')",
+        ),
+        // Update a specific user by ID (only the user themselves can update their information)
+        new Patch(
+            openapi: new Operation(
+                summary: 'Update user',
+                description: 'Update a specific user by their ID. Users can only update their own information. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['user:read', 'user:id']],
+            denormalizationContext: ['groups' => ['user:write', 'user:password']],
+            security: "is_granted('ROLE_USER') and object == user"
+        ),
+        // Delete a specific user by ID (only the user themselves can delete their account)
+        new Delete(
+            openapi: new Operation(
+                summary: 'Delete user',
+                description: 'Delete a specific user by their ID. Users can only delete their own account. Requires ROLE_USER permission.'
+            ),
+            security: "is_granted('ROLE_USER') and object == user"
+        ),
+    ]
+)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user:read', 'user:id'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(['user:read', 'user:write'])]
     private string $nickname;
 
     /**
@@ -37,21 +97,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
+    #[Groups(['user:password'])]
     private string $password;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['user:read', 'user:write'])]
     private string $firstname;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['user:read', 'user:write'])]
     private string $lastname;
 
     #[ORM\Column(length: 50)]
+    #[Groups(['user:read', 'user:write'])]
     private string $email;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Groups(['user:read', 'user:write'])]
     private \DateTime $birthDate;
 
     #[ORM\Column(length: 12)]
+    #[Groups(['user:read', 'user:write'])]
     private string $phone;
 
     #[ORM\Column]
@@ -59,6 +125,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     #[Gedmo\Timestampable(on: 'create')]
+    #[Groups(['user:read'])]
     private \DateTimeImmutable $creationDate;
 
     // TODO Gérer comment connaitre la dernière fois que quelqu'un s'est connecté (peut pas fonctionner avec Timestampable)
@@ -66,19 +133,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private \DateTime $lastLogin;
 
     #[ORM\Column]
+    #[Groups(['user:read', 'user:write'])]
     private bool $public;
 
     #[ORM\Column(type: 'string', enumType: Gender::class)]
+    #[Groups(['user:read', 'user:write'])]
     private Gender $gender;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['user:read', 'user:write'])]
     private Picture $profilePicture;
 
     #[ORM\Column]
+    #[Groups(['user:read'])]
     private int $totalTime;
 
     #[ORM\Column]
+    #[Groups(['user:read'])]
     private int $totalHunt;
 
     /**
