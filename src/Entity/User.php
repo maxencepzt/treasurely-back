@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Enum\Gender;
@@ -26,6 +27,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\UniqueConstraint(name: 'UNIQUE_IDENTIFIERS', fields: ['nickname', 'email'])]
 #[ApiResource(
     operations: [
+        // Get collection of users (non-sensitive data only)
         new GetCollection(
             openapi: new Operation(
                 summary: 'List of users',
@@ -34,6 +36,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: ['groups' => ['user:read']],
             security: "is_granted('ROLE_USER')",
         ),
+        // Register a new user
         new Post(
             uriTemplate: 'register',
             openapi: new Operation(
@@ -43,6 +46,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: ['groups' => ['user:read', 'user:id']],
             denormalizationContext: ['groups' => ['user:write', 'user:password']],
         ),
+        // Get a specific user by ID (detailed information, sensitive data excluded)
         new Get(
             openapi: new Operation(
                 summary: 'User details',
@@ -51,6 +55,17 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: ['groups' => ['user:read']],
             security: "is_granted('ROLE_USER')",
         ),
+        // Update a specific user by ID (only the user themselves can update their information)
+        new Patch(
+            openapi: new Operation(
+                summary: 'Update user',
+                description: 'Update a specific user by their ID. Users can only update their own information. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['user:read', 'user:id']],
+            denormalizationContext: ['groups' => ['user:write', 'user:password']],
+            security: "is_granted('ROLE_USER') and object == user"
+        ),
+        // Delete a specific user by ID (only the user themselves can delete their account)
         new Delete(
             openapi: new Operation(
                 summary: 'Delete user',
