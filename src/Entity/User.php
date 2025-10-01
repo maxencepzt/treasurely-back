@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Enum\Gender;
 use App\Repository\UserRepository;
@@ -32,6 +33,15 @@ use Symfony\Component\Serializer\Attribute\Groups;
             ),
             normalizationContext: ['groups' => ['user:read']],
             security: "is_granted('ROLE_USER')",
+        ),
+        new Post(
+            uriTemplate: 'register',
+            openapi: new Operation(
+                summary: 'User registration',
+                description: 'Register a new user by providing necessary details. This endpoint is publicly accessible.'
+            ),
+            normalizationContext: ['groups' => ['user:read', 'user:id']],
+            denormalizationContext: ['groups' => ['user:write', 'user:password']],
         ),
         new Get(
             openapi: new Operation(
