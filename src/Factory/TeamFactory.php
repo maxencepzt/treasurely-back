@@ -46,6 +46,7 @@ final class TeamFactory extends PersistentProxyObjectFactory
     {
         return $this
             ->afterInstantiate(function (Team $team): void {
+                $team->addMember($team->getOwner());
                 for ($i = 0; $i < rand(3, 7); ++$i) {
                     $user = UserFactory::random();
                     $team->addMember($user->_real());
