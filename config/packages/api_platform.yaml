@@ -3,5 +3,10 @@ api_platform:
     version: 1.0.0
     defaults:
         stateless: true
-        cache_headers:
-            vary: ['Content-Type', 'Authorization', 'Origin']
+        #cache_headers:
+        #    vary: ['Content-Type', 'Authorization', 'Origin']
+    swagger:
+        api_keys:
+            JWT:
+                name: Authorization
+                type: header
