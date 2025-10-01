@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Enum\Gender;
@@ -27,6 +28,14 @@ use Symfony\Component\Serializer\Attribute\Groups;
             openapi: new Operation(
                 summary: 'List of users',
                 description: 'Retrieve all users with non-sensitive data only. Each entry represents a "User" resource. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['user:read']],
+            security: "is_granted('ROLE_USER')",
+        ),
+        new Get(
+            openapi: new Operation(
+                summary: 'User details',
+                description: 'Retrieve detailed information about a specific user by their ID. Requires ROLE_USER permission.'
             ),
             normalizationContext: ['groups' => ['user:read']],
             security: "is_granted('ROLE_USER')",
