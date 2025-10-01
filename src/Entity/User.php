@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model\Operation;
@@ -40,6 +41,13 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: ['groups' => ['user:read']],
             security: "is_granted('ROLE_USER')",
         ),
+        new Delete(
+            openapi: new Operation(
+                summary: 'Delete user',
+                description: 'Delete a specific user by their ID. Users can only delete their own account. Requires ROLE_USER permission.'
+            ),
+            security: "is_granted('ROLE_USER') and object == user"
+        ),
     ]
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -47,7 +55,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:read'])]
+    #[Groups(['user:read', 'user:id'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
