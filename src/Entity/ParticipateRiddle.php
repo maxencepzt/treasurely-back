@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\ParticipateRiddleRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ParticipateRiddleRepository::class)]
 class ParticipateRiddle
@@ -14,15 +16,20 @@ class ParticipateRiddle
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Assert\LessThanOrEqual('today')]
+    #[Gedmo\Timestampable(on: 'create')]
     private \DateTimeImmutable $startTime;
 
     #[ORM\Column]
+    #[Assert\LessThanOrEqual('today')]
     private \DateTimeImmutable $finishTime;
 
     #[ORM\Column]
+    #[Assert\Positive]
     private int $score;
 
     #[ORM\Column]
+    #[Assert\LessThanOrEqual('today')]
     private \DateTime $lastParticipate;
 
     #[ORM\ManyToOne(inversedBy: 'participateRiddles')]
