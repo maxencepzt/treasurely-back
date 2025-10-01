@@ -160,6 +160,11 @@
     }
   },
   "require-dev": {
+    "codeception/codeception": "^5.3",
+    "codeception/module-asserts": "^3.2",
+    "codeception/module-doctrine": "^3.2",
+    "codeception/module-rest": "^3.4",
+    "codeception/module-symfony": "^3.7",
     "doctrine/doctrine-fixtures-bundle": "^4.1",
     "php-cs-fixer/shim": "^3.88",
     "phpro/grumphp": "^2.15",
