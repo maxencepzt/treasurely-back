@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\RiddleRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
@@ -43,6 +45,17 @@ class Riddle
     #[ORM\ManyToOne(inversedBy: 'riddles')]
     #[ORM\JoinColumn(nullable: true)]
     private ?TreasureHunt $hunt = null;
+
+    /**
+     * @var Collection<int, ParticipateRiddle>
+     */
+    #[ORM\OneToMany(targetEntity: ParticipateRiddle::class, mappedBy: 'riddle', orphanRemoval: true)]
+    private Collection $participateRiddles;
+
+    public function __construct()
+    {
+        $this->participateRiddles = new ArrayCollection();
+    }
 
     public function getId(): int
     {
@@ -105,6 +118,36 @@ class Riddle
     public function setHunt(?TreasureHunt $hunt): static
     {
         $this->hunt = $hunt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ParticipateRiddle>
+     */
+    public function getParticipateRiddles(): Collection
+    {
+        return $this->participateRiddles;
+    }
+
+    public function addParticipateRiddle(ParticipateRiddle $participateRiddle): static
+    {
+        if (!$this->participateRiddles->contains($participateRiddle)) {
+            $this->participateRiddles->add($participateRiddle);
+            $participateRiddle->setRiddle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParticipateRiddle(ParticipateRiddle $participateRiddle): static
+    {
+        if ($this->participateRiddles->removeElement($participateRiddle)) {
+            // set the owning side to null (unless already changed)
+            if ($participateRiddle->getRiddle() === $this) {
+                $participateRiddle->setRiddle(null);
+            }
+        }
 
         return $this;
     }
