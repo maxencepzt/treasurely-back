@@ -99,11 +99,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: TreasureHunt::class, mappedBy: 'owner')]
     private Collection $treasureHunts;
 
+    /**
+     * @var Collection<int, ParticipateRiddle>
+     */
+    #[ORM\OneToMany(targetEntity: ParticipateRiddle::class, mappedBy: 'hunter', orphanRemoval: true)]
+    private Collection $participateRiddles;
+
     public function __construct()
     {
         $this->ownedTeams = new ArrayCollection();
         $this->teams = new ArrayCollection();
         $this->treasureHunts = new ArrayCollection();
+        $this->participateRiddles = new ArrayCollection();
     }
 
     public function getId(): int
@@ -411,6 +418,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($treasureHunt->getOwner() === $this) {
                 $treasureHunt->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ParticipateRiddle>
+     */
+    public function getParticipateRiddles(): Collection
+    {
+        return $this->participateRiddles;
+    }
+
+    public function addParticipateRiddle(ParticipateRiddle $participateRiddle): static
+    {
+        if (!$this->participateRiddles->contains($participateRiddle)) {
+            $this->participateRiddles->add($participateRiddle);
+            $participateRiddle->setHunter($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParticipateRiddle(ParticipateRiddle $participateRiddle): static
+    {
+        if ($this->participateRiddles->removeElement($participateRiddle)) {
+            // set the owning side to null (unless already changed)
+            if ($participateRiddle->getHunter() === $this) {
+                $participateRiddle->setHunter(null);
             }
         }
 
