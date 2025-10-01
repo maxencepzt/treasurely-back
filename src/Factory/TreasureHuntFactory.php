@@ -31,8 +31,6 @@ final class TreasureHuntFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
-        $minRiddle = 3;
-
         $team = TeamFactory::random();
         $owner = self::faker()->randomElement($team->getMembers());
 
@@ -41,7 +39,7 @@ final class TreasureHuntFactory extends PersistentProxyObjectFactory
             'description' => self::faker()->text(3000),
             'public' => self::faker()->boolean(),
             'difficulty' => self::faker()->numberBetween(1, 3),
-            'riddleCount' => $minRiddle + self::faker()->randomNumber(),
+            'riddleCount' => self::faker()->numberBetween(3, 10),
             // 'huntType' => null,
             'team' => $team,
             'image' => PictureFactory::new(),
