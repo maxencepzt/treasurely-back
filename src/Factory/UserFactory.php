@@ -47,8 +47,8 @@ final class UserFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
-        $firstname = self::faker()->firstName();
-        $lastname = self::faker()->lastName();
+        $firstname = self::faker()->unique()->firstName();
+        $lastname = self::faker()->unique()->lastName();
         $nickname = substr(self::normalizeName($firstname), 0, 1).self::normalizeName($lastname);
         $email = $nickname.'@treasurely.com';
 
