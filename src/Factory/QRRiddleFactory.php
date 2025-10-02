@@ -32,7 +32,7 @@ final class QRRiddleFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'code' => self::faker()->text(20),
+            'code' => 'treasurely_'.self::faker()->randomNumber(12),
             'description' => self::faker()->text(1000),
             'difficulty' => self::faker()->numberBetween(1, 3),
             'orderNumber' => self::faker()->randomNumber(),
