@@ -54,7 +54,11 @@ final class TreasureHuntFactory extends PersistentProxyObjectFactory
     protected function initialize(): static
     {
         return $this
-            // ->afterInstantiate(function(TreasureHunt $treasureHunt): void {})
+            ->afterInstantiate(function (TreasureHunt $treasureHunt): void {
+                for ($i = 0; $i < rand(1, 3); ++$i) {
+                    $treasureHunt->addHuntType(HuntTypeFactory::random()->_real());
+                }
+            })
         ;
     }
 }
