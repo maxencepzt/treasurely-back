@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 class QRRiddle extends Riddle
 {
     #[ORM\Column(length: 20)]
-    private ?string $code = null;
+    private string $code;
 
     public function getCode(): ?string
     {
