@@ -124,6 +124,13 @@
       "APP_ENV=test php bin/console doctrine:schema:create --quiet",
       "php vendor/bin/codecept run --no-artifacts"
     ],
+    "test:codeception_w": [
+      "php vendor/bin/codecept clean",
+      "php bin/console doctrine:database:drop --force --env=test",
+      "php bin/console doctrine:database:create --env=test",
+      "php bin/console doctrine:schema:create --quiet --env=test",
+      "php vendor/bin/codecept run --no-artifacts"
+    ],
     "test" : [
       "@test:csfixer",
       "@test:phpstan",
