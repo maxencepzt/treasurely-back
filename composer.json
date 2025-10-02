@@ -117,11 +117,26 @@
     "test:yaml" : [
       "php bin/console lint:yaml config"
     ],
+    "test:codeception" : [
+      "php vendor/bin/codecept clean",
+      "APP_ENV=test php bin/console doctrine:database:drop --force",
+      "APP_ENV=test php bin/console doctrine:database:create",
+      "APP_ENV=test php bin/console doctrine:schema:create --quiet",
+      "php vendor/bin/codecept run --no-artifacts"
+    ],
+    "test:codeception_w": [
+      "php vendor/bin/codecept clean",
+      "php bin/console doctrine:database:drop --force --env=test",
+      "php bin/console doctrine:database:create --env=test",
+      "php bin/console doctrine:schema:create --quiet --env=test",
+      "php vendor/bin/codecept run --no-artifacts"
+    ],
     "test" : [
       "@test:csfixer",
       "@test:phpstan",
       "@test:twig",
-      "@test:yaml"
+      "@test:yaml",
+      "@test:codeception"
     ],
     "fix" : [
       "@fix:csfixer",
@@ -144,6 +159,7 @@
     "test:phpstan": "Teste le code PHP avec PhpStan",
     "test:twig": "Teste le code Twig avec Twig CS Fixer",
     "test:yaml": "Vérifie les fichiers dans le répertoire config",
+    "test:codeception": "Lance les tests fonctionnels avec Codeception",
     "test": "Lance tous les tests",
     "fix": "Lance tous les scripts de correction",
     "db": "Supprime, crée, migre et charge les fixtures dans la base de données",
@@ -160,6 +176,11 @@
     }
   },
   "require-dev": {
+    "codeception/codeception": "^5.3",
+    "codeception/module-asserts": "^3.2",
+    "codeception/module-doctrine": "^3.2",
+    "codeception/module-rest": "^3.4",
+    "codeception/module-symfony": "^3.7",
     "doctrine/doctrine-fixtures-bundle": "^4.1",
     "php-cs-fixer/shim": "^3.88",
     "phpro/grumphp": "^2.15",

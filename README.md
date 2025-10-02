@@ -53,6 +53,7 @@ bin/console api:openapi:export --output=public/openapi.json
 - `test:phpstan` : Teste le code PHP avec PhpStan
 - `test:twig` : Teste le code PHP avec Twig CS Fixer
 - `test:yaml` : Vérifie les fichiers dans le répertoire config
+- `test:codeception` : Lance les tests fonctionnels avec Codeception
 - `test` : Lance tous les tests
 - `fix` : Lance tous les scripts de correction
 - `db` : Supprime, crée, migre et charge les fixtures dans la base de données  
