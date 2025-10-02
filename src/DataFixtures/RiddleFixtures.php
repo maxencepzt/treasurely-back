@@ -24,8 +24,14 @@ class RiddleFixtures extends Fixture implements DependentFixtureInterface
 
         $hunts = TreasureHuntFactory::all();
 
-        foreach ($factories as $factory) {
-            $factory::createMany(5, fn () => ['hunt' => $hunts[array_rand($hunts)]]);
+        foreach ($hunts as $hunt) {
+            foreach ($factories as $order => $factory) {
+                $factory::createOne(fn () => [
+                    'hunt' => $hunt,
+                    'orderNumber' => $order + 1,
+                ]);
+            }
+            $hunt->setRiddleCount(count($hunt->getRiddles()));
         }
     }
 
