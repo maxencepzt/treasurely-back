@@ -32,9 +32,9 @@ final class TextRiddleFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'answer' => self::faker()->text(100),
+            'answer' => 'réponse',
             'description' => self::faker()->text(1000),
-            'difficulty' => self::faker()->randomNumber(),
+            'difficulty' => self::faker()->numberBetween(1, 3),
             'orderNumber' => self::faker()->randomNumber(),
             'title' => self::faker()->text(20),
         ];
