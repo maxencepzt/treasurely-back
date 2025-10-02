@@ -8,3 +8,4 @@ parameters:
     - public/
   excludePaths:
     - tests/bootstrap.php
+    - tests/Support/*
