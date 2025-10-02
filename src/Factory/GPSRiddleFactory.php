@@ -33,7 +33,7 @@ final class GPSRiddleFactory extends PersistentProxyObjectFactory
     {
         return [
             'description' => self::faker()->text(1000),
-            'difficulty' => self::faker()->randomNumber(),
+            'difficulty' => self::faker()->numberBetween(1, 3),
             'latitude' => self::faker()->randomFloat(),
             'longitude' => self::faker()->randomFloat(),
             'orderNumber' => self::faker()->randomNumber(),
