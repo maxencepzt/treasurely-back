@@ -112,4 +112,24 @@ final class UserGetCest
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
         $I->seeResponseIsJson();
     }
+
+    public function canGetDeactivatedUserAsAdmin(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $admin = UserFactory::createOne([
+            'roles' => ['ROLE_ADMIN'],
+        ])->_real();
+        $deactivatedUser = UserFactory::createOne([
+            'activated' => false,
+        ])->_real();
+
+        // 2. 'Act'
+        $I->amLoggedInAs($admin);
+        $I->sendGet('/api/users/'.$deactivatedUser->getId());
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeResponseIsJson();
+        $I->seeResponseIsAnEntity(User::class, '/api/users/'.$deactivatedUser->getId());
+    }
 }
