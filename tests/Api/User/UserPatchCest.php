@@ -128,4 +128,22 @@ final class UserPatchCest
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson($updatedData);
     }
+
+    public function cannotUpdateWithInvalidEmail(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne()->_real();
+
+        $updatedData = [
+            'email' => 'invalid-email',
+        ];
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendPatch('/api/users/'.$user->getId(), $updatedData);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseIsJson();
+    }
 }
