@@ -95,4 +95,21 @@ final class UserGetCest
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
         $I->seeResponseIsJson();
     }
+
+    public function cannotGetDeactivatedUserAsUser(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $authenticatedUser = UserFactory::createOne()->_real();
+        $deactivatedUser = UserFactory::createOne([
+            'activated' => false,
+        ])->_real();
+
+        // 2. 'Act'
+        $I->amLoggedInAs($authenticatedUser);
+        $I->sendGet('/api/users/'.$deactivatedUser->getId());
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+        $I->seeResponseIsJson();
+    }
 }
