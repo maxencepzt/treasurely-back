@@ -7,6 +7,7 @@ namespace App\Tests\Api\User;
 use App\Entity\User;
 use App\Factory\UserFactory;
 use App\Tests\Support\ApiTester;
+use Codeception\Util\HttpCode;
 
 final class UserPatchCest
 {
@@ -34,5 +35,26 @@ final class UserPatchCest
         $I->seeResponseIsJson();
         $I->seeResponseIsAnEntity(User::class, '/api/users/'.$user->getId());
         $I->seeResponseContainsJson($updatedData);
+    }
+
+    public function cannotUpdateOtherUserProfile(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $authenticatedUser = UserFactory::createOne()->_real();
+        $otherUser = UserFactory::createOne([
+            'nickname' => 'othernickname',
+        ])->_real();
+
+        $updatedData = [
+            'nickname' => 'hackednickname',
+        ];
+
+        // 2. 'Act'
+        $I->amLoggedInAs($authenticatedUser);
+        $I->sendPatch('/api/users/'.$otherUser->getId(), $updatedData);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+        $I->seeResponseIsJson();
     }
 }
