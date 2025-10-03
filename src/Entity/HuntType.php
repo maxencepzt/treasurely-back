@@ -84,8 +84,9 @@ class HuntType
     /**
      * @var Collection<int, TreasureHunt>
      */
-    #[ORM\ManyToMany(targetEntity: TreasureHunt::class, mappedBy: 'huntTypeId')]
+    #[ORM\ManyToMany(targetEntity: TreasureHunt::class, inversedBy: 'huntType', cascade: ['persist'])]
     #[Groups(['huntType:write'])]
+    #[ORM\JoinColumn(nullable: true)]
     private Collection $treasureHunts;
 
     public function __construct()
