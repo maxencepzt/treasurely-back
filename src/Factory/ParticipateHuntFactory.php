@@ -4,6 +4,7 @@ namespace App\Factory;
 
 use App\Entity\ParticipateHunt;
 use App\Service\ScoreCalculator;
+use App\Entity\Riddle;
 use Faker\Generator;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
