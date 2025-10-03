@@ -132,4 +132,14 @@ final class UserGetCest
         $I->seeResponseIsJson();
         $I->seeResponseIsAnEntity(User::class, '/api/users/'.$deactivatedUser->getId());
     }
+
+    public function cannotGetUserAsGuest(ApiTester $I): void
+    {
+        // Un utilisateur non authentifié ne peut pas accéder aux détails d'un utilisateur
+        $user = UserFactory::createOne()->_real();
+
+        $I->sendGet('/api/users/'.$user->getId());
+
+        $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
+    }
 }
