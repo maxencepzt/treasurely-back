@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Enum\Gender;
 use App\Factory\UserFactory;
 use App\Tests\Support\ApiTester;
+use Codeception\Util\HttpCode;
 
 final class UserGetCest
 {
@@ -78,5 +79,20 @@ final class UserGetCest
         ];
 
         $I->seeResponseIsAnItem(self::expectedProperties(), $expectedData);
+    }
+
+    public function cannotGetNonExistentUser(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne()->_real();
+        $nonExistentUserId = 99999;
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendGet('/api/users/'.$nonExistentUserId);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+        $I->seeResponseIsJson();
     }
 }
