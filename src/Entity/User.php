@@ -85,6 +85,18 @@ use Symfony\Component\Serializer\Attribute\Groups;
             security: "is_granted('ROLE_USER') and object == user",
             provider: MeProvider::class,
         ),
+        // Update the currently authenticated user's information
+        new Patch(
+            uriTemplate: 'me',
+            openapi: new Operation(
+                summary: 'Update my account',
+                description: 'Update the currently authenticated user\'s information. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['user:read', 'user:id']],
+            denormalizationContext: ['groups' => ['user:write', 'user:password']],
+            security: "is_granted('ROLE_USER')",
+            provider: MeProvider::class,
+        ),
     ]
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
