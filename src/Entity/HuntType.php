@@ -69,7 +69,24 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new Patch(
             openapi: new Operation(
                 summary: 'Update hunt type',
-                description: 'Update a specific hunt type by their ID. Only admins can update these informations.'
+                description: 'Update a specific hunt type by their ID. Only admins can update these informations.',
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
+                        'application/ld+json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'title' => ['type' => 'string'],
+                                    'treasureHunts' => ['type' => 'array'],
+                                ],
+                            ],
+                            'example' => [
+                                'title' => 'type',
+                                'treasureHunts' => [],
+                            ],
+                        ],
+                    ])
+                ),
             ),
             normalizationContext: ['groups' => ['huntType:read', 'huntType:id']],
             denormalizationContext: ['groups' => ['huntType:write']],
