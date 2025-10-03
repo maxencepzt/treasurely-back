@@ -46,14 +46,14 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: ['groups' => ['user:read', 'user:id']],
             denormalizationContext: ['groups' => ['user:write', 'user:password']],
         ),
-        // Get a specific user by ID (detailed information, sensitive data excluded)
+        // Get details of a specific user by ID (only if the user is activated or the requester is an admin)
         new Get(
             openapi: new Operation(
                 summary: 'User details',
                 description: 'Retrieve detailed information about a specific user by their ID. Requires ROLE_USER permission.'
             ),
             normalizationContext: ['groups' => ['user:read']],
-            security: "is_granted('ROLE_USER')",
+            security: "is_granted('ROLE_USER') and (is_granted('ROLE_ADMIN') or object.isActivated())",
         ),
         // Update a specific user by ID (only the user themselves can update their information)
         new Patch(
