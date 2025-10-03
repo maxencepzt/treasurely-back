@@ -146,4 +146,26 @@ final class UserPatchCest
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
         $I->seeResponseIsJson();
     }
+
+    public function cannotUpdateRolesAsUser(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne([
+            'roles' => [],
+        ])->_real();
+
+        $updatedData = [
+            'roles' => ['ROLE_ADMIN'],
+        ];
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendPatch('/api/users/'.$user->getId(), $updatedData);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeResponseIsJson();
+        // Les rôles ne devraient pas être modifiés
+        $I->dontSeeResponseContainsJson(['roles' => ['ROLE_ADMIN']]);
+    }
 }
