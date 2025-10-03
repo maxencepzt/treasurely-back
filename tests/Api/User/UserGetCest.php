@@ -154,4 +154,18 @@ final class UserGetCest
         $I->seeResponseCodeIsSuccessful();
         $I->dontSeeResponseJsonMatchesJsonPath('$.password');
     }
+
+    public function getCollectionDoesNotIncludeDeactivatedUsers(ApiTester $I): void
+    {
+        // La collection ne retourne que les utilisateurs activés
+        UserFactory::createOne(['activated' => true])->_real();
+        UserFactory::createOne(['activated' => false])->_real();
+        $authenticatedUser = UserFactory::createOne()->_real();
+
+        $I->amLoggedInAs($authenticatedUser);
+        $I->sendGet('/api/users');
+
+        $I->seeResponseCodeIsSuccessful();
+        $I->dontSeeResponseContainsJson(['activated' => false]);
+    }
 }
