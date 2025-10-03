@@ -168,4 +168,23 @@ final class UserPatchCest
         // Les rôles ne devraient pas être modifiés
         $I->dontSeeResponseContainsJson(['roles' => ['ROLE_ADMIN']]);
     }
+
+    public function cannotUpdateNonExistentUser(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne()->_real();
+        $nonExistentUserId = 99999;
+
+        $updatedData = [
+            'nickname' => 'newnickname',
+        ];
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendPatch('/api/users/'.$nonExistentUserId, $updatedData);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+        $I->seeResponseIsJson();
+    }
 }
