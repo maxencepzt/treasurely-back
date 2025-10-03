@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Enum\Gender;
 use App\Repository\UserRepository;
+use App\State\MeProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -75,6 +76,17 @@ use Symfony\Component\Validator\Constraints as Assert;
                 description: 'Delete a specific user by their ID. Users can only delete their own account. Requires ROLE_USER permission.'
             ),
             security: "is_granted('ROLE_USER') and object == user"
+        ),
+        // Get the currently authenticated user's information
+        new Get(
+            uriTemplate: 'me',
+            openapi: new Operation(
+                summary: 'Get my account',
+                description: 'Retrieve the currently authenticated user\'s information. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['user:write', 'user:id']],
+            security: "is_granted('ROLE_USER') and object == user",
+            provider: MeProvider::class,
         ),
     ]
 )]
