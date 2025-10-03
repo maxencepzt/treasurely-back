@@ -74,4 +74,24 @@ final class UserPatchCest
         $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
         $I->seeResponseIsJson();
     }
+
+    public function canUpdatePasswordAsAuthenticatedUser(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne([
+            'password' => 'oldpassword',
+        ])->_real();
+
+        $updatedData = [
+            'password' => 'newpassword123',
+        ];
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendPatch('/api/users/'.$user->getId(), $updatedData);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeResponseIsJson();
+    }
 }
