@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Api\User;
 
 use App\Entity\User;
+use App\Enum\Gender;
 use App\Factory\UserFactory;
 use App\Tests\Support\ApiTester;
 use Codeception\Util\HttpCode;
@@ -93,5 +94,38 @@ final class UserPatchCest
         // 3. 'Assert'
         $I->seeResponseCodeIsSuccessful();
         $I->seeResponseIsJson();
+    }
+
+    public function canUpdateMultipleFields(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne([
+            'nickname' => 'oldnickname',
+            'firstname' => 'Old',
+            'lastname' => 'Name',
+            'email' => 'old@example.com',
+            'phone' => '1111111111',
+            'public' => false,
+            'gender' => Gender::MAN,
+        ])->_real();
+
+        $updatedData = [
+            'nickname' => 'newnickname',
+            'firstname' => 'New',
+            'lastname' => 'NewName',
+            'email' => 'new@example.com',
+            'phone' => '2222222222',
+            'public' => true,
+            'gender' => Gender::WOMAN->value,
+        ];
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendPatch('/api/users/'.$user->getId(), $updatedData);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson($updatedData);
     }
 }
