@@ -208,4 +208,31 @@ final class UserPatchCest
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson(['id' => $originalId]);
     }
+
+    public function partialUpdateOnlyChangesSpecifiedFields(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne([
+            'nickname' => 'originalnickname',
+            'firstname' => 'OriginalFirstname',
+            'lastname' => 'OriginalLastname',
+        ])->_real();
+
+        $updatedData = [
+            'nickname' => 'newnickname',
+        ];
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendPatch('/api/users/'.$user->getId(), $updatedData);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'nickname' => 'newnickname',
+            'firstname' => 'OriginalFirstname',
+            'lastname' => 'OriginalLastname',
+        ]);
+    }
 }
