@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Repository\HuntTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -32,7 +33,24 @@ use Symfony\Component\Serializer\Attribute\Groups;
             uriTemplate: 'create',
             openapi: new Operation(
                 summary: 'HuntType creation',
-                description: 'Create a new hunt type by providing necessary details. This endpoint is only accessible by admins.'
+                description: 'Create a new hunt type by providing necessary details. This endpoint is only accessible by admins.',
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
+                        'application/ld+json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'title' => ['type' => 'string'],
+                                    'treasureHunts' => ['type' => 'array'],
+                                ],
+                            ],
+                            'example' => [
+                                'title' => 'type',
+                                'treasureHunts' => [],
+                            ],
+                        ],
+                    ])
+                ),
             ),
             normalizationContext: ['groups' => ['huntType:read', 'huntType:id']],
             denormalizationContext: ['groups' => ['huntType:write']],
