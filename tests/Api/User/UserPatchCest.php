@@ -57,4 +57,21 @@ final class UserPatchCest
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
         $I->seeResponseIsJson();
     }
+
+    public function cannotUpdateProfileAsGuest(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne()->_real();
+
+        $updatedData = [
+            'nickname' => 'newnickname',
+        ];
+
+        // 2. 'Act'
+        $I->sendPatch('/api/users/'.$user->getId(), $updatedData);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
+        $I->seeResponseIsJson();
+    }
 }
