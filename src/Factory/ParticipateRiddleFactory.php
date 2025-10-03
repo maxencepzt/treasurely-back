@@ -35,7 +35,7 @@ final class ParticipateRiddleFactory extends PersistentProxyObjectFactory
             'finishTime' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime('today + 10 days')),
             'lastParticipate' => self::faker()->dateTime(),
             'score' => self::faker()->randomNumber(),
-            'startTime' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
+            'startTime' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime('today')),
         ];
     }
 
