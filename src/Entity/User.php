@@ -142,7 +142,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private string $email;
 
-    // cannotRegisterWithFutureBirthDate
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Groups(['user:read', 'user:write'])]
     #[Assert\Type(\DateTime::class)]
