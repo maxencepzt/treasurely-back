@@ -142,4 +142,16 @@ final class UserGetCest
 
         $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
     }
+
+    public function passwordIsNotReturnedInResponse(ApiTester $I): void
+    {
+        // Le mot de passe ne doit jamais être retourné
+        $user = UserFactory::createOne()->_real();
+
+        $I->amLoggedInAs($user);
+        $I->sendGet('/api/users/'.$user->getId());
+
+        $I->seeResponseCodeIsSuccessful();
+        $I->dontSeeResponseJsonMatchesJsonPath('$.password');
+    }
 }
