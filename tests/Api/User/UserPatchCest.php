@@ -187,4 +187,25 @@ final class UserPatchCest
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
         $I->seeResponseIsJson();
     }
+
+    public function updatedUserIdRemainsUnchanged(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne()->_real();
+        $originalId = $user->getId();
+
+        $updatedData = [
+            'nickname' => 'newnickname',
+            'firstname' => 'New',
+        ];
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendPatch('/api/users/'.$user->getId(), $updatedData);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson(['id' => $originalId]);
+    }
 }
