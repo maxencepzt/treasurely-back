@@ -22,23 +22,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
             openapi: new Operation(
                 summary: 'Picture creation',
                 description: 'Create a new picture by providing necessary details. This endpoint is only accessible by admins.',
-                requestBody: new RequestBody(
-                    content: new \ArrayObject([
-                        'application/ld+json' => [
-                            'schema' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'title' => ['type' => 'string'],
-                                    'treasureHunts' => ['type' => 'array'],
-                                ],
-                            ],
-                            'example' => [
-                                'title' => 'type',
-                                'treasureHunts' => [],
-                            ],
-                        ],
-                    ])
-                ),
             ),
             normalizationContext: ['groups' => ['picture:read', 'picture:id']],
             denormalizationContext: ['groups' => ['picture:write']],
