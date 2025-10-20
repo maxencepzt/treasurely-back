@@ -3,6 +3,8 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
-auth:
-  path: /auth
+api_login:
+  path: /api/auth
   methods: ['POST']
+api_refresh_token:
+  path: /api/token/refresh
