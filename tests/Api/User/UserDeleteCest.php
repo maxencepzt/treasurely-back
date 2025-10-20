@@ -58,4 +58,21 @@ final class UserDeleteCest
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
         $I->seeInRepository(User::class, ['nickname' => 'targetuser']);
     }
+
+    public function cannotDeleteNonExistentUser(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne([
+            'nickname' => 'authenticateduser',
+            'password' => 'ValidPass123!',
+        ]);
+        $I->amLoggedInAs($user->_real());
+        $nonExistentId = 99999;
+
+        // 2. 'Act'
+        $I->sendDelete('/api/users/'.$nonExistentId);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
 }
