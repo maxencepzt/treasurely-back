@@ -120,6 +120,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Groups(['user:read', 'user:write'])]
+    #[Assert\Type(\DateTime::class)]
     private \DateTime $birthDate;
 
     #[ORM\Column(length: 12)]

@@ -166,4 +166,27 @@ final class UserPostCest
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
         $I->seeResponseIsJson();
     }
+
+    public function cannotRegisterWithInvalidBirthDate(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $userData = [
+            'nickname' => 'newuser',
+            'firstname' => 'Test',
+            'lastname' => 'User',
+            'email' => 'test@example.com',
+            'birthDate' => 'invalid-date-format',
+            'phone' => '0123456789',
+            'password' => 'securepassword123',
+            'public' => true,
+            'gender' => Gender::MAN->value,
+        ];
+
+        // 2. 'Act'
+        $I->sendPost('/api/register', $userData);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
+        $I->seeResponseIsJson();
+    }
 }
