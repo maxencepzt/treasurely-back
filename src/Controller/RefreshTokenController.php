@@ -30,6 +30,8 @@ use Symfony\Component\Routing\Annotation\Route;
                         ],
                     ],
                 ],
+                summary: 'Rafraîchir le token JWT',
+                description: 'Permet de générer un nouveau token JWT à partir d\'un refresh token valide',
                 requestBody: new Model\RequestBody(
                     content: new \ArrayObject([
                         'application/json' => [
