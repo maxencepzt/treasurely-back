@@ -189,4 +189,28 @@ final class UserPostCest
         $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
         $I->seeResponseIsJson();
     }
+
+    public function cannotRegisterWithFutureBirthDate(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $futureBirthDate = (new \DateTime('+1 year'))->format('Y-m-d');
+        $userData = [
+            'nickname' => 'newuser',
+            'firstname' => 'Test',
+            'lastname' => 'User',
+            'email' => 'test@example.com',
+            'birthDate' => $futureBirthDate,
+            'phone' => '0123456789',
+            'password' => 'securepassword123',
+            'public' => true,
+            'gender' => Gender::MAN->value,
+        ];
+
+        // 2. 'Act'
+        $I->sendPost('/api/register', $userData);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseIsJson();
+    }
 }

@@ -118,9 +118,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private string $email;
 
+    // cannotRegisterWithFutureBirthDate
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Groups(['user:read', 'user:write'])]
     #[Assert\Type(\DateTime::class)]
+    #[Assert\LessThan('today', message: 'The birth date cannot be in the future.')]
     private \DateTime $birthDate;
 
     #[ORM\Column(length: 12)]
