@@ -17,6 +17,7 @@ final class ParticipateRiddleFactory extends PersistentProxyObjectFactory
      */
     public function __construct()
     {
+        parent::__construct();
     }
 
     public static function class(): string
@@ -32,10 +33,11 @@ final class ParticipateRiddleFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'finishTime' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime('today + 10 days')),
-            'lastParticipate' => self::faker()->dateTime(),
-            'score' => self::faker()->randomNumber(),
             'startTime' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime('today')),
+            'finishTime' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime('today + 10 days')),
+            'score' => self::faker()->randomNumber(),
+            'lastParticipate' => self::faker()->dateTime(),
+            'hunter' => UserFactory::new(),
         ];
     }
 
