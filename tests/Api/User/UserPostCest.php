@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Api\User;
 
+use App\Entity\User;
 use App\Enum\Gender;
 use App\Factory\UserFactory;
 use App\Tests\Support\ApiTester;
@@ -236,5 +237,33 @@ final class UserPostCest
         $I->seeResponseCodeIs(HttpCode::CREATED);
         $I->seeResponseIsJson();
         $I->seeResponseJsonMatchesJsonPath('$.creationDate');
+    }
+
+    public function defaultRoleIsUserOnRegistration(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $userData = [
+            'nickname' => 'roleuser',
+            'firstname' => 'Test',
+            'lastname' => 'User',
+            'email' => 'role@example.com',
+            'birthDate' => '1995-06-15',
+            'phone' => '0123456789',
+            'password' => 'securepassword123',
+            'public' => true,
+            'gender' => Gender::MAN->value,
+        ];
+
+        // 2. 'Act'
+        $I->sendPost('/api/register', $userData);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::CREATED);
+        $I->seeResponseIsJson();
+
+        // fetch the user from the test database and assert roles contain ROLE_USER
+        $user = $I->grabEntityFromRepository(User::class, ['nickname' => 'roleuser']);
+        $I->assertNotNull($user, 'Registered user should exist in the database.');
+        $I->assertContains('ROLE_USER', $user->getRoles(), 'Default role must include ROLE_USER.');
     }
 }
