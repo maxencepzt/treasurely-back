@@ -7,5 +7,6 @@ parameters:
     - config/
     - public/
   excludePaths:
+    - tests/Support/_generated/
+    - tests/Support/Helper/
     - tests/bootstrap.php
-    - tests/Support/*
