@@ -38,7 +38,7 @@ class TreasureHunt
     /**
      * @var Collection<int, HuntType>
      */
-    #[ORM\ManyToMany(targetEntity: HuntType::class, inversedBy: 'treasureHunts', cascade: ['persist'])]
+    #[ORM\ManyToMany(targetEntity: HuntType::class, mappedBy: 'treasureHunts')]
     private Collection $huntType;
 
     #[ORM\ManyToOne(inversedBy: 'treasureHunts')]
