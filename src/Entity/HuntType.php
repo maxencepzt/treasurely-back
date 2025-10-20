@@ -19,7 +19,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: HuntTypeRepository::class)]
 #[ApiResource(
     operations: [
-        // Get collection of users (non-sensitive data only)
         new GetCollection(
             openapi: new Operation(
                 summary: 'List of hunt types',
@@ -28,9 +27,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: ['groups' => ['huntType:read']],
             security: "is_granted('ROLE_USER')",
         ),
-        // Register a new user
         new Post(
-            uriTemplate: 'new',
+            uriTemplate: 'hunt_types/new',
             openapi: new Operation(
                 summary: 'HuntType creation',
                 description: 'Create a new hunt type by providing necessary details. This endpoint is only accessible by admins.',
@@ -56,7 +54,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
             denormalizationContext: ['groups' => ['huntType:write']],
             security: "is_granted('ROLE_ADMIN')",
         ),
-        // Get a specific user by ID (detailed information, sensitive data excluded)
         new Get(
             openapi: new Operation(
                 summary: 'HuntType details',
@@ -65,7 +62,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: ['groups' => ['huntType:read']],
             security: "is_granted('ROLE_USER')",
         ),
-        // Update a specific user by ID (only the user themselves can update their information)
         new Patch(
             openapi: new Operation(
                 summary: 'Update hunt type',
@@ -92,7 +88,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
             denormalizationContext: ['groups' => ['huntType:write']],
             security: "is_granted('ROLE_ADMIN')"
         ),
-        // Delete a specific user by ID (only the user themselves can delete their account)
         new Delete(
             openapi: new Operation(
                 summary: 'Update hunt type',
