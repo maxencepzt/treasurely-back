@@ -92,4 +92,20 @@ final class UserDeleteCest
         $I->seeResponseCodeIs(HttpCode::NO_CONTENT);
         $I->dontSeeInRepository(User::class, ['nickname' => 'hello']);
     }
+
+    public function cannotDeleteAccountWithInvalidIdFormat(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne([
+            'nickname' => 'authenticateduser',
+            'password' => 'ValidPass123!',
+        ]);
+        $I->amLoggedInAs($user->_real());
+
+        // 2. 'Act'
+        $I->sendDelete('/api/users/invalid-id');
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+    }
 }
