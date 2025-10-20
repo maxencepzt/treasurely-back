@@ -31,7 +31,7 @@ security:
     access_control:
       - { path: ^/api/auth, roles: PUBLIC_ACCESS }
       - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
-      - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+      - { path: ^/api/~, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
