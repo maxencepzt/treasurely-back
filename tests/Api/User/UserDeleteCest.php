@@ -40,4 +40,22 @@ final class UserDeleteCest
         $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
         $I->seeInRepository(User::class, ['nickname' => 'someuser']);
     }
+
+    public function cannotDeleteAnotherUsersAccount(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $authenticatedUser = UserFactory::createOne([
+            'nickname' => 'authenticateduser',
+            'password' => 'ValidPass123!',
+        ]);
+        $targetUser = UserFactory::createOne(['nickname' => 'targetuser']);
+        $I->amLoggedInAs($authenticatedUser->_real());
+
+        // 2. 'Act'
+        $I->sendDelete('/api/users/'.$targetUser->getId());
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+        $I->seeInRepository(User::class, ['nickname' => 'targetuser']);
+    }
 }
