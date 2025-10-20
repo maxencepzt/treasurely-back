@@ -30,7 +30,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
         ),
         // Register a new user
         new Post(
-            uriTemplate: 'create',
+            uriTemplate: 'new',
             openapi: new Operation(
                 summary: 'HuntType creation',
                 description: 'Create a new hunt type by providing necessary details. This endpoint is only accessible by admins.',
