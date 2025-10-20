@@ -27,4 +27,17 @@ final class UserDeleteCest
         $I->seeResponseCodeIs(HttpCode::NO_CONTENT);
         $I->dontSeeInRepository(User::class, ['nickname' => 'deleteme']);
     }
+
+    public function cannotDeleteAccountWithoutAuthentication(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne(['nickname' => 'someuser']);
+
+        // 2. 'Act'
+        $I->sendDelete('/api/users/'.$user->getId());
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
+        $I->seeInRepository(User::class, ['nickname' => 'someuser']);
+    }
 }
