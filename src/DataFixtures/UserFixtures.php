@@ -15,7 +15,13 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
         UserFactory::createOne([
             'profilePicture' => PictureFactory::createOne(),
             'roles' => ['ROLE_ADMIN'],
+            'nickname' => 'admin',
             'password' => 'admin',
+        ]);
+        UserFactory::createOne([
+            'profilePicture' => PictureFactory::createOne(),
+            'nickname' => 'string',
+            'password' => 'string',
         ]);
         UserFactory::createMany(40, fn () => [
             'profilePicture' => PictureFactory::createOne(),
