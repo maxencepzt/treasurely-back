@@ -120,4 +120,27 @@ final class UserPostCest
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
         $I->seeResponseIsJson();
     }
+
+    public function cannotRegisterWithInvalidEmail(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $userData = [
+            'nickname' => 'newuser',
+            'firstname' => 'Test',
+            'lastname' => 'User',
+            'email' => 'invalid-email-format',
+            'birthDate' => '1995-06-15',
+            'phone' => '0123456789',
+            'password' => 'securepassword123',
+            'public' => true,
+            'gender' => Gender::MAN->value,
+        ];
+
+        // 2. 'Act'
+        $I->sendPost('/api/register', $userData);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseIsJson();
+    }
 }
