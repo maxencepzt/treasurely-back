@@ -24,7 +24,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-#[UniqueEntity(fields: ['email', 'nickname'])]
+#[UniqueEntity(fields: ['nickname'], message: 'Ce pseudo est déjà utilisé.')]
+#[UniqueEntity(fields: ['email'], message: 'Cette adresse email est déjà utilisée.')]
 #[ORM\UniqueConstraint(name: 'UNIQUE_IDENTIFIERS', fields: ['nickname', 'email'])]
 #[ApiResource(
     operations: [
@@ -146,9 +147,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Gender $gender;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     #[Groups(['user:read', 'user:write'])]
-    private Picture $profilePicture;
+    private ?Picture $profilePicture = null;
 
     #[ORM\Column]
     #[Groups(['user:read'])]

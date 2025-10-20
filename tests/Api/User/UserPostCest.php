@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Api\User;
 
 use App\Enum\Gender;
+use App\Factory\UserFactory;
 use App\Tests\Support\ApiTester;
 use Codeception\Util\HttpCode;
 
@@ -64,5 +65,32 @@ final class UserPostCest
         ]);
         $I->seeResponseJsonMatchesJsonPath('$.id');
         $I->dontSeeResponseJsonMatchesJsonPath('$.password');
+    }
+
+    public function cannotRegisterWithDuplicateNickname(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        UserFactory::createOne([
+            'nickname' => 'existinguser',
+        ]);
+
+        $userData = [
+            'nickname' => 'existinguser',
+            'firstname' => 'Test',
+            'lastname' => 'User',
+            'email' => 'unique@example.com',
+            'birthDate' => '1995-06-15',
+            'phone' => '0123456789',
+            'password' => 'securepassword123',
+            'public' => true,
+            'gender' => Gender::MAN->value,
+        ];
+
+        // 2. 'Act'
+        $I->sendPost('/api/register', $userData);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseIsJson();
     }
 }
