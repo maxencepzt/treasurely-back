@@ -46,6 +46,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             normalizationContext: ['groups' => ['user:read', 'user:id']],
             denormalizationContext: ['groups' => ['user:write', 'user:password']],
+            security: 'is_granted("PUBLIC_ACCESS")',
         ),
         // Get details of a specific user by ID (only if the user is activated or the requester is an admin)
         new Get(
@@ -187,6 +188,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->teams = new ArrayCollection();
         $this->treasureHunts = new ArrayCollection();
         $this->participateRiddles = new ArrayCollection();
+        $this->lastLogin = new \DateTime();
+        $this->activated = true;
+        $this->setTotalTime(0);
+        $this->setTotalHunt(0);
     }
 
     public function getId(): int
@@ -377,12 +382,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->gender = $gender;
     }
 
-    public function getProfilePicture(): Picture
+    public function getProfilePicture(): ?Picture
     {
         return $this->profilePicture;
     }
 
-    public function setProfilePicture(Picture $profilePicture): static
+    public function setProfilePicture(?Picture $profilePicture): static
     {
         $this->profilePicture = $profilePicture;
 
