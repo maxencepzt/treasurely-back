@@ -93,4 +93,31 @@ final class UserPostCest
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
         $I->seeResponseIsJson();
     }
+
+    public function cannotRegisterWithDuplicateEmail(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        UserFactory::createOne([
+            'email' => 'existing@example.com',
+        ]);
+
+        $userData = [
+            'nickname' => 'uniquenickname',
+            'firstname' => 'Test',
+            'lastname' => 'User',
+            'email' => 'existing@example.com',
+            'birthDate' => '1995-06-15',
+            'phone' => '0123456789',
+            'password' => 'securepassword123',
+            'public' => true,
+            'gender' => Gender::MAN->value,
+        ];
+
+        // 2. 'Act'
+        $I->sendPost('/api/register', $userData);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseIsJson();
+    }
 }
