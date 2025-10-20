@@ -20,10 +20,12 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-#[UniqueEntity(fields: ['email', 'nickname'])]
+#[UniqueEntity(fields: ['nickname'], message: 'Ce pseudo est déjà utilisé.')]
+#[UniqueEntity(fields: ['email'], message: 'Cette adresse email est déjà utilisée.')]
 #[ORM\UniqueConstraint(name: 'UNIQUE_IDENTIFIERS', fields: ['nickname', 'email'])]
 #[ApiResource(
     operations: [
@@ -45,15 +47,16 @@ use Symfony\Component\Serializer\Attribute\Groups;
             ),
             normalizationContext: ['groups' => ['user:read', 'user:id']],
             denormalizationContext: ['groups' => ['user:write', 'user:password']],
+            security: 'is_granted("PUBLIC_ACCESS")',
         ),
-        // Get a specific user by ID (detailed information, sensitive data excluded)
+        // Get details of a specific user by ID (only if the user is activated or the requester is an admin)
         new Get(
             openapi: new Operation(
                 summary: 'User details',
                 description: 'Retrieve detailed information about a specific user by their ID. Requires ROLE_USER permission.'
             ),
             normalizationContext: ['groups' => ['user:read']],
-            security: "is_granted('ROLE_USER')",
+            security: "is_granted('ROLE_USER') and (is_granted('ROLE_ADMIN') or object.isActivated())",
         ),
         // Update a specific user by ID (only the user themselves can update their information)
         new Patch(
@@ -110,10 +113,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 50)]
     #[Groups(['user:read', 'user:write'])]
+    #[Assert\Email(
+        message: 'The email {{ value }} is not a valid email.',
+    )]
     private string $email;
 
+    // cannotRegisterWithFutureBirthDate
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Groups(['user:read', 'user:write'])]
+    #[Assert\Type(\DateTime::class)]
+    #[Assert\LessThan('today', message: 'The birth date cannot be in the future.')]
     private \DateTime $birthDate;
 
     #[ORM\Column(length: 12)]
@@ -141,9 +150,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Gender $gender;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     #[Groups(['user:read', 'user:write'])]
-    private Picture $profilePicture;
+    private ?Picture $profilePicture = null;
 
     #[ORM\Column]
     #[Groups(['user:read'])]
@@ -183,6 +192,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->teams = new ArrayCollection();
         $this->treasureHunts = new ArrayCollection();
         $this->participateRiddles = new ArrayCollection();
+        $this->lastLogin = new \DateTime();
+        $this->activated = true;
+        $this->setTotalTime(0);
+        $this->setTotalHunt(0);
     }
 
     public function getId(): int
@@ -373,12 +386,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->gender = $gender;
     }
 
-    public function getProfilePicture(): Picture
+    public function getProfilePicture(): ?Picture
     {
         return $this->profilePicture;
     }
 
-    public function setProfilePicture(Picture $profilePicture): static
+    public function setProfilePicture(?Picture $profilePicture): static
     {
         $this->profilePicture = $profilePicture;
 
