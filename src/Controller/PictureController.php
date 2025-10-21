@@ -18,7 +18,6 @@ class PictureController extends AbstractController
         'image/png',
         'image/gif',
         'image/webp',
-        'image/svg+xml',
     ];
 
     #[Route('/api/pictures/upload', name: 'api_picture_blob_upload', methods: ['POST'])]
