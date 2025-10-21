@@ -7,6 +7,7 @@ install:
   stage: install
   script:
     - composer install --prefer-dist --no-ansi --no-interaction --no-progress
+    - php vendor/bin/codecept build
   tags:
     - php8.3
     - composer
@@ -41,7 +42,6 @@ phpstan:
     - install
   script:
     - vendor/bin/phpstan analyse
-  allow_failure: true
   tags:
     - php8.3
     - composer
