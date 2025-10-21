@@ -13,9 +13,11 @@ class ParticipateRiddleFixtures extends Fixture implements DependentFixtureInter
 {
     public function load(ObjectManager $manager): void
     {
-        ParticipateRiddleFactory::createMany(10, [
-            'hunter' => UserFactory::random(),
-        ]);
+        ParticipateRiddleFactory::createMany(10, function () {
+            return [
+                'hunter' => UserFactory::random(),
+            ];
+        });
     }
 
     /**

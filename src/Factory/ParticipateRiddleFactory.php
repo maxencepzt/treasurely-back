@@ -32,9 +32,9 @@ final class ParticipateRiddleFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
-        $startTime = \DateTimeImmutable::createFromMutable(self::faker()->dateTime('today'));
-        $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTime('today + 10 days'));
-        if ($startTime > $lastParticipate) {
+        $startTime = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today - 5 minutes', 'today'));
+        $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today', 'today + 5 minutes'));
+        while ($startTime > $lastParticipate) {
             $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTime('today + 10 days'));
         }
 
@@ -48,7 +48,8 @@ final class ParticipateRiddleFactory extends PersistentProxyObjectFactory
 
         if ($finish) {
             $finishTime = $lastParticipate;
-            $score = $difficulty * (1000 * exp(-0.001 * (int) abs($finishTime->getTimestamp() - $startTime->getTimestamp()))); // Valeurs d'exemples pour le calcul du score
+            $time = $finishTime->getTimestamp() - $startTime->getTimestamp();
+            $score = (int) ($difficulty * (1000 * exp(-0.001 * (int) abs($time)))); // Valeurs d'exemples pour le calcul du score
         }
 
         return [
@@ -56,7 +57,8 @@ final class ParticipateRiddleFactory extends PersistentProxyObjectFactory
             'finishTime' => $finishTime,
             'score' => $score,
             'lastParticipate' => $lastParticipate,
-            'hunter' => UserFactory::new(),
+            'hunter' => UserFactory::random(),
+            'riddle' => $riddle,
         ];
     }
 
