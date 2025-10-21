@@ -8,5 +8,3 @@ parameters:
     - public/
   excludePaths:
     - tests/Support/_generated/
-    - tests/Support/Helper/
-    - tests/bootstrap.php
