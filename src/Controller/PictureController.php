@@ -67,7 +67,7 @@ class PictureController extends AbstractController
         }
 
         return $this->json([
-            'message' => 'Image téléversée avec succès',
+            'message' => 'Image mise à jour avec succès',
             'id' => $picture->getId(),
         ], Response::HTTP_CREATED);
     }
