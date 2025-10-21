@@ -1,0 +1,70 @@
+stages:
+  - install
+  - lint
+  - test
+
+install:
+  stage: install
+  script:
+    - composer install --prefer-dist --no-ansi --no-interaction --no-progress
+  tags:
+    - php8.3
+    - composer
+  artifacts:
+    paths:
+      - vendor/
+    expire_in: 1 week
+
+php_cs:
+  stage: lint
+  dependencies:
+    - install
+  script:
+    - vendor/bin/php-cs-fixer fix --dry-run
+  tags:
+    - php8.3
+    - composer
+
+twig_cs:
+  stage: lint
+  dependencies:
+    - install
+  script:
+    - vendor/bin/twig-cs-fixer lint
+  tags:
+    - php8.3
+    - composer
+
+phpstan:
+  stage: lint
+  dependencies:
+    - install
+  script:
+    - vendor/bin/phpstan analyse
+  tags:
+    - php8.3
+    - composer
+
+lint_yaml:
+  stage: lint
+  dependencies:
+    - install
+  script:
+    - php bin/console lint:yaml config
+  tags:
+    - php8.3
+    - composer
+
+test:
+  stage: test
+  dependencies:
+    - install
+  script:
+    - composer test:codeception
+  tags:
+    - php8.3
+    - composer
+  artifacts:
+    paths:
+      - tests/_output
+    expire_in: 1 week
