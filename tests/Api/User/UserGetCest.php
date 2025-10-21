@@ -28,7 +28,7 @@ final class UserGetCest
             'creationDate' => 'string:date',
             'public' => 'boolean',
             'gender' => 'string',
-            'profilePicture' => 'array',
+            'profilePicture' => 'string|null',
             'totalTime' => 'integer',
             'totalHunt' => 'integer',
         ];
