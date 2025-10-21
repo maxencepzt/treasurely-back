@@ -20,7 +20,7 @@ class PictureController extends AbstractController
         'image/webp',
     ];
 
-    #[Route('/api/pictures/upload', name: 'api_picture_blob_upload', methods: ['POST'])]
+    #[Route('/api/pictures/upload', name: 'api_picture_upload', methods: ['POST'])]
     public function upload(
         Request $request,
         EntityManagerInterface $entityManager,
@@ -46,7 +46,7 @@ class PictureController extends AbstractController
 
         if (null === $mimeType || !\in_array($mimeType, self::ALLOWED_MIME_TYPES, true)) {
             return $this->json([
-                'error' => 'Le type de fichier n\'est pas autorisé. Seules les images (JPEG, PNG, GIF, WEBP, SVG) sont acceptées. Type reçu: '.$mimeType,
+                'error' => 'Le type de fichier n\'est pas autorisé. Seules les images (JPEG, PNG, GIF, WEBP) sont acceptées. Type reçu: '.$mimeType,
             ], Response::HTTP_BAD_REQUEST);
         }
 
