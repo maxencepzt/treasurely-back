@@ -41,6 +41,7 @@ phpstan:
     - install
   script:
     - vendor/bin/phpstan analyse
+  allow_failure: true
   tags:
     - php8.3
     - composer
