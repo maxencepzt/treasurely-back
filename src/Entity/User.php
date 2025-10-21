@@ -111,6 +111,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 50)]
     #[Groups(['user:read', 'user:write'])]
+    #[UniqueUserNickname(message: 'Le pseudo {{ value }} est déjà pris.')]
     private string $nickname;
 
     /**
