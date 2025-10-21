@@ -29,7 +29,7 @@ class PictureController extends AbstractController
         $uploadedFile = $request->files->get('image');
 
         if (!$uploadedFile) {
-            return $this->json(['error' => 'No file uploaded or invalid key.'], Response::HTTP_BAD_REQUEST);
+            return $this->json(['error' => 'Aucun fichier téléchargé ou clé invalide.'], Response::HTTP_BAD_REQUEST);
         }
 
         if (UPLOAD_ERR_OK !== $uploadedFile->getError()) {
@@ -54,7 +54,7 @@ class PictureController extends AbstractController
             $fileContent = \file_get_contents($uploadedFile->getPathname());
 
             if (false === $fileContent) {
-                throw new \RuntimeException('Failed to read file content.');
+                throw new \RuntimeException('Impossible de lire le contenu du fichier.');
             }
 
             $picture = new Picture();
