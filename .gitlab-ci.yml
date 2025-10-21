@@ -68,4 +68,6 @@ test:
   artifacts:
     paths:
       - tests/_output
+    exclude:
+      - tests/_output/.gitignore
     expire_in: 1 week
