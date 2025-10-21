@@ -1,0 +1,72 @@
+stages:
+  - install
+  - lint
+  - test
+
+install:
+  stage: install
+  script:
+    - composer install --prefer-dist --no-ansi --no-interaction --no-progress
+  tags:
+    - php8.3
+    - composer
+  artifacts:
+    paths:
+      - vendor/
+    expire_in: 1 week
+
+php_cs:
+  stage: lint
+  dependencies:
+    - install
+  script:
+    - composer test:csfixer
+  tags:
+    - php8.3
+    - composer
+
+twig_cs:
+  stage: lint
+  dependencies:
+    - install
+  script:
+    - composer test:twig
+  tags:
+    - php8.3
+    - composer
+
+phpstan:
+  stage: lint
+  dependencies:
+    - install
+  script:
+    - composer test:phpstan
+  tags:
+    - php8.3
+    - composer
+
+lint_yaml:
+  stage: lint
+  dependencies:
+    - install
+  script:
+    - composer test:yaml
+  tags:
+    - php8.3
+    - composer
+
+test:
+  stage: test
+  dependencies:
+    - install
+  script:
+    - composer test:codeception
+  tags:
+    - php8.3
+    - composer
+  artifacts:
+    paths:
+      - tests/_output
+    exclude:
+      - tests/_output/.gitignore
+    expire_in: 1 week

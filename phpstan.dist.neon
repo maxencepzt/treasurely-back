@@ -7,6 +7,8 @@ parameters:
     - config/
     - public/
   excludePaths:
-    - tests/Support/_generated/
-    - tests/Support/Helper/
-    - tests/bootstrap.php
+    analyse:
+      - tests/Support/Helper/
+      - tests/bootstrap.php
+    analyseAndScan:
+      - tests/Support/_generated/

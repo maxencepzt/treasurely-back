@@ -107,6 +107,7 @@
       "php-cs-fixer fix"
     ],
     "test:phpstan": [
+      "php vendor/bin/codecept build",
       "phpstan analyse"
     ],
     "test:twig" : [
