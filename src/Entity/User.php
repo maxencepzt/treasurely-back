@@ -26,7 +26,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-#[ORM\UniqueConstraint(name: 'UNIQUE_IDENTIFIERS', fields: ['nickname', 'email'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_NICKNAME', fields: ['nickname'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_EMAIL', fields: ['email'])]
 #[ApiResource(
     operations: [
         // Get collection of users (non-sensitive data only)
@@ -83,7 +84,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 summary: 'Get my account',
                 description: 'Retrieve the currently authenticated user\'s information. Requires ROLE_USER permission.'
             ),
-            normalizationContext: ['groups' => ['user:write', 'user:id']],
+            normalizationContext: ['groups' => ['user:read', 'user:id']],
             security: "is_granted('ROLE_USER') and object == user",
             provider: MeProvider::class,
         ),
@@ -110,7 +111,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read'])]
     #[UniqueUserNickname(message: 'Le pseudo {{ value }} est déjà pris.')]
     private string $nickname;
 
@@ -136,7 +137,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $lastname;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read'])]
     #[Assert\Email(
         message: 'The email {{ value }} is not a valid email.',
     )]
