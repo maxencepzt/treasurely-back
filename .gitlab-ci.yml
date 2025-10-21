@@ -7,7 +7,6 @@ install:
   stage: install
   script:
     - composer install --prefer-dist --no-ansi --no-interaction --no-progress
-    - php vendor/bin/codecept build
   tags:
     - php8.3
     - composer
@@ -21,7 +20,7 @@ php_cs:
   dependencies:
     - install
   script:
-    - vendor/bin/php-cs-fixer fix --dry-run
+    - composer test:csfixer
   tags:
     - php8.3
     - composer
@@ -31,7 +30,7 @@ twig_cs:
   dependencies:
     - install
   script:
-    - vendor/bin/twig-cs-fixer lint
+    - composer test:twig
   tags:
     - php8.3
     - composer
@@ -41,7 +40,7 @@ phpstan:
   dependencies:
     - install
   script:
-    - vendor/bin/phpstan analyse
+    - composer test:phpstan
   tags:
     - php8.3
     - composer
@@ -51,7 +50,7 @@ lint_yaml:
   dependencies:
     - install
   script:
-    - php bin/console lint:yaml config
+    - composer test:yaml
   tags:
     - php8.3
     - composer
