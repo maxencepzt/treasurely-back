@@ -5,9 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
-use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Controller\GetPictureController;
 use App\Repository\PictureRepository;
 use Doctrine\DBAL\Types\Types;
@@ -17,16 +15,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: PictureRepository::class)]
 #[ApiResource(
     operations: [
-        new Post(
-            uriTemplate: 'pictures/new',
-            openapi: new Operation(
-                summary: 'Picture creation',
-                description: 'Create a new picture by providing necessary details. This endpoint is only accessible by admins.',
-            ),
-            normalizationContext: ['groups' => ['picture:read', 'picture:id']],
-            denormalizationContext: ['groups' => ['picture:write']],
-            security: "is_granted('ROLE_ADMIN')",
-        ),
         new Get(
             uriTemplate: '/pictures/{id}',
             formats: [
