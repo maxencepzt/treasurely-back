@@ -3,7 +3,6 @@
 namespace App\Factory;
 
 use App\Entity\ParticipateHunt;
-use App\Entity\Riddle;
 use Faker\Generator;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -14,42 +13,14 @@ final class ParticipateHuntFactory extends PersistentProxyObjectFactory
 {
     public static Generator $faker;
 
-    private int $base;
-    private float $alpha;
-
-    public function __construct(int $base = 1000, float $alpha = 0.001)
+    public function __construct()
     {
-        $this->base = $base;
-        $this->alpha = $alpha;
+        parent::__construct();
     }
 
     public static function class(): string
     {
         return ParticipateHunt::class;
-    }
-
-    public static function initializeFaker(): void
-    {
-        self::$faker = self::faker();
-    }
-
-    /**
-     * @param Riddle[] $riddles
-     */
-    public function calculateScore(array $riddles): int
-    {
-        $scoreTotal = 0;
-
-        foreach ($riddles as $riddle) {
-            // $enigme = ['temps' => int, 'difficulte' => int]
-            $time = $riddle['time'];
-            $difficulty = $riddle['difficulty'];
-
-            $score = $this->base * exp(-$this->alpha * $time);
-            $scoreTotal += $difficulty * $score;
-        }
-
-        return (int) floor($scoreTotal);
     }
 
     /**
@@ -59,21 +30,54 @@ final class ParticipateHuntFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
-        return [
-            'lastParticipate' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime('today + 10 days')),
-            'score' => self::faker()->randomNumber(),
-            'time' => self::faker()->numberBetween(1800, 7200),
-        ];
-    }
+        $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTime('today'));
+        $finished = false;
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
-     */
-    protected function initialize(): static
-    {
-        return $this->afterInstantiate(function (ParticipateHunt $participateHunt): void {
-            $riddles = $participateHunt->getHunt()->getRiddles();
-            $participateHunt->setScore($this->calculateScore((array) $riddles));
-        });
+        $user = UserFactory::random();
+        $hunt = TreasureHuntFactory::random();
+        $teamHunt = $hunt->getTeam();
+        $members = $teamHunt->getMembers();
+        $userTeam = false;
+
+        foreach ($members as $member) {
+            if ($user->getId() == $member->getId()) {
+                $userTeam = true;
+            }
+        }
+        $score = 0;
+        $time = 0;
+
+        if ($user->getId() != $hunt->getOwner()->getId()) {
+            if (!$userTeam) {
+                $riddles = $hunt->getRiddles();
+                foreach ($riddles as $riddle) {
+                    $participations = $riddle->getParticipateRiddles();
+                    foreach ($participations as $participation) {
+                        if ($participation->getHunter()->getId() == $user->getId()) {
+                            $score += $participation->getScore();
+                            $time += (int) abs($participation->getFinishTime()->getTimestamp() - $participation->getStartTime()->getTimestamp());
+                        }
+                        if ($participation->getFinishTime()) {
+                            $lastParticipate = $participation->getFinishTime();
+                        } else {
+                            if ($lastParticipate < $participation->getLastParticipate()) {
+                                $lastParticipate = $participation->getLastParticipate();
+                            }
+                        }
+                        if ($riddle->getOrderNumber() == $hunt->getRiddleCount()) {
+                            $finished = true;
+                        }
+                    }
+                }
+
+            }
+        }
+
+        return [
+            'lastParticipate' => $lastParticipate,
+            'score' => $score,
+            'time' => $time,
+            'finished' => $finished,
+        ];
     }
 }
