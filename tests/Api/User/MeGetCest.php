@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Enum\Gender;
 use App\Factory\UserFactory;
 use App\Tests\Support\ApiTester;
+use Codeception\Util\HttpCode;
 
 final class MeGetCest
 {
@@ -79,5 +80,17 @@ final class MeGetCest
         ];
 
         $I->seeResponseIsAnItem(self::expectedProperties(), $expectedData);
+    }
+
+    public function cannotAccessMeRouteAsGuest(ApiTester $I): void
+    {
+        // 1. 'Arrange' pas d'utilisateur authentifié
+
+        // 2. 'Act'
+        $I->sendGet('/api/me');
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
+        $I->seeResponseIsJson();
     }
 }
