@@ -32,24 +32,46 @@ final class ParticipateRiddleFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
-        $startTime = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today - 5 minutes', 'today'));
-        $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today', 'today + 5 minutes'));
-        while ($startTime > $lastParticipate) {
-            $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTime('today + 10 days'));
-        }
+        // Instanciation des données pour tous les utilisateurs
 
+        $startTime = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today - 5 minutes', 'today'));
+        $score = 0;
+        $lastParticipate = $startTime;
+        $finishTime = null;
+
+        // Vérifier si un User n'est pas concepteur de la chasse d'où provient le Riddle
+
+        $user = UserFactory::random();
         $riddleFactory = [GPSRiddleFactory::random(), MCQRiddleFactory::random(), QRRiddleFactory::random(), TextRiddleFactory::random()];
         $riddle = $riddleFactory[array_rand($riddleFactory)];
-        $difficulty = $riddle->getDifficulty();
+        $hunt = $riddle->getHunt();
+        $team = $hunt->getTeam();
+        $members = $team->getMembers();
 
-        $score = 0;
-        $finishTime = null;
-        $finish = (bool) rand(0, 1);
+        if ($user->getId() == $hunt->getOwner()->getId()) {
+            UserFactory::random();
+        } else {
+            foreach ($members as $member) {
+                if ($user->getId() == $member->getId()) {
+                    UserFactory::random();
+                } else {
+                    // Instanciation des données pour un utilisateur qui n'est ni un concepteur, ni le créateur de la chasse
 
-        if ($finish) {
-            $finishTime = $lastParticipate;
-            $time = $finishTime->getTimestamp() - $startTime->getTimestamp();
-            $score = (int) ($difficulty * (1000 * exp(-0.001 * (int) abs($time)))); // Valeurs d'exemples pour le calcul du score
+                    $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today', 'today + 5 minutes'));
+                    while ($startTime > $lastParticipate) {
+                        $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today', 'today + 5 minutes'));
+                    }
+                    $difficulty = $riddle->getDifficulty();
+                    $finish = (bool) rand(0, 1);
+                    if ($finish) {
+                        // Si l'énigme est résolu, mettre fin à l'énigme et calculer son score.
+
+                        $finishTime = $lastParticipate;
+                        $time = $finishTime->getTimestamp() - $startTime->getTimestamp();
+                        $score = (int) ($difficulty * (1000 * exp(-0.001 * (int) abs($time))));
+                    }
+                }
+            }
         }
 
         return [
@@ -57,7 +79,7 @@ final class ParticipateRiddleFactory extends PersistentProxyObjectFactory
             'finishTime' => $finishTime,
             'score' => $score,
             'lastParticipate' => $lastParticipate,
-            'hunter' => UserFactory::random(),
+            'hunter' => $user,
             'riddle' => $riddle,
         ];
     }
