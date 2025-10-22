@@ -12,19 +12,20 @@ use ApiPlatform\OpenApi\Model\Operation;
 use App\Enum\Gender;
 use App\Repository\UserRepository;
 use App\State\MeProvider;
-use App\Validator\UniqueUserEmail;
-use App\Validator\UniqueUserNickname;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
+#[UniqueEntity(fields: ['nickname'], message: 'Ce pseudo est déjà utilisé.')]
+#[UniqueEntity(fields: ['email'], message: 'Cette adresse email est déjà utilisée.')]
 #[ORM\UniqueConstraint(name: 'UNIQ_NICKNAME', fields: ['nickname'])]
 #[ORM\UniqueConstraint(name: 'UNIQ_EMAIL', fields: ['email'])]
 #[ApiResource(
@@ -99,7 +100,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 50)]
     #[Groups(['user:read'])]
-    #[UniqueUserNickname(message: 'Le pseudo {{ value }} est déjà pris.')]
     private string $nickname;
 
     /**
@@ -128,7 +128,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Email(
         message: 'The email {{ value }} is not a valid email.',
     )]
-    #[UniqueUserEmail(message: 'L\'email {{ value }} est déjà utilisé par un autre compte.')]
     private string $email;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
