@@ -3,7 +3,6 @@
 namespace App\DataFixtures;
 
 use App\Factory\ParticipateRiddleFactory;
-use App\Factory\UserFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\DataFixtures\FixtureInterface;
@@ -13,11 +12,7 @@ class ParticipateRiddleFixtures extends Fixture implements DependentFixtureInter
 {
     public function load(ObjectManager $manager): void
     {
-        ParticipateRiddleFactory::createMany(10, function () {
-            return [
-                'hunter' => UserFactory::random(),
-            ];
-        });
+        ParticipateRiddleFactory::createMany(10);
     }
 
     /**
@@ -28,6 +23,8 @@ class ParticipateRiddleFixtures extends Fixture implements DependentFixtureInter
         return [
             UserFixtures::class,
             RiddleFixtures::class,
+            TeamFixtures::class,
+            TreasureHuntFixtures::class,
         ];
     }
 }
