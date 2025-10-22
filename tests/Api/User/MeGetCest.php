@@ -146,4 +146,22 @@ final class MeGetCest
         $I->seeResponseIsJson();
         $I->dontSeeResponseJsonMatchesJsonPath('$.password');
     }
+
+    public function deactivatedUserCanAccessMeRoute(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne([
+            'activated' => false,
+            'nickname' => 'deactivateduser',
+        ])->_real();
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendGet('/api/me');
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson(['nickname' => 'deactivateduser']);
+    }
 }
