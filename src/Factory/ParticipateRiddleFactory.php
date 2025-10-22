@@ -34,7 +34,7 @@ final class ParticipateRiddleFactory extends PersistentProxyObjectFactory
     {
         // Instanciation des données pour tous les utilisateurs
 
-        $startTime = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today - 5 minutes', 'today'));
+        $startTime = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today -1 day', 'today'));
         $score = 0;
         $lastParticipate = $startTime;
         $finishTime = null;
@@ -48,26 +48,25 @@ final class ParticipateRiddleFactory extends PersistentProxyObjectFactory
         $team = $hunt->getTeam();
         $members = $team->getMembers();
 
-        if ($user->getId() == $hunt->getOwner()->getId()) {
-            UserFactory::random();
-        } else {
+        if ($user->getId() != $hunt->getOwner()->getId()) {
             foreach ($members as $member) {
-                if ($user->getId() == $member->getId()) {
-                    UserFactory::random();
-                } else {
+                if ($user->getId() != $member->getId()) {
                     // Instanciation des données pour un utilisateur qui n'est ni un concepteur, ni le créateur de la chasse
 
-                    $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today', 'today + 5 minutes'));
+                    $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today', 'today + 1 day'));
                     while ($startTime > $lastParticipate) {
-                        $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today', 'today + 5 minutes'));
+                        $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today', 'today + 1 day'));
                     }
-                    $difficulty = $riddle->getDifficulty();
+
                     $finish = (bool) rand(0, 1);
                     if ($finish) {
                         // Si l'énigme est résolu, mettre fin à l'énigme et calculer son score.
 
-                        $finishTime = $lastParticipate;
+                        while ($finishTime != $lastParticipate) {
+                            $finishTime = $lastParticipate;
+                        }
                         $time = $finishTime->getTimestamp() - $startTime->getTimestamp();
+                        $difficulty = $riddle->getDifficulty();
                         $score = (int) ($difficulty * (1000 * exp(-0.001 * (int) abs($time))));
                     }
                 }
