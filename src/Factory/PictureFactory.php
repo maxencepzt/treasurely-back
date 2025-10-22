@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\Picture;
+use App\Story\PictureStory;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -32,7 +33,7 @@ final class PictureFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'image' => file_get_contents('https://picsum.photos/640/480'),
+            'image' => PictureStory::getRandom('pictures'),
         ];
     }
 
