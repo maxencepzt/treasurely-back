@@ -115,4 +115,20 @@ final class MeGetCest
             'nickname' => 'user2',
         ]);
     }
+
+    public function meRouteIncludesUserIdInResponse(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne()->_real();
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendGet('/api/me');
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson(['id' => $user->getId()]);
+        $I->seeResponseJsonMatchesJsonPath('$.id');
+    }
 }
