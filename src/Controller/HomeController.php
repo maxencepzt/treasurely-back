@@ -13,6 +13,6 @@ class HomeController extends AbstractController
     #[Route('/', methods: ['GET'])]
     public function index(): Response
     {
-        return $this->redirect('/api');
+        return $this->redirectToRoute('api_doc');
     }
 }
