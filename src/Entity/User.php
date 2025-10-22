@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Enum\Gender;
 use App\Repository\UserRepository;
+use App\State\MeProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -26,7 +27,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: '`user`')]
 #[UniqueEntity(fields: ['nickname'], message: 'Ce pseudo est déjà utilisé.')]
 #[UniqueEntity(fields: ['email'], message: 'Cette adresse email est déjà utilisée.')]
-#[ORM\UniqueConstraint(name: 'UNIQUE_IDENTIFIERS', fields: ['nickname', 'email'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_NICKNAME', fields: ['nickname'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_EMAIL', fields: ['email'])]
 #[ApiResource(
     operations: [
         // Get collection of users (non-sensitive data only)
@@ -76,6 +78,17 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             security: "is_granted('ROLE_USER') and object == user"
         ),
+        // Get the currently authenticated user's information
+        new Get(
+            uriTemplate: 'me',
+            openapi: new Operation(
+                summary: 'Get my account',
+                description: 'Retrieve the currently authenticated user\'s information. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['user:read', 'user:id']],
+            security: "is_granted('ROLE_USER') and object == user",
+            provider: MeProvider::class,
+        ),
     ]
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -118,7 +131,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private string $email;
 
-    // cannotRegisterWithFutureBirthDate
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Groups(['user:read', 'user:write'])]
     #[Assert\Type(\DateTime::class)]
@@ -151,7 +163,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read'])]
     private ?Picture $profilePicture = null;
 
     #[ORM\Column]
