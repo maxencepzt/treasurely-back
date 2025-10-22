@@ -131,4 +131,19 @@ final class MeGetCest
         $I->seeResponseContainsJson(['id' => $user->getId()]);
         $I->seeResponseJsonMatchesJsonPath('$.id');
     }
+
+    public function passwordIsNotReturnedInMeRoute(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne(['password' => 'securepassword123'])->_real();
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendGet('/api/me');
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeResponseIsJson();
+        $I->dontSeeResponseJsonMatchesJsonPath('$.password');
+    }
 }
