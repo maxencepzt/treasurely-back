@@ -93,4 +93,26 @@ final class MeGetCest
         $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
         $I->seeResponseIsJson();
     }
+
+    public function meRouteReturnsCurrentAuthenticatedUser(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user1 = UserFactory::createOne(['nickname' => 'user1'])->_real();
+        $user2 = UserFactory::createOne(['nickname' => 'user2'])->_real();
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user1);
+        $I->sendGet('/api/me');
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'id' => $user1->getId(),
+            'nickname' => 'user1',
+        ]);
+        $I->dontSeeResponseContainsJson([
+            'nickname' => 'user2',
+        ]);
+    }
 }
