@@ -164,4 +164,25 @@ final class MeGetCest
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson(['nickname' => 'deactivateduser']);
     }
+
+    public function meRouteReturnsAllExpectedFields(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne([
+            'gender' => Gender::WOMAN,
+            'public' => false,
+        ])->_real();
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendGet('/api/me');
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeResponseIsJson();
+
+        foreach (array_keys(self::expectedProperties()) as $property) {
+            $I->seeResponseJsonMatchesJsonPath('$.'.$property);
+        }
+    }
 }
