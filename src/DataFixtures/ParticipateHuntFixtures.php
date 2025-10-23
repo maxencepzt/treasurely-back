@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Factory\ParticipateHuntFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\DataFixtures\FixtureInterface;
@@ -11,10 +12,9 @@ class ParticipateHuntFixtures extends Fixture implements DependentFixtureInterfa
 {
     public function load(ObjectManager $manager): void
     {
-        // $product = new Product();
-        // $manager->persist($product);
-
-        $manager->flush();
+        ParticipateHuntFactory::createMany(10, fn () => [
+            'rate' => array_rand([null, 0, 1, 2, 3, 4, 5]),
+        ]);
     }
 
     /**
@@ -26,7 +26,7 @@ class ParticipateHuntFixtures extends Fixture implements DependentFixtureInterfa
             UserFixtures::class,
             TreasureHuntFixtures::class,
             RiddleFixtures::class,
-            // ParticipateRiddleFixtures::class,
+            ParticipateRiddleFixtures::class,
         ];
     }
 }
