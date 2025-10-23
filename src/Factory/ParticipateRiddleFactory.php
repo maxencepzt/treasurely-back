@@ -1,0 +1,85 @@
+<?php
+
+namespace App\Factory;
+
+use App\Entity\ParticipateRiddle;
+use App\Service\ScoreCalculator;
+use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+
+/**
+ * @extends PersistentProxyObjectFactory<ParticipateRiddle>
+ */
+final class ParticipateRiddleFactory extends PersistentProxyObjectFactory
+{
+    /**
+     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
+     *
+     * @todo inject services if required
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    public static function class(): string
+    {
+        return ParticipateRiddle::class;
+    }
+
+    /**
+     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
+     *
+     * @todo add your default values here
+     */
+    protected function defaults(): array|callable
+    {
+        // Instanciation des données pour tous les utilisateurs
+
+        $startTime = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today - 3 hours', 'today + 3 hours'));
+        $score = 0;
+        $lastParticipate = $startTime;
+        $finishTime = null;
+
+        $service = new ScoreCalculator();
+
+        $user = UserFactory::random();
+        $riddleFactory = [GPSRiddleFactory::random(), MCQRiddleFactory::random(), QRRiddleFactory::random(), TextRiddleFactory::random()];
+        $riddle = $riddleFactory[array_rand($riddleFactory)];
+
+        // Instanciation des données pour un utilisateur qui n'est ni un concepteur, ni le créateur de la chasse
+        if ($service->canUserParticipate($user, $riddle)) {
+            $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today - 3 hours', 'today + 3 hours'));
+            while ($startTime > $lastParticipate) {
+                $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today - 3 hours', 'today + 3 hours'));
+            }
+
+            $finish = (bool) rand(0, 1);
+            if ($finish) {
+                // Si l'énigme est résolu, mettre fin à l'énigme et calculer son score.
+
+                $finishTime = $lastParticipate;
+                $difficulty = $riddle->getDifficulty();
+                $score = $service->calculateScore($startTime, $finishTime, $difficulty);
+            }
+        }
+
+        return [
+            'startTime' => $startTime,
+            'finishTime' => $finishTime,
+            'score' => $score,
+            'lastParticipate' => $lastParticipate,
+            'hunter' => $user,
+            'riddle' => $riddle,
+        ];
+    }
+
+    /**
+     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
+     */
+    protected function initialize(): static
+    {
+        return $this
+            // ->afterInstantiate(function(ParticipateRiddle $participateRiddle): void {})
+        ;
+    }
+}

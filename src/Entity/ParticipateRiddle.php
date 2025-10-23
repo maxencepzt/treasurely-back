@@ -20,9 +20,9 @@ class ParticipateRiddle
     #[Gedmo\Timestampable(on: 'create')]
     private \DateTimeImmutable $startTime;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     #[Assert\LessThanOrEqual('today')]
-    private \DateTimeImmutable $finishTime;
+    private ?\DateTimeImmutable $finishTime = null;
 
     #[ORM\Column]
     #[Assert\Positive]
@@ -62,7 +62,7 @@ class ParticipateRiddle
         return $this->finishTime;
     }
 
-    public function setFinishTime(\DateTimeImmutable $finishTime): static
+    public function setFinishTime(?\DateTimeImmutable $finishTime): static
     {
         $this->finishTime = $finishTime;
 
