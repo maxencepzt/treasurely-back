@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\ParticipateRiddle;
+use App\Service\ScoreCalculator;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -39,31 +40,14 @@ final class ParticipateRiddleFactory extends PersistentProxyObjectFactory
         $lastParticipate = $startTime;
         $finishTime = null;
 
-        // Vérifier si un User n'est pas concepteur de la chasse d'où provient le Riddle
+        $service = new ScoreCalculator();
 
         $user = UserFactory::random();
         $riddleFactory = [GPSRiddleFactory::random(), MCQRiddleFactory::random(), QRRiddleFactory::random(), TextRiddleFactory::random()];
         $riddle = $riddleFactory[array_rand($riddleFactory)];
-        $hunt = $riddle->getHunt();
-
-        $check = true; // Vérification de l'utilisateur
-
-        if ($user->getId() != $hunt->getOwner()->getId()) {
-            $team = $hunt->getTeam();
-            $members = $team->getMembers();
-            foreach ($members as $member) {
-                if ($user->getId() != $member->getId() && $check) {
-                    $check = true;
-                } else {
-                    $check = false;
-                }
-            }
-        } else {
-            $check = false;
-        }
 
         // Instanciation des données pour un utilisateur qui n'est ni un concepteur, ni le créateur de la chasse
-        if ($check) {
+        if ($service->canUserParticipate($user, $riddle)) {
             $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today - 3 hours', 'today + 3 hours'));
             while ($startTime > $lastParticipate) {
                 $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today - 3 hours', 'today + 3 hours'));
@@ -74,9 +58,8 @@ final class ParticipateRiddleFactory extends PersistentProxyObjectFactory
                 // Si l'énigme est résolu, mettre fin à l'énigme et calculer son score.
 
                 $finishTime = $lastParticipate;
-                $time = $finishTime->getTimestamp() - $startTime->getTimestamp();
                 $difficulty = $riddle->getDifficulty();
-                $score = (int) ($difficulty * (1000 * exp(-0.001 * (int) abs($time))));
+                $score = $service->calculateScore($startTime, $finishTime, $difficulty);
             }
         }
 
