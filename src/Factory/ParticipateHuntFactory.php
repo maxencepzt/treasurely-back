@@ -30,47 +30,31 @@ final class ParticipateHuntFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
-        $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTime('today'));
-        $finished = false;
-
         $user = UserFactory::random();
         $hunt = TreasureHuntFactory::random();
-        $teamHunt = $hunt->getTeam();
-        $members = $teamHunt->getMembers();
-        $userTeam = false;
+        $riddles = $hunt->getRiddles();
 
-        foreach ($members as $member) {
-            if ($user->getId() == $member->getId()) {
-                $userTeam = true;
-            }
-        }
         $score = 0;
         $time = 0;
+        $finished = false;
+        $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today - 6 hours', 'today'));
 
-        if ($user->getId() != $hunt->getOwner()->getId()) {
-            if (!$userTeam) {
-                $riddles = $hunt->getRiddles();
-                foreach ($riddles as $riddle) {
-                    $participations = $riddle->getParticipateRiddles();
-                    foreach ($participations as $participation) {
-                        if ($participation->getHunter()->getId() == $user->getId()) {
-                            $score += $participation->getScore();
-                            $time += (int) abs($participation->getFinishTime()->getTimestamp() - $participation->getStartTime()->getTimestamp());
-                        }
-                        if ($participation->getFinishTime()) {
-                            $lastParticipate = $participation->getFinishTime();
-                        } else {
-                            if ($lastParticipate < $participation->getLastParticipate()) {
-                                $lastParticipate = $participation->getLastParticipate();
-                            }
-                        }
-                        if ($riddle->getOrderNumber() == $hunt->getRiddleCount()) {
-                            $finished = true;
-                        }
-                    }
+        $count = 0;
+
+        foreach ($riddles as $riddle) {
+            $participations = $riddle->getParticipateRiddles();
+            foreach ($participations as $participation) {
+                if ($user->getId() == $participation->getHunter()->getId()) {
+                    $score += $participation->getScore();
+                    $time += $participation->getFinishTime()->getTimestamp() - $participation->getStartTime()->getTimestamp();
+                    $lastParticipate = $participation->getLastParticipate();
                 }
-
             }
+            ++$count;
+        }
+
+        if ($hunt->getRiddleCount() == $count) {
+            $finished = true;
         }
 
         return [
@@ -78,6 +62,8 @@ final class ParticipateHuntFactory extends PersistentProxyObjectFactory
             'score' => $score,
             'time' => $time,
             'finished' => $finished,
+            'hunter' => $user,
+            'hunt' => $hunt,
         ];
     }
 }
