@@ -26,7 +26,7 @@ class SSOController extends AbstractController
     ) {
     }
 
-    #[Route('/sso/login', name: 'auth_redirect', methods: ['POST'])]
+    #[Route('/sso/login', name: 'sso_login', methods: ['POST'])]
     public function ssoLogin(Request $request): RedirectResponse|JsonResponse
     {
         $data = json_decode($request->getContent(), true);
