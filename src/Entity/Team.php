@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Controller\GetPictureController;
 use App\Repository\TeamRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -50,6 +51,19 @@ use Symfony\Component\Serializer\Attribute\Groups;
             ),
             security: "is_granted('ROLE_USER') and object.getOwner() == user"
         ),
+        new Get(
+            uriTemplate: '/teams/{id}/picture',
+            formats: [
+                'png' => 'image/png',
+            ],
+            controller: GetPictureController::class,
+            openapi: new Operation(
+                summary: 'Retrieves the picture of the specified team by their ID.',
+                description: 'Retrieves the PNG image corresponding to the picture of the team.',
+            ),
+            normalizationContext: ['groups' => 'team:picture'],
+            security: "is_granted('ROLE_USER')"
+        ),
     ]
 )]
 #[ORM\Entity(repositoryClass: TeamRepository::class)]
@@ -75,6 +89,7 @@ class Team
     private User $owner;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[Groups(['team:picture'])]
     private ?Picture $image = null;
 
     /**
