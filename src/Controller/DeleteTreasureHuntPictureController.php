@@ -11,10 +11,18 @@ final class DeleteTreasureHuntPictureController extends AbstractController
 {
     public function __invoke(TreasureHunt $data, EntityManagerInterface $em): Response
     {
-        $data->setImage(null);
-        $em->persist($data);
-        $em->flush();
+        $user = $this->getUser();
+        $roles = $user->getRoles();
+        if (in_array('ROLE_ADMIN', $roles) || $data->getOwner() === $user) {
+            $image = $data->getImage();
+            $em->remove($image);
+            $data->setImage(null);
+            $em->persist($data);
+            $em->flush();
 
-        return new Response(null, Response::HTTP_NO_CONTENT);
+            return new Response(null, Response::HTTP_NO_CONTENT);
+        }
+
+        return new Response(null, Response::HTTP_FORBIDDEN);
     }
 }
