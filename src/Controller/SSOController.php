@@ -87,7 +87,7 @@ class SSOController extends AbstractController
             $this->em->flush();
         }
 
-        return new JsonResponse(['ok' => true]);
+        return new JsonResponse(['message' => 'Logged out successfully'], 200);
     }
 
     #[Route('/sso/redirect/front', name: 'sso_redirect_front')]
