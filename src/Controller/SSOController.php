@@ -67,7 +67,7 @@ class SSOController extends AbstractController
         return $this->redirectToRoute('app_home_index');
     }
 
-    #[Route('/api/sso/logout', name: 'api_sso_logout', methods: ['POST'])]
+    #[Route('/sso/logout/api', name: 'api_sso_logout', methods: ['POST'])]
     public function ssoLogout(): JsonResponse
     {
         /**
