@@ -3,13 +3,8 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
-use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Repository\HuntTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -19,41 +14,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: HuntTypeRepository::class)]
 #[ApiResource(
     operations: [
-        new GetCollection(
-            openapi: new Operation(
-                summary: 'List of hunt types',
-                description: 'Retrieve all hunt types. Each entry represents a "HuntType" resource. Requires ROLE_USER permission.'
-            ),
-            normalizationContext: ['groups' => ['huntType:read']],
-            security: "is_granted('ROLE_USER')",
-        ),
-        new Post(
-            uriTemplate: 'hunt_types/new',
-            openapi: new Operation(
-                summary: 'HuntType creation',
-                description: 'Create a new hunt type by providing necessary details. This endpoint is only accessible by admins.',
-                requestBody: new RequestBody(
-                    content: new \ArrayObject([
-                        'application/ld+json' => [
-                            'schema' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'title' => ['type' => 'string'],
-                                    'treasureHunts' => ['type' => 'array'],
-                                ],
-                            ],
-                            'example' => [
-                                'title' => 'type',
-                                'treasureHunts' => [],
-                            ],
-                        ],
-                    ])
-                ),
-            ),
-            normalizationContext: ['groups' => ['huntType:read', 'huntType:id']],
-            denormalizationContext: ['groups' => ['huntType:write']],
-            security: "is_granted('ROLE_ADMIN')",
-        ),
         new Get(
             openapi: new Operation(
                 summary: 'HuntType details',
@@ -61,41 +21,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
             ),
             normalizationContext: ['groups' => ['huntType:read']],
             security: "is_granted('ROLE_USER')",
-        ),
-        new Patch(
-            openapi: new Operation(
-                summary: 'Update hunt type',
-                description: 'Update a specific hunt type by their ID. Only admins can update these informations.',
-                requestBody: new RequestBody(
-                    content: new \ArrayObject([
-                        'application/ld+json' => [
-                            'schema' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'title' => ['type' => 'string'],
-                                    'treasureHunts' => ['type' => 'array'],
-                                ],
-                            ],
-                            'example' => [
-                                'title' => 'type',
-                                'treasureHunts' => [],
-                            ],
-                        ],
-                    ])
-                ),
-            ),
-            normalizationContext: ['groups' => ['huntType:read', 'huntType:id']],
-            denormalizationContext: ['groups' => ['huntType:write']],
-            security: "is_granted('ROLE_ADMIN')"
-        ),
-        new Delete(
-            openapi: new Operation(
-                summary: 'Update hunt type',
-                description: 'Delete a specific hunt type by their ID. Only admins can delete.'
-            ),
-            normalizationContext: ['groups' => ['huntType:read', 'huntType:id']],
-            denormalizationContext: ['groups' => ['huntType:write']],
-            security: "is_granted('ROLE_ADMIN')"
         ),
     ]
 )]
