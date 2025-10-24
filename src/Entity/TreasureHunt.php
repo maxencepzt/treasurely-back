@@ -2,47 +2,71 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\OpenApi\Model\Operation;
 use App\Repository\TreasureHuntRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[ApiResource(
+    operations: [
+        new Get(
+            openapi: new Operation(
+                summary: 'Treasure hunt details',
+                description: 'Retrieve detailed information about a specific treasure hunt by their ID. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['treasureHunt:read']],
+            security: "is_granted('ROLE_USER')",
+        ),
+    ]
+)]
 #[ORM\Entity(repositoryClass: TreasureHuntRepository::class)]
 class TreasureHunt
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['treasureHunt:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 20)]
+    #[Groups(['treasureHunt:read'])]
     private string $title;
 
     #[ORM\Column(length: 3000, nullable: true)]
+    #[Groups(['treasureHunt:read'])]
     private ?string $description = null;
 
     #[ORM\Column]
+    #[Groups(['treasureHunt:read'])]
     private bool $public = true;
 
     #[ORM\Column]
     #[Assert\Choice(
         choices: [1, 2, 3],
     )]
+    #[Groups(['treasureHunt:read'])]
     private int $difficulty;
 
     #[ORM\Column]
     #[Assert\PositiveOrZero]
+    #[Groups(['treasureHunt:read'])]
     private int $riddleCount;
 
     /**
      * @var Collection<int, HuntType>
      */
     #[ORM\ManyToMany(targetEntity: HuntType::class, mappedBy: 'treasureHunts')]
+    #[Groups(['treasureHunt:read'])]
     private Collection $huntType;
 
     #[ORM\ManyToOne(inversedBy: 'treasureHunts')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['treasureHunt:read'])]
     private Team $team;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
@@ -50,6 +74,7 @@ class TreasureHunt
 
     #[ORM\ManyToOne(inversedBy: 'treasureHunts')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['treasureHunt:read'])]
     private User $owner;
 
     /**
