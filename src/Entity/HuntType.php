@@ -29,11 +29,11 @@ class HuntType
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['huntType:read', 'huntType:id'])]
+    #[Groups(['huntType:read', 'huntType:id', 'treasureHunt:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['huntType:read', 'huntType:write'])]
+    #[Groups(['huntType:read', 'huntType:write', 'treasureHunt:read'])]
     private string $title;
 
     /**

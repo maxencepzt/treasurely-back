@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
 use Doctrine\ORM\Mapping\InheritanceType;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RiddleRepository::class)]
@@ -25,18 +26,22 @@ class Riddle
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['treasureHunt:riddles'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 20)]
+    #[Groups(['treasureHunt:riddles'])]
     private string $title;
 
     #[ORM\Column(length: 1000)]
+    #[Groups(['treasureHunt:riddles'])]
     private string $description;
 
     #[ORM\Column]
     #[Assert\Choice(
         choices: [1, 2, 3],
     )]
+    #[Groups(['treasureHunt:riddles'])]
     private int $difficulty;
 
     #[ORM\Column]
