@@ -29,6 +29,14 @@ security:
           jwt: ~
           refresh_jwt:
             check_path: /api/token/refresh
+        main:
+          pattern: ^/
+          provider: app_user_provider
+          lazy: true
+          logout:
+            path: /sso/logout
+            invalidate_session: true
+            target: 'http://localhost:5173/'
 
     access_control:
       - { path: ^/api/auth, roles: PUBLIC_ACCESS }
