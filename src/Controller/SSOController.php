@@ -89,4 +89,10 @@ class SSOController extends AbstractController
 
         return new JsonResponse(['ok' => true]);
     }
+
+    #[Route('/sso/redirect/front', name: 'sso_redirect_front')]
+    public function logoutSuccess(): Response
+    {
+        return new Response('<script>window.location.href = "http://localhost:5173/";</script>');
+    }
 }

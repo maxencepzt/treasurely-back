@@ -36,7 +36,7 @@ security:
           logout:
             path: /sso/logout
             invalidate_session: true
-            target: 'http://localhost:5173/'
+            target: sso_redirect_front
 
     access_control:
       - { path: ^/api/auth, roles: PUBLIC_ACCESS }
