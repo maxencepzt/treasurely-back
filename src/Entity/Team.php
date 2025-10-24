@@ -2,27 +2,76 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation;
 use App\Repository\TeamRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
+#[ApiResource(
+    operations: [
+        new Get(
+            openapi: new Operation(
+                summary: 'Team details',
+                description: 'Retrieve detailed information about a specific team by their ID. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['team:read']],
+            security: "is_granted('ROLE_USER')",
+        ),
+        new Post(
+            uriTemplate: 'teams/new',
+            openapi: new Operation(
+                summary: 'Team creation',
+                description: 'Create a new team by providing necessary details. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['team:read', 'team:id']],
+            denormalizationContext: ['groups' => ['team:write']],
+            security: "is_granted('ROLE_USER')",
+        ),
+        new Patch(
+            openapi: new Operation(
+                summary: 'Update team',
+                description: 'Update a specific team by their ID. Users can only update their own information. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['team:read', 'team:id']],
+            denormalizationContext: ['groups' => ['team:write']],
+            security: "is_granted('ROLE_USER') and object.getOwner() == user"
+        ),
+        new Delete(
+            openapi: new Operation(
+                summary: 'Delete team',
+                description: 'Delete a specific team by their ID. Owner can only delete the team. Requires ROLE_USER permission.'
+            ),
+            security: "is_granted('ROLE_USER') and object.getOwner() == user"
+        ),
+    ]
+)]
 #[ORM\Entity(repositoryClass: TeamRepository::class)]
 class Team
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['team:id'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['team:read', 'team:write'])]
     private string $name;
 
     #[ORM\Column(length: 500, nullable: true)]
+    #[Groups(['team:read', 'team:write'])]
     private ?string $description = null;
 
     #[ORM\ManyToOne(inversedBy: 'ownedTeams')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['team:read'])]
     private User $owner;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
