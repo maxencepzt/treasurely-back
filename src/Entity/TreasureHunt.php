@@ -3,8 +3,10 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Controller\DeleteTreasureHuntPictureController;
 use App\Controller\GetPictureController;
 use App\Repository\TreasureHuntRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -43,6 +45,19 @@ use Symfony\Component\Validator\Constraints as Assert;
                 description: 'Retrieves the PNG image corresponding to the picture of the treasure hunt',
             ),
             normalizationContext: ['groups' => ['treasureHunt:picture']],
+            security: "is_granted('ROLE_USER')",
+        ),
+        new Delete(
+            uriTemplate: '/treasure_hunts/{id}/picture',
+            formats: [
+                'png' => 'image/png',
+            ],
+            controller: DeleteTreasureHuntPictureController::class,
+            openapi: new Operation(
+                summary: 'Remove the picture from the treasure hunt',
+                description: 'Remove the PNG image corresponding to the picture of the treasure hunt',
+            ),
+            denormalizationContext: ['groups' => ['treasureHunt:picture']],
             security: "is_granted('ROLE_USER')",
         ),
     ]
