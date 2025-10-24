@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Controller\GetPictureController;
 use App\Repository\TreasureHuntRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -29,6 +30,19 @@ use Symfony\Component\Validator\Constraints as Assert;
                 description: 'Retrieve detailed informations of the riddles from a specific treasure hunt by their ID. Requires ROLE_USER permission.'
             ),
             normalizationContext: ['groups' => ['treasureHunt:riddles']],
+            security: "is_granted('ROLE_USER')",
+        ),
+        new Get(
+            uriTemplate: '/treasure_hunts/{id}/picture',
+            formats: [
+                'png' => 'image/png',
+            ],
+            controller: GetPictureController::class,
+            openapi: new Operation(
+                summary: 'Retrieves the picture from the treasure hunt',
+                description: 'Retrieves the PNG image corresponding to the picture of the treasure hunt',
+            ),
+            normalizationContext: ['groups' => ['treasureHunt:picture']],
             security: "is_granted('ROLE_USER')",
         ),
     ]
@@ -79,6 +93,7 @@ class TreasureHunt
     private Team $team;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[Groups(['treasureHunt:picture'])]
     private ?Picture $image = null;
 
     #[ORM\ManyToOne(inversedBy: 'treasureHunts')]
