@@ -22,6 +22,15 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: ['groups' => ['treasureHunt:read']],
             security: "is_granted('ROLE_USER')",
         ),
+        new Get(
+            uriTemplate: 'treasure_hunts/{id}/riddles',
+            openapi: new Operation(
+                summary: 'Treasure hunt riddles',
+                description: 'Retrieve detailed informations of the riddles from a specific treasure hunt by their ID. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['treasureHunt:riddles']],
+            security: "is_granted('ROLE_USER')",
+        ),
     ]
 )]
 #[ORM\Entity(repositoryClass: TreasureHuntRepository::class)]
@@ -81,6 +90,7 @@ class TreasureHunt
      * @var Collection<int, Riddle>
      */
     #[ORM\OneToMany(targetEntity: Riddle::class, mappedBy: 'hunt', orphanRemoval: true)]
+    #[Groups(['treasureHunt:riddles'])]
     private Collection $riddles;
 
     public function __construct()
