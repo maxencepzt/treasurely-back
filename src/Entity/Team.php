@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Controller\DeleteTeamPictureController;
 use App\Controller\GetPictureController;
 use App\Repository\TeamRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -63,6 +64,19 @@ use Symfony\Component\Serializer\Attribute\Groups;
             ),
             normalizationContext: ['groups' => 'team:picture'],
             security: "is_granted('ROLE_USER')"
+        ),
+        new Delete(
+            uriTemplate: '/treasure_hunts/{id}/picture',
+            formats: [
+                'png' => 'image/png',
+            ],
+            controller: DeleteTeamPictureController::class,
+            openapi: new Operation(
+                summary: 'Remove the picture from the treasure hunt',
+                description: 'Remove the PNG image corresponding to the picture of the treasure hunt',
+            ),
+            denormalizationContext: ['groups' => ['treasureHunt:picture']],
+            security: "is_granted('ROLE_USER')",
         ),
     ]
 )]
