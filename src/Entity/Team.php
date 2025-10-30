@@ -66,16 +66,16 @@ use Symfony\Component\Serializer\Attribute\Groups;
             security: "is_granted('ROLE_USER')"
         ),
         new Delete(
-            uriTemplate: '/treasure_hunts/{id}/picture',
+            uriTemplate: '/teams/{id}/picture',
             formats: [
                 'png' => 'image/png',
             ],
             controller: DeleteTeamPictureController::class,
             openapi: new Operation(
-                summary: 'Remove the picture from the treasure hunt',
-                description: 'Remove the PNG image corresponding to the picture of the treasure hunt',
+                summary: 'Remove the picture from the team',
+                description: 'Remove the PNG image corresponding to the picture of the team',
             ),
-            denormalizationContext: ['groups' => ['treasureHunt:picture']],
+            denormalizationContext: ['groups' => ['team:picture']],
             security: "is_granted('ROLE_USER')",
         ),
     ]
