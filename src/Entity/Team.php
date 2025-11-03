@@ -78,6 +78,15 @@ use Symfony\Component\Serializer\Attribute\Groups;
             denormalizationContext: ['groups' => ['team:picture']],
             security: "is_granted('ROLE_USER')",
         ),
+        new Get(
+            uriTemplate: 'teams/{id}/members',
+            openapi: new Operation(
+                summary: 'Teams members',
+                description: 'Retrieve detailed informations of the members from a specific team by their ID. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['team:members']],
+            security: "is_granted('ROLE_USER')",
+        ),
     ]
 )]
 #[ORM\Entity(repositoryClass: TeamRepository::class)]
@@ -110,6 +119,7 @@ class Team
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'teams', cascade: ['persist'])]
+    #[Groups(['team:members'])]
     private Collection $members;
 
     /**
