@@ -87,6 +87,15 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: ['groups' => ['team:members']],
             security: "is_granted('ROLE_USER')",
         ),
+        new Get(
+            uriTemplate: 'teams/{id}/treasure_hunts',
+            openapi: new Operation(
+                summary: 'Teams treasure hunts',
+                description: 'Retrieve detailed informations of the treasure hunts from a specific team by their ID. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['team:treasureHunts']],
+            security: "is_granted('ROLE_USER')",
+        ),
     ]
 )]
 #[ORM\Entity(repositoryClass: TeamRepository::class)]
@@ -126,6 +135,7 @@ class Team
      * @var Collection<int, TreasureHunt>
      */
     #[ORM\OneToMany(targetEntity: TreasureHunt::class, mappedBy: 'team', orphanRemoval: true)]
+    #[Groups(['team:treasureHunts'])]
     private Collection $treasureHunts;
 
     public function __construct()
