@@ -2,12 +2,48 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation;
 use App\Repository\ParticipateRiddleRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ParticipateRiddleRepository::class)]
+#[ApiResource(
+    operations: [
+        new Post(
+            uriTemplate: 'participate_riddles/new',
+            openapi: new Operation(
+                summary: 'Riddle participation creation',
+                description: 'Create a new participation record for a treasure riddle.'
+            ),
+            normalizationContext: ['groups' => ['participate_riddle:read', 'participate_riddle:id']],
+            denormalizationContext: ['groups' => ['participate_riddle:write']],
+            security: 'is_granted("ROLE_USER")',
+        ),
+        new Get(
+            openapi: new Operation(
+                summary: 'Riddle participation details',
+                description: 'Retrieve detailed information about a specific riddle participation by their ID. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['participate_riddle:read']],
+            security: "is_granted('ROLE_USER')",
+        ),
+        new Patch(
+            openapi: new Operation(
+                summary: 'Update riddle participation',
+                description: 'Update a specific riddle participation by their ID.'
+            ),
+            normalizationContext: ['groups' => ['participate_riddle:read', 'participate_riddle:id']],
+            denormalizationContext: ['groups' => ['participate_riddle:write']],
+            security: "is_granted('ROLE_USER')"
+        ),
+    ]
+)]
 class ParticipateRiddle
 {
     #[ORM\Id]
