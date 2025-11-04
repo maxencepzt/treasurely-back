@@ -50,39 +50,40 @@ class ParticipateHunt
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['participate_hunt:read', 'participate_hunt:id'])]
     private ?int $id = null;
 
     #[ORM\Column(nullable: true)]
     #[Assert\Choice(choices: [0, 1, 2, 3, 4, 5])]
-    #[Groups(['playerTeam:treasureHunts'])]
+    #[Groups(['playerTeam:treasureHunts', 'participate_hunt:read'])]
     private ?int $rate = null;
 
     #[ORM\Column]
     #[Assert\PositiveOrZero]
-    #[Groups(['playerTeam:treasureHunts'])]
+    #[Groups(['playerTeam:treasureHunts', 'participate_hunt:read'])]
     private int $time = 0;
 
     #[ORM\Column]
     #[Assert\PositiveOrZero]
-    #[Groups(['playerTeam:treasureHunts'])]
+    #[Groups(['playerTeam:treasureHunts', 'participate_hunt:read'])]
     private int $score;
 
     #[ORM\Column]
-    #[Groups(['playerTeam:treasureHunts'])]
+    #[Groups(['playerTeam:treasureHunts', 'participate_hunt:read'])]
     private bool $finished = false;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    #[Groups(['playerTeam:treasureHunts'])]
+    #[Groups(['playerTeam:treasureHunts', 'participate_hunt:read'])]
     private \DateTimeImmutable $lastParticipate;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['playerTeam:treasureHunts'])]
+    #[Groups(['playerTeam:treasureHunts', 'participate_hunt:read'])]
     private User $hunter;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['playerTeam:treasureHunts'])]
+    #[Groups(['playerTeam:treasureHunts', 'participate_hunt:read'])]
     private TreasureHunt $hunt;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
