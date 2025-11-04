@@ -10,6 +10,7 @@ use ApiPlatform\OpenApi\Model\Operation;
 use App\Repository\ParticipateRiddleRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ParticipateRiddleRepository::class)]
@@ -49,31 +50,38 @@ class ParticipateRiddle
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['participate_riddle:read', 'participate_riddle:id'])]
     private ?int $id = null;
 
     #[ORM\Column]
     #[Assert\LessThanOrEqual('today')]
     #[Gedmo\Timestampable(on: 'create')]
+    #[Groups(['participate_riddle:read'])]
     private \DateTimeImmutable $startTime;
 
     #[ORM\Column(nullable: true)]
     #[Assert\LessThanOrEqual('today')]
+    #[Groups(['participate_riddle:read', 'participate_riddle:write'])]
     private ?\DateTimeImmutable $finishTime = null;
 
     #[ORM\Column]
     #[Assert\Positive]
+    #[Groups(['participate_riddle:read', 'participate_riddle:write'])]
     private int $score;
 
     #[ORM\Column]
     #[Assert\LessThanOrEqual('today')]
+    #[Groups(['participate_riddle:read', 'participate_riddle:write'])]
     private \DateTime $lastParticipate;
 
     #[ORM\ManyToOne(inversedBy: 'participateRiddles')]
     #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['participate_riddle:read'])]
     private ?User $hunter = null;
 
     #[ORM\ManyToOne(inversedBy: 'participateRiddles')]
     #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['participate_riddle:read'])]
     private ?Riddle $riddle = null;
 
     public function getId(): int
