@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Controller\DeleteUserPictureController;
 use App\Controller\GetPictureController;
 use App\Enum\Gender;
 use App\Repository\UserRepository;
@@ -101,6 +102,19 @@ use Symfony\Component\Validator\Constraints as Assert;
                 description: 'Retrieves the PNG image corresponding to the picture of the user',
             ),
             normalizationContext: ['groups' => ['user:picture']],
+            security: "is_granted('ROLE_USER')",
+        ),
+        new Delete(
+            uriTemplate: '/treasure_hunts/{id}/picture',
+            formats: [
+                'png' => 'image/png',
+            ],
+            controller: DeleteUserPictureController::class,
+            openapi: new Operation(
+                summary: 'Remove the picture from the user',
+                description: 'Remove the PNG image corresponding to the picture of the user',
+            ),
+            denormalizationContext: ['groups' => ['user:picture']],
             security: "is_granted('ROLE_USER')",
         ),
     ]
