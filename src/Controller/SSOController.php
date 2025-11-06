@@ -7,6 +7,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -23,8 +24,7 @@ class SSOController extends AbstractController
         private readonly UserRepository $userRepository,
         private readonly TokenStorageInterface $tokenStorage,
         private readonly EntityManagerInterface $em,
-        #[Autowire('%kernel.cache_dir%')]
-        private readonly string $cacheDir,
+        private readonly Security $security,
         #[Autowire('%env(FRONTEND_URL)%')]
         private readonly string $frontendUrl,
     ) {
@@ -72,7 +72,7 @@ class SSOController extends AbstractController
     }
 
     #[Route('/api/sso/logout', name: 'api_sso_logout', methods: ['POST'])]
-    public function ssoLogout(): JsonResponse
+    public function ssoLogout(Request $request): JsonResponse
     {
         /**
          * @var User|null $user
@@ -84,22 +84,16 @@ class SSOController extends AbstractController
 
         $sessionId = $user->getSymfonySessionId();
         if ($sessionId) {
-            // Tenter de supprimer le fichier de session directement
-            $sessionPaths = [
-                $this->cacheDir.'/sessions/sess_'.$sessionId,
-                sys_get_temp_dir().'/sess_'.$sessionId,
-            ];
+            // Restaurer la session Symfony pour pouvoir la détruire proprement
+            $session = $request->getSession();
 
-            foreach ($sessionPaths as $sessionFile) {
-                if (file_exists($sessionFile)) {
-                    try {
-                        unlink($sessionFile);
-                        break; // Session supprimée avec succès
-                    } catch (\Exception $e) {
-                        // Continue avec le prochain chemin ou ignore si échec
-                    }
-                }
-            }
+            // Forcer l'ID de session à celui enregistré en base
+            $session->setId($sessionId);
+            $session->start();
+
+            // Maintenant on peut utiliser la méthode propre de Symfony
+            $this->security->logout(false); // false = pas de redirection
+            $session->invalidate();
 
             // Nettoyer l'ID de session stocké
             $user->setSymfonySessionId(null);
