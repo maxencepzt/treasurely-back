@@ -105,7 +105,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: "is_granted('ROLE_USER')",
         ),
         new Delete(
-            uriTemplate: '/treasure_hunts/{id}/picture',
+            uriTemplate: '/users/{id}/picture',
             formats: [
                 'png' => 'image/png',
             ],
