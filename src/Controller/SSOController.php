@@ -7,6 +7,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +23,8 @@ class SSOController extends AbstractController
         private readonly UserRepository $userRepository,
         private readonly TokenStorageInterface $tokenStorage,
         private readonly EntityManagerInterface $em,
-        private readonly \SessionHandlerInterface $sessionHandler,
+        #[Autowire('%kernel.cache_dir%')]
+        private readonly string $cacheDir,
     ) {
     }
 
@@ -67,7 +69,7 @@ class SSOController extends AbstractController
         return $this->redirectToRoute('app_home_index');
     }
 
-    #[Route('/sso/logout/api', name: 'api_sso_logout', methods: ['POST'])]
+    #[Route('/api/sso/logout', name: 'api_sso_logout', methods: ['POST'])]
     public function ssoLogout(): JsonResponse
     {
         /**
@@ -80,8 +82,24 @@ class SSOController extends AbstractController
 
         $sessionId = $user->getSymfonySessionId();
         if ($sessionId) {
-            // détruit la session stockée côté serveur
-            $this->sessionHandler->destroy($sessionId);
+            // Tenter de supprimer le fichier de session directement
+            $sessionPaths = [
+                $this->cacheDir.'/sessions/sess_'.$sessionId,
+                sys_get_temp_dir().'/sess_'.$sessionId,
+            ];
+
+            foreach ($sessionPaths as $sessionFile) {
+                if (file_exists($sessionFile)) {
+                    try {
+                        unlink($sessionFile);
+                        break; // Session supprimée avec succès
+                    } catch (\Exception $e) {
+                        // Continue avec le prochain chemin ou ignore si échec
+                    }
+                }
+            }
+
+            // Nettoyer l'ID de session stocké
             $user->setSymfonySessionId(null);
             $this->em->persist($user);
             $this->em->flush();
