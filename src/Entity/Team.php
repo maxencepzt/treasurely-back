@@ -33,7 +33,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
                 description: 'Create a new team by providing necessary details. Requires ROLE_USER permission.'
             ),
             normalizationContext: ['groups' => ['team:read', 'team:id']],
-            denormalizationContext: ['groups' => ['team:write']],
+            denormalizationContext: ['groups' => ['team:write', 'team:owner']],
             security: "is_granted('ROLE_USER')",
         ),
         new Patch(
@@ -82,7 +82,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             uriTemplate: 'teams/{id}/members',
             openapi: new Operation(
                 summary: 'Teams members',
-                description: 'Retrieve detailed informations of the members from a specific team by their ID. Requires ROLE_USER permission.'
+                description: 'Retrieve the nickname of each members from a specific team by their ID. Requires ROLE_USER permission.'
             ),
             normalizationContext: ['groups' => ['team:members']],
             security: "is_granted('ROLE_USER')",
@@ -117,7 +117,7 @@ class Team
 
     #[ORM\ManyToOne(inversedBy: 'ownedTeams')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['team:read'])]
+    #[Groups(['team:read', 'team:owner'])]
     private User $owner;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
