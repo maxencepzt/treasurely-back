@@ -25,6 +25,8 @@ class SSOController extends AbstractController
         private readonly EntityManagerInterface $em,
         #[Autowire('%kernel.cache_dir%')]
         private readonly string $cacheDir,
+        #[Autowire('%env(FRONTEND_URL)%')]
+        private readonly string $frontendUrl,
     ) {
     }
 
@@ -111,6 +113,6 @@ class SSOController extends AbstractController
     #[Route('/sso/redirect/front', name: 'sso_redirect_front')]
     public function ssoRedirectFront(): Response
     {
-        return new Response('<script>window.location.href = "http://localhost:5173/";</script>');
+        return new Response('<script>window.location.href = "'.$this->frontendUrl.'/";</script>');
     }
 }
