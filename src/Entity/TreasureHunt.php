@@ -123,14 +123,14 @@ class TreasureHunt
     #[Groups(['treasureHunt:riddles'])]
     private Collection $riddles;
 
-    #[ORM\Column(length: 30)]
-    private string $location;
-
     /**
      * @var Collection<int, ParticipateHunt>
      */
     #[ORM\OneToMany(targetEntity: ParticipateHunt::class, mappedBy: 'hunt')]
     private Collection $participateHunts;
+
+    #[ORM\Column(length: 30)]
+    private string $location;
 
     public function __construct()
     {
