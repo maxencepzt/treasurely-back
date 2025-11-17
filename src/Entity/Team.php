@@ -8,8 +8,8 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
-use App\Controller\DeleteTeamPictureController;
-use App\Controller\GetPictureController;
+use App\Controller\Team\DeleteTeamPictureController;
+use App\Controller\Team\GetTeamPictureController;
 use App\Repository\TeamRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -57,7 +57,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             formats: [
                 'png' => 'image/png',
             ],
-            controller: GetPictureController::class,
+            controller: GetTeamPictureController::class,
             openapi: new Operation(
                 summary: 'Retrieves the picture of the specified team by their ID.',
                 description: 'Retrieves the PNG image corresponding to the picture of the team.',
