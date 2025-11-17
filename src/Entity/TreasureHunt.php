@@ -72,7 +72,7 @@ class TreasureHunt
     private ?int $id = null;
 
     #[ORM\Column(length: 20)]
-    #[Groups(['treasureHunt:read'])]
+    #[Groups(['treasureHunt:read', 'team:treasureHunts'])]
     private string $title;
 
     #[ORM\Column(length: 3000, nullable: true)]
