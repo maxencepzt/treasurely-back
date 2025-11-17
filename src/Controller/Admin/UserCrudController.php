@@ -41,24 +41,26 @@ class UserCrudController extends AbstractCrudController
                     'Femme' => Gender::WOMAN,
                     'Autre' => Gender::OTHER,
                 ])
-            ->formatValue(function ($value) {
-                return match ($value) {
-                    Gender::MAN => 'Homme',
-                    Gender::WOMAN => 'Femme',
-                    Gender::OTHER => 'Autre',
-                    default => 'Non spécifié',
-                };
-            }),
+                ->formatValue(function ($value) {
+                    return match ($value) {
+                        Gender::MAN => 'Homme',
+                        Gender::WOMAN => 'Femme',
+                        Gender::OTHER => 'Autre',
+                        default => 'Non spécifié',
+                    };
+                }),
             BooleanField::new('activated', 'Activé'),
-            ArrayField::new('roles')->formatValue(function (array $roles) {
-                if (in_array('ROLE_ADMIN', $roles)) {
-                    return '<i class="fa fa-shield-alt" aria-hidden="true"></i>';
-                } elseif (in_array('ROLE_USER', $roles)) {
-                    return '<i class="fa fa-user" aria-hidden="true"></i>';
-                }
+            ArrayField::new('roles', 'Rôles')
+                ->setSortable(false)
+                ->formatValue(function (array $roles) {
+                    if (in_array('ROLE_ADMIN', $roles)) {
+                        return '<span class="badge badge-danger"><i class="fa fa-shield-alt"></i> Admin</span>';
+                    } elseif (in_array('ROLE_USER', $roles)) {
+                        return '<span class="badge badge-primary"><i class="fa fa-user"></i> Utilisateur</span>';
+                    }
 
-                return '';
-            }),
+                    return '<span class="badge badge-secondary">Aucun</span>';
+                }),
             DateField::new('creationDate', 'Date de création')->hideOnForm(),
             AssociationField::new('ownedTeams', 'Équipes créées')->hideOnForm(),
             AssociationField::new('teams', 'Membre des équipes'),
