@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\TreasureHunt;
 
 use App\Entity\TreasureHunt;
 use Doctrine\ORM\EntityManagerInterface;
