@@ -3,11 +3,16 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Picture;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Validator\Constraints\File;
 
 /**
  * @extends AbstractCrudController<Picture>
@@ -24,7 +29,7 @@ class PictureCrudController extends AbstractCrudController
         return $crud
             ->setPageTitle('index', 'Images')
             ->setPageTitle('detail', 'Image #%entity_id%')
-            ->setHelp('index', 'Les images sont stockées en base de données (BLOB). Cliquez sur "Afficher" pour voir le lien API.')
+            ->setHelp('index', 'Les images sont stockées en base de données (BLOB). Uploadez une image pour la stocker.')
             ->setHelp('detail', 'Utilisez le lien ci-dessous pour visualiser l\'image.')
             ->showEntityActionsInlined();
     }
@@ -39,13 +44,71 @@ class PictureCrudController extends AbstractCrudController
             ->setCssClass('btn btn-primary');
 
         return $actions
-            ->add(Crud::PAGE_INDEX, $viewImageAction);
+            ->add(Crud::PAGE_INDEX, $viewImageAction)
+            ->add(Crud::PAGE_DETAIL, $viewImageAction);
     }
 
     public function configureFields(string $pageName): iterable
     {
-        return [
+        $fields = [
             IdField::new('id', 'ID')->hideOnForm(),
         ];
+
+        if (Crud::PAGE_NEW === $pageName || Crud::PAGE_EDIT === $pageName) {
+            $fields[] = Field::new('uploadedFile', 'Image')
+                ->setFormType(FileType::class)
+                ->setFormTypeOptions([
+                    'mapped' => false,
+                    'required' => Crud::PAGE_NEW === $pageName,
+                    'constraints' => [
+                        new File([
+                            'maxSize' => '5M',
+                            'mimeTypes' => [
+                                'image/jpeg',
+                                'image/jpg',
+                                'image/png',
+                                'image/gif',
+                            ],
+                            'mimeTypesMessage' => 'Veuillez uploader une image valide (JPG, PNG, GIF)',
+                        ]),
+                    ],
+                ])
+                ->setHelp('Formats acceptés : PNG, JPG, JPEG, GIF (max 5MB). L\'image sera stockée directement en base de données.');
+        }
+
+        return $fields;
+    }
+
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        $this->handleImageUpload($entityInstance);
+
+        parent::persistEntity($entityManager, $entityInstance);
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        $this->handleImageUpload($entityInstance);
+
+        parent::updateEntity($entityManager, $entityInstance);
+    }
+
+    private function handleImageUpload(Picture $picture): void
+    {
+        $request = $this->container->get('request_stack')->getCurrentRequest();
+
+        if ($request) {
+            /** @var UploadedFile|null $uploadedFile */
+            $uploadedFile = $request->files->get('Picture')['uploadedFile'] ?? null;
+
+            if ($uploadedFile instanceof UploadedFile) {
+                // Lire directement le contenu du fichier en mémoire sans le stocker
+                $imageContent = file_get_contents($uploadedFile->getPathname());
+
+                if (false !== $imageContent) {
+                    $picture->setImage($imageContent);
+                }
+            }
+        }
     }
 }
