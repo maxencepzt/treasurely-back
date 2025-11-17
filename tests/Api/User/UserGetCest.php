@@ -31,6 +31,7 @@ final class UserGetCest
             'profilePicture' => 'string|null',
             'totalTime' => 'integer',
             'totalHunt' => 'integer',
+            'description' => 'string',
         ];
     }
 
