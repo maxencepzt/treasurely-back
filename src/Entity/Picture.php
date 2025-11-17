@@ -69,4 +69,9 @@ class Picture
 
         return $this;
     }
+
+    public function __toString(): string
+    {
+        return sprintf('Image #%d', $this->id ?? 0);
+    }
 }
