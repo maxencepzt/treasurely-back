@@ -6,8 +6,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\OpenApi\Model\Operation;
-use App\Controller\DeleteTreasureHuntPictureController;
-use App\Controller\GetPictureController;
+use App\Controller\TreasureHunt\DeleteTreasureHuntPictureController;
+use App\Controller\TreasureHunt\GetTreasureHuntPictureController;
 use App\Repository\TreasureHuntRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -39,7 +39,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             formats: [
                 'png' => 'image/png',
             ],
-            controller: GetPictureController::class,
+            controller: GetTreasureHuntPictureController::class,
             openapi: new Operation(
                 summary: 'Retrieves the picture from the treasure hunt',
                 description: 'Retrieves the PNG image corresponding to the picture of the treasure hunt',
