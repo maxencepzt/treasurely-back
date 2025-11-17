@@ -67,7 +67,8 @@ class UserCrudController extends AbstractCrudController
                     }
 
                     return '<span class="badge badge-secondary">Aucun</span>';
-                }),
+                })
+                ->setHelp('Les rôles disponibles sont : <code>ROLE_ADMIN</code> et <code>ROLE_USER</code>.'),
             DateField::new('creationDate', 'Date de création')->hideOnForm(),
             AssociationField::new('ownedTeams', 'Équipes créées')->hideOnForm(),
             AssociationField::new('teams', 'Membre des équipes'),
