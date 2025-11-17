@@ -244,6 +244,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write'])]
     private string $description = '';
 
+    /**
+     * @var Collection<int, ParticipateHunt>
+     */
+    #[ORM\OneToMany(targetEntity: ParticipateHunt::class, mappedBy: 'hunter')]
+    private Collection $participateHunts;
+
     public function __construct()
     {
         $this->ownedTeams = new ArrayCollection();
@@ -254,6 +260,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->activated = true;
         $this->setTotalTime(0);
         $this->setTotalHunt(0);
+        $this->participateHunts = new ArrayCollection();
     }
 
     public function getId(): int
@@ -617,6 +624,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setDescription(string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ParticipateHunt>
+     */
+    public function getParticipateHunts(): Collection
+    {
+        return $this->participateHunts;
+    }
+
+    public function addParticipateHunt(ParticipateHunt $participateHunt): static
+    {
+        if (!$this->participateHunts->contains($participateHunt)) {
+            $this->participateHunts->add($participateHunt);
+            $participateHunt->setHunter($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParticipateHunt(ParticipateHunt $participateHunt): static
+    {
+        if ($this->participateHunts->removeElement($participateHunt)) {
+            // set the owning side to null (unless already changed)
+            if ($participateHunt->getHunter() === $this) {
+                $participateHunt->setHunter(null);
+            }
+        }
 
         return $this;
     }
