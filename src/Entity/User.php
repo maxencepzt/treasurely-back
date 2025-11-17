@@ -9,8 +9,8 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
-use App\Controller\DeleteUserPictureController;
-use App\Controller\GetPictureController;
+use App\Controller\User\DeleteUserPictureController;
+use App\Controller\User\GetUserPictureController;
 use App\Enum\Gender;
 use App\Repository\UserRepository;
 use App\State\MeProvider;
@@ -96,7 +96,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             formats: [
                 'png' => 'image/png',
             ],
-            controller: GetPictureController::class,
+            controller: GetUserPictureController::class,
             openapi: new Operation(
                 summary: 'Retrieves the picture from the user',
                 description: 'Retrieves the PNG image corresponding to the picture of the user',
