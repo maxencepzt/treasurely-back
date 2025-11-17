@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Controller\User\DeleteUserPictureController;
 use App\Controller\User\GetUserPictureController;
+use App\Controller\User\UploadUserPictureController;
 use App\Enum\Gender;
 use App\Repository\UserRepository;
 use App\State\MeProvider;
@@ -116,6 +117,16 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             denormalizationContext: ['groups' => ['user:picture']],
             security: "is_granted('ROLE_USER')",
+        ),
+        new Post(
+            uriTemplate: '/users/{id}/picture',
+            controller: UploadUserPictureController::class,
+            openapi: new Operation(
+                summary: 'Upload a picture for the user',
+                description: 'Upload an image to set as the picture for the user',
+            ),
+            normalizationContext: ['groups' => ['user:picture']],
+            security: "is_granted('ROLE_USER') and object == user",
         ),
     ]
 )]
