@@ -9,6 +9,8 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Controller\User\DeleteUserPictureController;
+use App\Controller\User\GetUserPictureController;
 use App\Enum\Gender;
 use App\Repository\UserRepository;
 use App\State\MeProvider;
@@ -89,6 +91,32 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: "is_granted('ROLE_USER') and object == user",
             provider: MeProvider::class,
         ),
+        new Get(
+            uriTemplate: '/users/{id}/picture',
+            formats: [
+                'png' => 'image/png',
+            ],
+            controller: GetUserPictureController::class,
+            openapi: new Operation(
+                summary: 'Retrieves the picture from the user',
+                description: 'Retrieves the PNG image corresponding to the picture of the user',
+            ),
+            normalizationContext: ['groups' => ['user:picture']],
+            security: "is_granted('ROLE_USER')",
+        ),
+        new Delete(
+            uriTemplate: '/users/{id}/picture',
+            formats: [
+                'png' => 'image/png',
+            ],
+            controller: DeleteUserPictureController::class,
+            openapi: new Operation(
+                summary: 'Remove the picture from the user',
+                description: 'Remove the PNG image corresponding to the picture of the user',
+            ),
+            denormalizationContext: ['groups' => ['user:picture']],
+            security: "is_granted('ROLE_USER')",
+        ),
     ]
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -163,7 +191,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups(['user:read'])]
+    #[Groups(['user:picture'])]
     private ?Picture $profilePicture = null;
 
     #[ORM\Column]

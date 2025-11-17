@@ -28,7 +28,6 @@ final class MeGetCest
             'creationDate' => 'string:date',
             'public' => 'boolean',
             'gender' => 'string',
-            'profilePicture' => 'string|null',
             'totalTime' => 'integer',
             'totalHunt' => 'integer',
             'description' => 'string',
