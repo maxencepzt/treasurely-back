@@ -44,13 +44,18 @@ final class ParticipateHuntFactory extends PersistentProxyObjectFactory
         foreach ($riddles as $riddle) {
             $participations = $riddle->getParticipateRiddles();
             foreach ($participations as $participation) {
-                if ($user->getId() == $participation->getHunter()->getId()) {
+                if ($user->getId() == $participation->getHunter()->getId() && $hunt->getId() == $riddle->getHunt()->getId()) {
+                    if ($lastParticipate <= $participation->getLastParticipate()) {
+                        $lastParticipate = $participation->getLastParticipate();
+                    }
                     $score += $participation->getScore();
                     $time += $participation->getFinishTime()->getTimestamp() - $participation->getStartTime()->getTimestamp();
-                    $lastParticipate = $participation->getLastParticipate();
+                    if ($lastParticipate <= $participation->getFinishTime()) {
+                        $lastParticipate = $participation->getFinishTime();
+                    }
+                    ++$count;
                 }
             }
-            ++$count;
         }
 
         if ($hunt->getRiddleCount() == $count) {
