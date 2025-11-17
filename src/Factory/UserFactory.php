@@ -68,6 +68,7 @@ final class UserFactory extends PersistentProxyObjectFactory
             'roles' => [],
             'totalHunt' => self::faker()->randomNumber(),
             'totalTime' => self::faker()->randomNumber(),
+            'description' => self::faker()->text(150),
         ];
     }
 

@@ -31,6 +31,7 @@ final class MeGetCest
             'profilePicture' => 'string|null',
             'totalTime' => 'integer',
             'totalHunt' => 'integer',
+            'description' => 'string',
         ];
     }
 

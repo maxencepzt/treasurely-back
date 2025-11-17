@@ -201,6 +201,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $symfonySessionId = null;
 
+    #[ORM\Column(length: 150)]
+    #[Groups(['user:read', 'user:write'])]
+    private string $description = '';
+
     public function __construct()
     {
         $this->ownedTeams = new ArrayCollection();
@@ -562,6 +566,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setSymfonySessionId(?string $symfonySessionId): static
     {
         $this->symfonySessionId = $symfonySessionId;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
 
         return $this;
     }
