@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Home Page{% endblock %}
+
+{% block body %}
+    <h1>Welcome to the Home Page</h1>
+    <p>This is the main content of the home page.</p>
+
+    <a href="{{ path('sso_logout') }}">Retourner sur le site</a>
+{% endblock %}

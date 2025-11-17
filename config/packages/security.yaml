@@ -29,6 +29,14 @@ security:
           jwt: ~
           refresh_jwt:
             check_path: /api/token/refresh
+        main:
+          pattern: ^/
+          provider: app_user_provider
+          lazy: true
+          logout:
+            path: sso_logout
+            invalidate_session: true
+            target: sso_redirect_front
 
     access_control:
       - { path: ^/api/auth, roles: PUBLIC_ACCESS }

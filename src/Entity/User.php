@@ -198,6 +198,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: ParticipateRiddle::class, mappedBy: 'hunter', orphanRemoval: true)]
     private Collection $participateRiddles;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $symfonySessionId = null;
+
     public function __construct()
     {
         $this->ownedTeams = new ArrayCollection();
@@ -547,6 +550,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $participateRiddle->setHunter(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSymfonySessionId(): ?string
+    {
+        return $this->symfonySessionId;
+    }
+
+    public function setSymfonySessionId(?string $symfonySessionId): static
+    {
+        $this->symfonySessionId = $symfonySessionId;
 
         return $this;
     }
