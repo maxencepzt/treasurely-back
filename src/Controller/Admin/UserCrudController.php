@@ -40,7 +40,15 @@ class UserCrudController extends AbstractCrudController
                     'Homme' => Gender::MAN,
                     'Femme' => Gender::WOMAN,
                     'Autre' => Gender::OTHER,
-                ]),
+                ])
+            ->formatValue(function ($value) {
+                return match ($value) {
+                    Gender::MAN => 'Homme',
+                    Gender::WOMAN => 'Femme',
+                    Gender::OTHER => 'Autre',
+                    default => 'Non spécifié',
+                };
+            }),
             BooleanField::new('activated', 'Activé'),
             ArrayField::new('roles', 'Rôles'),
             DateField::new('creationDate', 'Date de création')->hideOnForm(),
