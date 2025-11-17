@@ -126,10 +126,17 @@ class TreasureHunt
     #[ORM\Column(length: 30)]
     private string $location;
 
+    /**
+     * @var Collection<int, ParticipateHunt>
+     */
+    #[ORM\OneToMany(targetEntity: ParticipateHunt::class, mappedBy: 'hunt')]
+    private Collection $participateHunts;
+
     public function __construct()
     {
         $this->huntType = new ArrayCollection();
         $this->riddles = new ArrayCollection();
+        $this->participateHunts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -290,9 +297,34 @@ class TreasureHunt
         return $this;
     }
 
-    public function __toString(): string
+    /**
+     * @return Collection<int, ParticipateHunt>
+     */
+    public function getParticipateHunts(): Collection
     {
-        return $this->title;
+        return $this->participateHunts;
+    }
+
+    public function addParticipateHunt(ParticipateHunt $participateHunt): static
+    {
+        if (!$this->participateHunts->contains($participateHunt)) {
+            $this->participateHunts->add($participateHunt);
+            $participateHunt->setHunt($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParticipateHunt(ParticipateHunt $participateHunt): static
+    {
+        if ($this->participateHunts->removeElement($participateHunt)) {
+            // set the owning side to null (unless already changed)
+            if ($participateHunt->getHunt() === $this) {
+                $participateHunt->setHunt(null);
+            }
+        }
+
+        return $this;
     }
 
     public function getLocation(): ?string

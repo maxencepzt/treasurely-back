@@ -37,9 +37,9 @@ class ParticipateHunt
     #[ORM\JoinColumn(nullable: true)]
     private ?User $hunter = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private TreasureHunt $hunt;
+    #[ORM\ManyToOne(inversedBy: 'participateHunts')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?TreasureHunt $hunt = null;
 
     public function getId(): ?int
     {
@@ -111,7 +111,7 @@ class ParticipateHunt
         return $this->hunter;
     }
 
-    public function setHunter(User $hunter): static
+    public function setHunter(?User $hunter): static
     {
         $this->hunter = $hunter;
 
