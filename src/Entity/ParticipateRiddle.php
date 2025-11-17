@@ -116,4 +116,13 @@ class ParticipateRiddle
 
         return $this;
     }
+
+    public function __toString(): string
+    {
+        return sprintf(
+            'Participation #%d - %s',
+            $this->id,
+            $this->riddle ? $this->riddle->getTitle() : 'Aucune énigme'
+        );
+    }
 }
