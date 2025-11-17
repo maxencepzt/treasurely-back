@@ -50,7 +50,15 @@ class UserCrudController extends AbstractCrudController
                 };
             }),
             BooleanField::new('activated', 'Activé'),
-            ArrayField::new('roles', 'Rôles'),
+            ArrayField::new('roles')->formatValue(function (array $roles) {
+                if (in_array('ROLE_ADMIN', $roles)) {
+                    return '<i class="fa fa-shield-alt" aria-hidden="true"></i>';
+                } elseif (in_array('ROLE_USER', $roles)) {
+                    return '<i class="fa fa-user" aria-hidden="true"></i>';
+                }
+
+                return '';
+            }),
             DateField::new('creationDate', 'Date de création')->hideOnForm(),
             AssociationField::new('ownedTeams', 'Équipes créées')->hideOnForm(),
             AssociationField::new('teams', 'Membre des équipes'),
