@@ -202,6 +202,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $symfonySessionId = null;
 
     #[ORM\Column(length: 150)]
+    #[Groups(['user:read', 'user:write'])]
     private string $description = '';
 
     public function __construct()
