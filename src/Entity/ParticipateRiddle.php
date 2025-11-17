@@ -57,7 +57,7 @@ class ParticipateRiddle
         return $this;
     }
 
-    public function getFinishTime(): \DateTimeImmutable
+    public function getFinishTime(): ?\DateTimeImmutable
     {
         return $this->finishTime;
     }
