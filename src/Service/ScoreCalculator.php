@@ -44,9 +44,6 @@ class ScoreCalculator
             foreach ($team->getMembers() as $member) {
                 if ($user === $member) {
                     return false;
-                }
-            }
-        }
 
         return true;
     }
