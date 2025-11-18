@@ -41,6 +41,9 @@ class ParticipateHunt
     #[ORM\JoinColumn(nullable: true)]
     private ?TreasureHunt $hunt = null;
 
+    #[ORM\ManyToOne(inversedBy: 'participateHunts')]
+    private ?PlayerTeam $playerTeam = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -126,6 +129,18 @@ class ParticipateHunt
     public function setHunt(?TreasureHunt $hunt): static
     {
         $this->hunt = $hunt;
+
+        return $this;
+    }
+
+    public function getPlayerTeam(): ?PlayerTeam
+    {
+        return $this->playerTeam;
+    }
+
+    public function setPlayerTeam(?PlayerTeam $playerTeam): static
+    {
+        $this->playerTeam = $playerTeam;
 
         return $this;
     }
