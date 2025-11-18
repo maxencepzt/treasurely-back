@@ -67,22 +67,4 @@ class ImageUploadService
             throw new \InvalidArgumentException(sprintf('Le type de fichier n\'est pas autorisé. Seules les images (JPEG, PNG, GIF, WEBP) sont acceptées. Type reçu: %s', $mimeType ?? 'inconnu'));
         }
     }
-
-    /**
-     * Retourne la taille maximale autorisée en octets.
-     */
-    public function getMaxFileSize(): int
-    {
-        return self::MAX_FILE_SIZE;
-    }
-
-    /**
-     * Retourne les types MIME autorisés.
-     *
-     * @return string[]
-     */
-    public function getAllowedMimeTypes(): array
-    {
-        return self::ALLOWED_MIME_TYPES;
-    }
 }
