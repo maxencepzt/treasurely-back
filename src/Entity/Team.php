@@ -26,7 +26,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
                 summary: 'Team details',
                 description: 'Retrieve detailed information about a specific team by their ID. Requires ROLE_USER permission.'
             ),
-            normalizationContext: ['groups' => ['team:read']],
+            normalizationContext: ['groups' => ['team:read', 'team:id']],
             security: "is_granted('ROLE_USER')",
         ),
         new Post(
@@ -138,6 +138,7 @@ class Team
      */
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'teams', cascade: ['persist'])]
     #[Groups(['team:members'])]
+    // DO NOT REMOVE THE NULL, IT BREAKS EVERYTHING
     private ?Collection $members = null;
 
     public function __construct()
