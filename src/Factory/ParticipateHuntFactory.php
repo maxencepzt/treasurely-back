@@ -27,8 +27,6 @@ final class ParticipateHuntFactory extends PersistentProxyObjectFactory
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
-     * @todo add your default values here
      */
     protected function defaults(): array|callable
     {
@@ -38,12 +36,13 @@ final class ParticipateHuntFactory extends PersistentProxyObjectFactory
         $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today - 300 days', 'today - 250 days'));
 
         $service = new ScoreCalculator();
+        [$score, $time, $finished] = $service->totalScorePerHunt($hunt, $user, $lastParticipate);
 
         return [
             'lastParticipate' => $lastParticipate,
-            'score' => $service->totalScorePerHunt($hunt, $user, $lastParticipate)[0],
-            'time' => $service->totalScorePerHunt($hunt, $user, $lastParticipate)[1],
-            'finished' => $service->totalScorePerHunt($hunt, $user, $lastParticipate)[2],
+            'score' => $score,
+            'time' => $time,
+            'finished' => $finished,
             'hunter' => $user,
             'hunt' => $hunt,
         ];
