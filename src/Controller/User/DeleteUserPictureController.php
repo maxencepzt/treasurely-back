@@ -3,26 +3,22 @@
 namespace App\Controller\User;
 
 use App\Entity\User;
+use App\Service\PictureService;
+use App\Trait\OwnershipCheckTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
 final class DeleteUserPictureController extends AbstractController
 {
-    public function __invoke(User $data, EntityManagerInterface $em): Response
+    use OwnershipCheckTrait;
+
+    public function __invoke(User $data, EntityManagerInterface $em, PictureService $pictureService): Response
     {
-        $user = $this->getUser();
-        $roles = $user->getRoles();
-        if (in_array('ROLE_ADMIN', $roles) || $data === $user) {
-            $image = $data->getProfilePicture();
-            $em->remove($image);
-            $data->setProfilePicture(null);
-            $em->persist($data);
-            $em->flush();
+        $this->checkOwnership($data);
 
-            return new Response(null, Response::HTTP_NO_CONTENT);
-        }
+        $pictureService->deleteEntityImage($data, 'getProfilePicture', 'setProfilePicture', $em);
 
-        return new Response(null, Response::HTTP_FORBIDDEN);
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 }

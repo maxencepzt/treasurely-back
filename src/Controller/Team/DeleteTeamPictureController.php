@@ -3,26 +3,22 @@
 namespace App\Controller\Team;
 
 use App\Entity\Team;
+use App\Service\PictureService;
+use App\Trait\OwnershipCheckTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
 final class DeleteTeamPictureController extends AbstractController
 {
-    public function __invoke(Team $data, EntityManagerInterface $em): Response
+    use OwnershipCheckTrait;
+
+    public function __invoke(Team $data, EntityManagerInterface $em, PictureService $pictureService): Response
     {
-        $user = $this->getUser();
-        $roles = $user->getRoles();
-        if (in_array('ROLE_ADMIN', $roles) || $data->getOwner() === $user) {
-            $image = $data->getImage();
-            $em->remove($image);
-            $data->setImage(null);
-            $em->persist($data);
-            $em->flush();
+        $this->checkOwnership($data);
 
-            return new Response(null, Response::HTTP_NO_CONTENT);
-        }
+        $pictureService->deleteEntityImage($data, 'getImage', 'setImage', $em);
 
-        return new Response(null, Response::HTTP_FORBIDDEN);
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 }

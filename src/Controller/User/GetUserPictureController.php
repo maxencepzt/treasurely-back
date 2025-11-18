@@ -3,13 +3,17 @@
 namespace App\Controller\User;
 
 use App\Entity\User;
+use App\Service\PictureService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
 final class GetUserPictureController extends AbstractController
 {
-    public function __invoke(User $user): Response
+    public function __invoke(User $user, PictureService $pictureService): Response
     {
-        return new Response(stream_get_contents($user->getProfilePicture()->getImage(), offset: 0), Response::HTTP_OK, ['Content-Type' => 'image/png']);
+        return $pictureService->getImageResponse(
+            $user->getProfilePicture(),
+            'public/images/default_picture.png'
+        );
     }
 }
