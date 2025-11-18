@@ -6,7 +6,6 @@ use App\Entity\User;
 use App\Enum\Gender;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -57,18 +56,34 @@ class UserCrudController extends AbstractCrudController
                     };
                 }),
             BooleanField::new('activated', 'Activé'),
-            ArrayField::new('roles', 'Rôles')
+            ChoiceField::new('roles', 'Rôles')
+                ->setChoices([
+                    'Admin' => 'ROLE_ADMIN',
+                    'Utilisateur' => 'ROLE_USER',
+                ])
+                ->setFormTypeOptions([
+                    'multiple' => true,
+                ])
                 ->setSortable(false)
-                ->formatValue(function (array $roles) {
-                    if (in_array('ROLE_ADMIN', $roles)) {
-                        return '<span class="badge badge-danger"><i class="fa fa-shield-alt"></i> Admin</span>';
-                    } elseif (in_array('ROLE_USER', $roles)) {
-                        return '<span class="badge badge-primary"><i class="fa fa-user"></i> Utilisateur</span>';
+                ->formatValue(function ($roles) {
+                    if (!is_array($roles)) {
+                        return (string) $roles;
                     }
 
-                    return '<span class="badge badge-secondary">Aucun</span>';
-                })
-                ->setHelp('Les rôles disponibles sont : <code>ROLE_ADMIN</code> et <code>ROLE_USER</code>.'),
+                    $badges = [];
+                    if (in_array('ROLE_ADMIN', $roles, true)) {
+                        $badges[] = '<span class="badge badge-danger"><i class="fa fa-shield-alt"></i> Admin</span>';
+                    }
+                    if (in_array('ROLE_USER', $roles, true)) {
+                        $badges[] = '<span class="badge badge-primary"><i class="fa fa-user"></i> Utilisateur</span>';
+                    }
+
+                    if (empty($badges)) {
+                        return '<span class="badge badge-secondary">Aucun</span>';
+                    }
+
+                    return implode(' ', $badges);
+                }),
             DateField::new('creationDate', 'Date de création')->hideOnForm(),
             AssociationField::new('ownedTeams', 'Équipes créées')->hideOnForm(),
             AssociationField::new('teams', 'Membre des équipes'),
