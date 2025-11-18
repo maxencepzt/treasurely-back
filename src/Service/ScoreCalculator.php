@@ -39,6 +39,9 @@ class ScoreCalculator
         return $check;
     }
 
+    /**
+     * @return array{0: int, 1: int, 2: bool}
+     */
     public function totalScorePerHunt(TreasureHunt $hunt, User $user, \DateTimeImmutable $lastParticipate): array
     {
         $riddles = $hunt->getRiddles();
@@ -50,17 +53,15 @@ class ScoreCalculator
         $count = 0;
 
         foreach ($riddles as $riddle) {
-            $participations = $riddle->getParticipateRiddles();
-            foreach ($participations as $participation) {
-                if ($user->getId() == $participation->getHunter()->getId() && $hunt->getId() == $riddle->getHunt()->getId()) {
-                    if ($lastParticipate <= $participation->getLastParticipate()) {
-                        $lastParticipate = $participation->getLastParticipate();
-                    }
+            foreach ($riddle->getParticipateRiddles() as $participation) {
+                if ($user->getId() == $participation->getHunter()->getId()) {
                     $score += $participation->getScore();
                     $time += $participation->getFinishTime()->getTimestamp() - $participation->getStartTime()->getTimestamp();
-                    if ($lastParticipate <= $participation->getFinishTime()) {
-                        $lastParticipate = $participation->getFinishTime();
-                    }
+                    $lastParticipate = max(
+                        $lastParticipate,
+                        $participation->getLastParticipate(),
+                        $participation->getFinishTime()
+                    );
                     ++$count;
                 }
             }
