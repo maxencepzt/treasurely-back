@@ -14,6 +14,9 @@ use App\Repository\TeamRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\DiscriminatorColumn;
+use Doctrine\ORM\Mapping\DiscriminatorMap;
+use Doctrine\ORM\Mapping\InheritanceType;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
@@ -99,6 +102,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
     ]
 )]
 #[ORM\Entity(repositoryClass: TeamRepository::class)]
+#[InheritanceType('SINGLE_TABLE')]
+#[DiscriminatorColumn(name: 'discriminator', type: 'string')]
+#[DiscriminatorMap([
+    'playerTeam' => PlayerTeam::class,
+    'designerTeam' => DesignerTeam::class,
+])]
 class Team
 {
     #[ORM\Id]
@@ -125,23 +134,15 @@ class Team
     private ?Picture $image = null;
 
     /**
-     * @var Collection<int, User>
+     * @var Collection<int, User>|null
      */
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'teams', cascade: ['persist'])]
     #[Groups(['team:members'])]
-    private Collection $members;
-
-    /**
-     * @var Collection<int, TreasureHunt>
-     */
-    #[ORM\OneToMany(targetEntity: TreasureHunt::class, mappedBy: 'team', orphanRemoval: true)]
-    #[Groups(['team:treasureHunts'])]
-    private Collection $treasureHunts;
+    private ?Collection $members = null;
 
     public function __construct()
     {
         $this->members = new ArrayCollection();
-        $this->treasureHunts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -202,13 +203,18 @@ class Team
      */
     public function getMembers(): Collection
     {
+        if (null === $this->members) {
+            $this->members = new ArrayCollection();
+        }
+
         return $this->members;
     }
 
     public function addMember(User $member): static
     {
-        if (!$this->members->contains($member)) {
-            $this->members->add($member);
+        $members = $this->getMembers();
+        if (!$members->contains($member)) {
+            $members->add($member);
         }
 
         return $this;
@@ -216,37 +222,7 @@ class Team
 
     public function removeMember(User $member): static
     {
-        $this->members->removeElement($member);
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, TreasureHunt>
-     */
-    public function getTreasureHunts(): Collection
-    {
-        return $this->treasureHunts;
-    }
-
-    public function addTreasureHunt(TreasureHunt $treasureHunt): static
-    {
-        if (!$this->treasureHunts->contains($treasureHunt)) {
-            $this->treasureHunts->add($treasureHunt);
-            $treasureHunt->setTeam($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTreasureHunt(TreasureHunt $treasureHunt): static
-    {
-        if ($this->treasureHunts->removeElement($treasureHunt)) {
-            // set the owning side to null (unless already changed)
-            if ($treasureHunt->getTeam() === $this) {
-                $treasureHunt->setTeam(null);
-            }
-        }
+        $this->getMembers()->removeElement($member);
 
         return $this;
     }

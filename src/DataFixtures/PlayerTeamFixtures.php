@@ -2,16 +2,16 @@
 
 namespace App\DataFixtures;
 
-use App\Factory\TeamFactory;
+use App\Factory\PlayerTeamFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class TeamFixtures extends Fixture implements DependentFixtureInterface
+class PlayerTeamFixtures extends Fixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
-        TeamFactory::createMany(10);
+        PlayerTeamFactory::createMany(10);
     }
 
     public function getDependencies(): array
