@@ -54,7 +54,7 @@ class ScoreCalculator
 
         foreach ($riddles as $riddle) {
             foreach ($riddle->getParticipateRiddles() as $participation) {
-                if ($user->getId() == $participation->getHunter()->getId()) {
+                if ($user->getId() == $participation->getHunter()->getId() && $participation->getFinishTime()) {
                     $score += $participation->getScore();
                     $time += $participation->getFinishTime()->getTimestamp() - $participation->getStartTime()->getTimestamp();
                     $lastParticipate = max(
