@@ -20,23 +20,23 @@ class ScoreCalculator
     public function canUserParticipate(User $user, Riddle $riddle): bool
     {
         $hunt = $riddle->getHunt();
-        $check = true;
 
-        if ($user->getId() != $hunt->getOwner()->getId()) {
-            $team = $hunt->getTeam();
-            $members = $team->getMembers();
-            foreach ($members as $member) {
-                if ($user->getId() != $member->getId() && $check) {
-                    $check = true;
-                } else {
-                    $check = false;
-                }
-            }
-        } else {
-            $check = false;
+        // Le propriétaire de la chasse ne peut pas participer
+        if ($user->getId() === $hunt->getOwner()->getId()) {
+            return false;
         }
 
-        return $check;
+        // Les membres de l'équipe ne peuvent pas participer
+        $team = $hunt->getTeam();
+        if ($team) {
+            foreach ($team->getMembers() as $member) {
+                if ($user->getId() === $member->getId()) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -54,20 +54,23 @@ class ScoreCalculator
 
         foreach ($riddles as $riddle) {
             foreach ($riddle->getParticipateRiddles() as $participation) {
-                if ($user->getId() == $participation->getHunter()->getId() && $participation->getFinishTime()) {
+                $hunter = $participation->getHunter();
+                $finishTime = $participation->getFinishTime();
+
+                if ($user->getId() === $hunter->getId() && $finishTime) {
                     $score += $participation->getScore();
-                    $time += $participation->getFinishTime()->getTimestamp() - $participation->getStartTime()->getTimestamp();
+                    $time += $finishTime->getTimestamp() - $participation->getStartTime()->getTimestamp();
                     $lastParticipate = max(
                         $lastParticipate,
                         $participation->getLastParticipate(),
-                        $participation->getFinishTime()
+                        $finishTime
                     );
                     ++$count;
                 }
             }
         }
 
-        if ($hunt->getRiddleCount() == $count) {
+        if ($hunt->getRiddleCount() === $count) {
             $finished = true;
         }
 
