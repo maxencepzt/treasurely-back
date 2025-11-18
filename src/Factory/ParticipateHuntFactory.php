@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\ParticipateHunt;
+use App\Service\ScoreCalculator;
 use Faker\Generator;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -32,41 +33,16 @@ final class ParticipateHuntFactory extends PersistentProxyObjectFactory
     {
         $user = UserFactory::random();
         $hunt = TreasureHuntFactory::random();
-        $riddles = $hunt->getRiddles();
 
-        $score = 0;
-        $time = 0;
-        $finished = false;
-        $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today - 6 hours', 'today'));
+        $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today - 300 days', 'today - 250 days'));
 
-        $count = 0;
-
-        foreach ($riddles as $riddle) {
-            $participations = $riddle->getParticipateRiddles();
-            foreach ($participations as $participation) {
-                if ($user->getId() == $participation->getHunter()->getId() && $hunt->getId() == $riddle->getHunt()->getId()) {
-                    if ($lastParticipate <= $participation->getLastParticipate()) {
-                        $lastParticipate = $participation->getLastParticipate();
-                    }
-                    $score += $participation->getScore();
-                    $time += $participation->getFinishTime()->getTimestamp() - $participation->getStartTime()->getTimestamp();
-                    if ($lastParticipate <= $participation->getFinishTime()) {
-                        $lastParticipate = $participation->getFinishTime();
-                    }
-                    ++$count;
-                }
-            }
-        }
-
-        if ($hunt->getRiddleCount() == $count) {
-            $finished = true;
-        }
+        $service = new ScoreCalculator();
 
         return [
             'lastParticipate' => $lastParticipate,
-            'score' => $score,
-            'time' => $time,
-            'finished' => $finished,
+            'score' => $service->totalScorePerHunt($hunt, $user, $lastParticipate)[0],
+            'time' => $service->totalScorePerHunt($hunt, $user, $lastParticipate)[1],
+            'finished' => $service->totalScorePerHunt($hunt, $user, $lastParticipate)[2],
             'hunter' => $user,
             'hunt' => $hunt,
         ];

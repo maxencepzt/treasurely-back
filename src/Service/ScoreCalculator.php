@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\Riddle;
+use App\Entity\TreasureHunt;
 use App\Entity\User;
 
 class ScoreCalculator
@@ -36,5 +37,43 @@ class ScoreCalculator
         }
 
         return $check;
+    }
+
+    public function totalScorePerHunt(TreasureHunt $hunt, User $user, \DateTimeImmutable $lastParticipate): array
+    {
+        $riddles = $hunt->getRiddles();
+
+        $score = 0;
+        $time = 0;
+        $finished = false;
+
+        $count = 0;
+
+        foreach ($riddles as $riddle) {
+            $participations = $riddle->getParticipateRiddles();
+            foreach ($participations as $participation) {
+                if ($user->getId() == $participation->getHunter()->getId() && $hunt->getId() == $riddle->getHunt()->getId()) {
+                    if ($lastParticipate <= $participation->getLastParticipate()) {
+                        $lastParticipate = $participation->getLastParticipate();
+                    }
+                    $score += $participation->getScore();
+                    $time += $participation->getFinishTime()->getTimestamp() - $participation->getStartTime()->getTimestamp();
+                    if ($lastParticipate <= $participation->getFinishTime()) {
+                        $lastParticipate = $participation->getFinishTime();
+                    }
+                    ++$count;
+                }
+            }
+        }
+
+        if ($hunt->getRiddleCount() == $count) {
+            $finished = true;
+        }
+
+        return [
+            $score,
+            $time,
+            $finished,
+        ];
     }
 }
