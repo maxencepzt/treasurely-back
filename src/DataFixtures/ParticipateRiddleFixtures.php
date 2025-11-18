@@ -23,7 +23,6 @@ class ParticipateRiddleFixtures extends Fixture implements DependentFixtureInter
         return [
             UserFixtures::class,
             RiddleFixtures::class,
-            TeamFixtures::class,
             TreasureHuntFixtures::class,
         ];
     }
