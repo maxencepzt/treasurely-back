@@ -45,6 +45,7 @@ final class ParticipateHuntFactory extends PersistentProxyObjectFactory
             'finished' => $finished,
             'hunter' => $user,
             'hunt' => $hunt,
+            'rate' => self::faker()->optional(0.7)->numberBetween(0, 5),
         ];
     }
 }

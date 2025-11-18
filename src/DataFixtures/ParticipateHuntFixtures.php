@@ -12,9 +12,7 @@ class ParticipateHuntFixtures extends Fixture implements DependentFixtureInterfa
 {
     public function load(ObjectManager $manager): void
     {
-        ParticipateHuntFactory::createMany(10, fn () => [
-            'rate' => array_rand([0, 1, 2, 3, 4, 5]),
-        ]);
+        ParticipateHuntFactory::createMany(10);
     }
 
     /**
