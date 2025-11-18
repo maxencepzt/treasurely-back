@@ -2,8 +2,8 @@
 
 namespace App\DataFixtures;
 
+use App\Factory\DesignerTeamFactory;
 use App\Factory\PictureFactory;
-use App\Factory\TeamFactory;
 use App\Factory\TreasureHuntFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -15,13 +15,13 @@ class TreasureHuntFixtures extends Fixture implements DependentFixtureInterface
     public function load(ObjectManager $manager): void
     {
         TreasureHuntFactory::createMany(10, function () {
-            $team = TeamFactory::random();
+            $team = DesignerTeamFactory::random();
             $members = $team->getMembers();
             $owner = $members[array_rand($members->toArray())];
 
             return [
                 'image' => PictureFactory::createOne(),
-                'team' => $team,
+                'designerTeam' => $team,
                 'owner' => $owner,
             ];
         });
@@ -34,7 +34,7 @@ class TreasureHuntFixtures extends Fixture implements DependentFixtureInterface
     {
         return [
             UserFixtures::class,
-            TeamFixtures::class,
+            DesignerTeamFixtures::class,
             PictureFixtures::class,
         ];
     }

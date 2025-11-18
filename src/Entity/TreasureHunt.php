@@ -102,11 +102,6 @@ class TreasureHunt
     #[Groups(['treasureHunt:read'])]
     private Collection $huntType;
 
-    #[ORM\ManyToOne(inversedBy: 'treasureHunts')]
-    #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['treasureHunt:read'])]
-    private Team $team;
-
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[Groups(['treasureHunt:picture'])]
     private ?Picture $image = null;
@@ -122,6 +117,10 @@ class TreasureHunt
     #[ORM\OneToMany(targetEntity: Riddle::class, mappedBy: 'hunt', orphanRemoval: true)]
     #[Groups(['treasureHunt:riddles'])]
     private Collection $riddles;
+
+    #[ORM\ManyToOne(inversedBy: 'hunts')]
+    #[ORM\JoinColumn(nullable: false)]
+    private DesignerTeam $designerTeam;
 
     /**
      * @var Collection<int, ParticipateHunt>
@@ -231,18 +230,6 @@ class TreasureHunt
         return $this;
     }
 
-    public function getTeam(): ?Team
-    {
-        return $this->team;
-    }
-
-    public function setTeam(?Team $team): static
-    {
-        $this->team = $team;
-
-        return $this;
-    }
-
     public function getImage(): ?Picture
     {
         return $this->image;
@@ -337,5 +324,22 @@ class TreasureHunt
         $this->location = $location;
 
         return $this;
+    }
+
+    public function getDesignerTeam(): ?DesignerTeam
+    {
+        return $this->designerTeam;
+    }
+
+    public function setDesignerTeam(?DesignerTeam $designerTeam): static
+    {
+        $this->designerTeam = $designerTeam;
+
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->title;
     }
 }
