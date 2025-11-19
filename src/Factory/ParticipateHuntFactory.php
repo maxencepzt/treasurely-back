@@ -3,8 +3,6 @@
 namespace App\Factory;
 
 use App\Entity\ParticipateHunt;
-use App\Service\ScoreCalculator;
-use App\Entity\Riddle;
 use Faker\Generator;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
@@ -33,10 +31,20 @@ final class ParticipateHuntFactory extends PersistentProxyObjectFactory
         $user = UserFactory::random();
         $hunt = TreasureHuntFactory::random();
 
-        $lastParticipate = \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('today - 300 days', 'today - 250 days'));
+        $lastParticipate = \DateTimeImmutable::createFromMutable(
+            self::faker()->dateTimeBetween('today +20 days', 'today +30 days')
+        );
 
-        $service = new ScoreCalculator();
-        [$score, $time, $finished] = $service->totalScorePerHunt($hunt, $user, $lastParticipate);
+        $finished = self::faker()->boolean(70);
+
+        if ($finished) {
+            $score = self::faker()->numberBetween(1000, 5000);
+            $time = self::faker()->numberBetween(600, 7200); // Entre 10 min et 2h en secondes
+        } else {
+            $hasStarted = self::faker()->boolean(50);
+            $score = $hasStarted ? self::faker()->numberBetween(100, 2000) : 0;
+            $time = $hasStarted ? self::faker()->numberBetween(300, 3600) : 0;
+        }
 
         return [
             'lastParticipate' => $lastParticipate,
