@@ -15,4 +15,10 @@ final class DesignerTeamController extends AbstractController
             'controller_name' => 'DesignerTeamController',
         ]);
     }
+
+    #[Route('/designer/team/details/{id}', name: 'app_designer_team_details')]
+    public function details(int $id): Response
+    {
+        return $this->render('designer/team/details.html.twig');
+    }
 }
