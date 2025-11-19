@@ -134,12 +134,11 @@ class Team
     private ?Picture $image = null;
 
     /**
-     * @var Collection<int, User>|null
+     * @var Collection<int, User>&iterable<User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'teams', cascade: ['persist'])]
     #[Groups(['team:members'])]
-    // DO NOT REMOVE THE NULL, IT BREAKS EVERYTHING
-    private ?Collection $members = null;
+    private Collection $members;
 
     public function __construct()
     {
@@ -204,7 +203,8 @@ class Team
      */
     public function getMembers(): Collection
     {
-        if (null === $this->members) {
+        // @phpstan-ignore-next-line isset.initializedProperty
+        if (!isset($this->members)) {
             $this->members = new ArrayCollection();
         }
 
