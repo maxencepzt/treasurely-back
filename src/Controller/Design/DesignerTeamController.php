@@ -21,4 +21,10 @@ final class DesignerTeamController extends AbstractController
     {
         return $this->render('designer/team/details.html.twig');
     }
+
+    #[Route('/designer/team/create', name: 'app_designer_team_create')]
+    public function create(): Response
+    {
+        return $this->render('designer/team/create.html.twig');
+    }
 }
