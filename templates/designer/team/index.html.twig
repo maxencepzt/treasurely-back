@@ -51,12 +51,7 @@
                             <div class="flex justify-between items-start mb-4">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center text-white font-bold text-xl overflow-hidden">
-                                        {% if team.image %}
-                                            <img src="{{ path('_api_/teams/{id}/picture_get', {id: team.id}) }}" alt="{{ team.name }}" class="w-full h-full object-cover"/>
-                                        {% else %}
-                                            <img src="{{ path('_api_/teams/{id}/picture_get', {id: team.id}) }}" alt="{{ team.name }}" class="w-full h-full object-cover"/>
-
-                                        {% endif %}
+                                        <img src="{{ path('_api_/teams/{id}/picture_get', {id: team.id}) }}" alt="{{ team.name }}" class="w-full h-full object-cover"/>
                                     </div>
                                     <div>
                                         <h3 class="text-lg font-bold text-gray-800 group-hover:text-emerald-600 transition">{{ team.name }}</h3>
@@ -121,11 +116,7 @@
                             <div class="flex justify-between items-start mb-4">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl overflow-hidden">
-                                        {% if team.image %}
-                                            <img src="{{ path('_api_/teams/{id}/picture_get', {id: team.id}) }}" alt="{{ team.name }}" class="w-full h-full object-cover"/>
-                                        {% else %}
-                                            {{ team.name|slice(0, 1)|upper }}
-                                        {% endif %}
+                                        <img src="{{ path('_api_/teams/{id}/picture_get', {id: team.id}) }}" alt="{{ team.name }}" class="w-full h-full object-cover"/>
                                     </div>
                                     <div>
                                         <h3 class="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition">{{ team.name }}</h3>
