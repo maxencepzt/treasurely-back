@@ -1,2 +1,26 @@
 framework:
-    workflows: null
+    workflows:
+      treasure_hunt_workflow:
+        type: 'workflow'
+        audit_trail:
+          enabled: true
+        marking_store:
+          type: 'method'
+          property: 'status'
+        supports:
+          - App\Entity\TreasureHunt
+        initial_marking: !php/const App\Entity\TreasureHunt::STATE_DRAFT
+        places:
+          - !php/const App\Entity\TreasureHunt::STATE_DRAFT
+          - !php/const App\Entity\TreasureHunt::STATE_PUBLISHED
+          - !php/const App\Entity\TreasureHunt::STATE_CLOSED
+        transitions:
+          publish:
+            from: !php/const App\Entity\TreasureHunt::STATE_DRAFT
+            to:   !php/const App\Entity\TreasureHunt::STATE_PUBLISHED
+          close:
+            from: !php/const App\Entity\TreasureHunt::STATE_PUBLISHED
+            to:   !php/const App\Entity\TreasureHunt::STATE_CLOSED
+          republish:
+            from: !php/const App\Entity\TreasureHunt::STATE_CLOSED
+            to:   !php/const App\Entity\TreasureHunt::STATE_PUBLISHED
