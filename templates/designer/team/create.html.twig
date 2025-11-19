@@ -124,142 +124,18 @@
                                 </svg>
                             </div>
 
-                            <!-- Dropdown autocomplétion -->
+                            <!-- Dropdown autocomplétion (rempli dynamiquement par JavaScript) -->
                             <div id="autocomplete_results" class="hidden absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg max-h-64 overflow-y-auto">
-                                <!-- Résultat 1 -->
-                                <div class="p-3 hover:bg-blue-50 cursor-pointer transition flex items-center space-x-3 border-b border-gray-100">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                        AS
-                                    </div>
-                                    <div class="flex-1">
-                                        <p class="font-semibold text-gray-800">Alice Smith</p>
-                                        <p class="text-sm text-gray-500">@alicesmith</p>
-                                    </div>
-                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                    </svg>
-                                </div>
-
-                                <!-- Résultat 2 -->
-                                <div class="p-3 hover:bg-blue-50 cursor-pointer transition flex items-center space-x-3 border-b border-gray-100">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                        BJ
-                                    </div>
-                                    <div class="flex-1">
-                                        <p class="font-semibold text-gray-800">Bob Johnson</p>
-                                        <p class="text-sm text-gray-500">@bobjohnson</p>
-                                    </div>
-                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                    </svg>
-                                </div>
-
-                                <!-- Résultat 3 -->
-                                <div class="p-3 hover:bg-blue-50 cursor-pointer transition flex items-center space-x-3 border-b border-gray-100">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                        CD
-                                    </div>
-                                    <div class="flex-1">
-                                        <p class="font-semibold text-gray-800">Carol Davis</p>
-                                        <p class="text-sm text-gray-500">@caroldavis</p>
-                                    </div>
-                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                    </svg>
-                                </div>
-
-                                <!-- Résultat 4 -->
-                                <div class="p-3 hover:bg-blue-50 cursor-pointer transition flex items-center space-x-3">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                        DW
-                                    </div>
-                                    <div class="flex-1">
-                                        <p class="font-semibold text-gray-800">David Wilson</p>
-                                        <p class="text-sm text-gray-500">@davidwilson</p>
-                                    </div>
-                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                    </svg>
-                                </div>
-
-                                <!-- Aucun résultat -->
-                                <div class="hidden p-6 text-center">
-                                    <svg class="w-12 h-12 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                    </svg>
-                                    <p class="text-gray-500">Aucun utilisateur trouvé</p>
-                                </div>
                             </div>
                         </div>
                         <p class="mt-2 text-sm text-gray-500">Recherchez et ajoutez des concepteurs à votre équipe</p>
                     </div>
 
-                    <!-- Liste des membres ajoutés -->
+                    <!-- Liste des membres ajoutés (gérée dynamiquement par JavaScript) -->
                     <div id="members_list">
-                        <h3 class="text-sm font-semibold text-gray-700 mb-3">Membres ajoutés (3)</h3>
+                        <h3 class="text-sm font-semibold text-gray-700 mb-3">Membres ajoutés (0)</h3>
                         <div class="space-y-2">
-                            <!-- Membre 1 -->
-                            <div class="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                        AS
-                                    </div>
-                                    <div>
-                                        <p class="font-semibold text-gray-800">Alice Smith</p>
-                                        <p class="text-sm text-gray-500">@alicesmith</p>
-                                    </div>
-                                </div>
-                                <button type="button" class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition cursor-pointer" title="Retirer">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <!-- Membre 2 -->
-                            <div class="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                        BJ
-                                    </div>
-                                    <div>
-                                        <p class="font-semibold text-gray-800">Bob Johnson</p>
-                                        <p class="text-sm text-gray-500">@bobjohnson</p>
-                                    </div>
-                                </div>
-                                <button type="button" class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition cursor-pointer" title="Retirer">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <!-- Membre 3 -->
-                            <div class="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                        CD
-                                    </div>
-                                    <div>
-                                        <p class="font-semibold text-gray-800">Carol Davis</p>
-                                        <p class="text-sm text-gray-500">@caroldavis</p>
-                                    </div>
-                                </div>
-                                <button type="button" class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition cursor-pointer" title="Retirer">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Message si aucun membre -->
-                        <div class="hidden p-6 text-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                            <svg class="w-12 h-12 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                            </svg>
-                            <p class="text-gray-500 text-sm">Aucun membre ajouté pour le moment</p>
-                            <p class="text-gray-400 text-xs mt-1">Utilisez la recherche ci-dessus pour ajouter des concepteurs</p>
+                            <!-- Les membres seront ajoutés ici dynamiquement -->
                         </div>
                     </div>
                 </div>
@@ -282,60 +158,5 @@
         </div>
     </div>
 
-    <script>
-        // Simulation de l'autocomplétion (à remplacer par un vrai appel API)
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('member_search');
-            const autocompleteResults = document.getElementById('autocomplete_results');
-
-            // Afficher les résultats au focus
-            searchInput.addEventListener('focus', function() {
-                if (searchInput.value.length > 0 || true) { // true pour toujours afficher en mode démo
-                    autocompleteResults.classList.remove('hidden');
-                }
-            });
-
-            // Masquer les résultats au clic en dehors
-            document.addEventListener('click', function(event) {
-                if (!searchInput.contains(event.target) && !autocompleteResults.contains(event.target)) {
-                    autocompleteResults.classList.add('hidden');
-                }
-            });
-
-            // Filtrage en temps réel (démo)
-            searchInput.addEventListener('input', function() {
-                if (searchInput.value.length > 0) {
-                    autocompleteResults.classList.remove('hidden');
-                } else {
-                    autocompleteResults.classList.add('hidden');
-                }
-            });
-
-            // Ajout de membre (démo)
-            autocompleteResults.querySelectorAll('div[class*="hover:bg-blue-50"]').forEach(function(item) {
-                item.addEventListener('click', function() {
-                    console.log('Membre ajouté:', item.querySelector('.font-semibold').textContent);
-                    autocompleteResults.classList.add('hidden');
-                    searchInput.value = '';
-                    // Ici, vous ajouteriez le membre à la liste
-                });
-            });
-
-            // Retirer un membre (démo)
-            document.querySelectorAll('#members_list button').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    const memberCard = button.closest('div[class*="rounded-xl"]');
-                    memberCard.style.opacity = '0';
-                    memberCard.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        memberCard.remove();
-                        // Mettre à jour le compteur
-                        const countElement = document.querySelector('#members_list h3');
-                        const currentCount = parseInt(countElement.textContent.match(/\d+/)[0]);
-                        countElement.textContent = `Membres ajoutés (${currentCount - 1})`;
-                    }, 200);
-                });
-            });
-        });
-    </script>
+    <script src="{{ asset('js/team-create.js') }}"></script>
 {% endblock %}
