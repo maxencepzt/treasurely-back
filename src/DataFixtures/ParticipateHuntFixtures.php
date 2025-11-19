@@ -23,8 +23,6 @@ class ParticipateHuntFixtures extends Fixture implements DependentFixtureInterfa
         return [
             UserFixtures::class,
             TreasureHuntFixtures::class,
-            RiddleFixtures::class,
-            ParticipateRiddleFixtures::class,
         ];
     }
 }
