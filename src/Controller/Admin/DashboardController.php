@@ -17,8 +17,10 @@ use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
+use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
 class DashboardController extends AbstractDashboardController
@@ -32,6 +34,26 @@ class DashboardController extends AbstractDashboardController
     {
         return Dashboard::new()
             ->setTitle('Treasurely');
+    }
+
+    public function configureUserMenu(UserInterface $user): UserMenu
+    {
+        // Vérifier si l'utilisateur est une instance de notre entité User
+        if (!$user instanceof User) {
+            return parent::configureUserMenu($user);
+        }
+
+        $userMenu = parent::configureUserMenu($user);
+
+        // Si l'utilisateur a une photo de profil, l'utiliser comme avatar
+        if (null !== $user->getProfilePicture()) {
+            $pictureUrl = '/api/users/'.$user->getId().'/picture';
+            $userMenu->setAvatarUrl($pictureUrl);
+        }
+
+        return $userMenu
+            ->setName($user->getNickname())
+            ->displayUserName();
     }
 
     public function configureMenuItems(): iterable
