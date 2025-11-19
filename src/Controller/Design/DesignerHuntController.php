@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Design;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,5 +14,17 @@ final class DesignerHuntController extends AbstractController
         return $this->render('designer/hunt/index.html.twig', [
             'controller_name' => 'DesignerHuntController',
         ]);
+    }
+
+    #[Route('/designer/hunts/details/{id}', name: 'app_designer_hunt_details')]
+    public function details(int $id): Response
+    {
+        return $this->render('designer/hunt/details.html.twig');
+    }
+
+    #[Route('/designer/hunts/create', name: 'app_designer_hunt_create')]
+    public function create(): Response
+    {
+        return $this->render('designer/hunt/create.html.twig');
     }
 }
