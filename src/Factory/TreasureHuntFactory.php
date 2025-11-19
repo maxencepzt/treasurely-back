@@ -40,11 +40,10 @@ final class TreasureHuntFactory extends PersistentProxyObjectFactory
             'public' => self::faker()->boolean(),
             'difficulty' => self::faker()->numberBetween(1, 3),
             'riddleCount' => self::faker()->numberBetween(3, 10),
-            // 'huntType' => null,
             'team' => $team,
             'image' => PictureFactory::new(),
             'owner' => $owner,
-            // 'riddles' => null,
+            'location' => self::faker()->city(),
         ];
     }
 
@@ -55,9 +54,7 @@ final class TreasureHuntFactory extends PersistentProxyObjectFactory
     {
         return $this
             ->afterInstantiate(function (TreasureHunt $treasureHunt): void {
-                for ($i = 0; $i < rand(1, 3); ++$i) {
-                    $treasureHunt->addHuntType(HuntTypeFactory::random()->_real());
-                }
+                $treasureHunt->addHuntType(HuntTypeFactory::random()->_real());
             })
         ;
     }

@@ -123,6 +123,9 @@ class TreasureHunt
     #[Groups(['treasureHunt:riddles'])]
     private Collection $riddles;
 
+    #[ORM\Column(length: 30)]
+    private string $location;
+
     public function __construct()
     {
         $this->huntType = new ArrayCollection();
@@ -206,6 +209,7 @@ class TreasureHunt
     {
         if (!$this->huntType->contains($huntType)) {
             $this->huntType->add($huntType);
+            $huntType->addTreasureHunt($this);
         }
 
         return $this;
@@ -213,7 +217,9 @@ class TreasureHunt
 
     public function removeHuntType(HuntType $huntType): static
     {
-        $this->huntType->removeElement($huntType);
+        if ($this->huntType->removeElement($huntType)) {
+            $huntType->removeTreasureHunt($this);
+        }
 
         return $this;
     }
@@ -287,5 +293,17 @@ class TreasureHunt
     public function __toString(): string
     {
         return $this->title;
+    }
+
+    public function getLocation(): ?string
+    {
+        return $this->location;
+    }
+
+    public function setLocation(string $location): static
+    {
+        $this->location = $location;
+
+        return $this;
     }
 }
