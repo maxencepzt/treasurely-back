@@ -33,17 +33,21 @@ security:
           pattern: ^/
           provider: app_user_provider
           lazy: true
+          entry_point: App\Security\SSOAuthenticationEntryPoint
           logout:
             path: sso_logout
             invalidate_session: true
             target: sso_redirect_front
 
     access_control:
+      - { path: ^/sso/login, roles: PUBLIC_ACCESS }
+      - { path: ^/sso/redirect/front, roles: PUBLIC_ACCESS }
       - { path: ^/api/auth, roles: PUBLIC_ACCESS }
       - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
       - { path: ^/api/register, roles: PUBLIC_ACCESS }
       - { path: ^/api/~, roles: IS_AUTHENTICATED_FULLY }
       - { path: ^/admin, roles: ROLE_ADMIN }
+      - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
