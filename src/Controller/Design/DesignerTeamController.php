@@ -46,9 +46,35 @@ final class DesignerTeamController extends AbstractController
     }
 
     #[Route('/designer/team/details/{id}', name: 'app_designer_team_details')]
-    public function details(int $id): Response
+    public function details(int $id, EntityManagerInterface $entityManager): Response
     {
-        return $this->render('designer/team/details.html.twig');
+        /** @var User|null $currentUser */
+        $currentUser = $this->security->getUser();
+
+        if (!$currentUser) {
+            return $this->redirectToRoute('sso_redirect_login');
+        }
+
+        $teamRepository = $entityManager->getRepository(Team::class);
+        $team = $teamRepository->find($id);
+
+        if (!$team) {
+            throw $this->createNotFoundException('Équipe non trouvée');
+        }
+
+        // Vérifier que l'utilisateur est membre ou propriétaire de l'équipe
+        $isMember = $team->getMembers()->contains($currentUser);
+        $isOwner = $team->getOwner() === $currentUser;
+
+        if (!$isMember && !$isOwner) {
+            throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette équipe');
+        }
+
+        return $this->render('designer/team/details.html.twig', [
+            'team' => $team,
+            'isOwner' => $isOwner,
+            'currentUser' => $currentUser,
+        ]);
     }
 
     #[Route('/designer/team/create', name: 'app_designer_team_create')]
