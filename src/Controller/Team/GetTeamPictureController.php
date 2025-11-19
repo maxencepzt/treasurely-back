@@ -3,13 +3,17 @@
 namespace App\Controller\Team;
 
 use App\Entity\Team;
+use App\Service\PictureService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
 final class GetTeamPictureController extends AbstractController
 {
-    public function __invoke(Team $team): Response
+    public function __invoke(Team $team, PictureService $pictureService): Response
     {
-        return new Response(stream_get_contents($team->getImage()->getImage(), offset: 0), Response::HTTP_OK, ['Content-Type' => 'image/png']);
+        return $pictureService->getImageResponse(
+            $team->getImage(),
+            'public/images/default_picture.png'
+        );
     }
 }
