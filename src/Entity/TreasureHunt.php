@@ -65,6 +65,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: TreasureHuntRepository::class)]
 class TreasureHunt
 {
+    public const string STATE_DRAFT = 'draft';
+    public const string STATE_PUBLISHED = 'published';
+    public const string STATE_CLOSED = 'closed';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -132,6 +136,9 @@ class TreasureHunt
     #[ORM\Column(length: 30)]
     #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
     private string $location;
+
+    #[ORM\Column(type: 'string', length: 10)]
+    private string $status = self::STATE_DRAFT;
 
     #[ORM\Column]
     #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
@@ -286,6 +293,18 @@ class TreasureHunt
                 $riddle->setHunt(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }
