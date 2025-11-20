@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 description: 'Retrieve detailed information about a specific hunt participation by their ID. Requires ROLE_USER permission.'
             ),
             normalizationContext: ['groups' => ['participateHunt:read']],
-            security: "is_granted('ROLE_USER')",
+            security: "is_granted('ROLE_USER') and object == owner",
         ),
         new Patch(
             openapi: new Operation(
@@ -41,7 +41,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             normalizationContext: ['groups' => ['participateHunt:read', 'participateHunt:id']],
             denormalizationContext: ['groups' => ['participateHunt:write']],
-            security: "is_granted('ROLE_USER')"
+            security: "is_granted('ROLE_USER') and object == owner",
         ),
     ]
 )]
