@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ParticipateHuntRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ParticipateHuntRepository::class)]
@@ -17,28 +18,35 @@ class ParticipateHunt
 
     #[ORM\Column(nullable: true)]
     #[Assert\Choice(choices: [0, 1, 2, 3, 4, 5])]
+    #[Groups(['playerTeam:treasureHunts'])]
     private ?int $rate = null;
 
     #[ORM\Column]
     #[Assert\PositiveOrZero]
+    #[Groups(['playerTeam:treasureHunts'])]
     private int $time = 0;
 
     #[ORM\Column]
     #[Assert\PositiveOrZero]
+    #[Groups(['playerTeam:treasureHunts'])]
     private int $score;
 
     #[ORM\Column]
+    #[Groups(['playerTeam:treasureHunts'])]
     private bool $finished = false;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Groups(['playerTeam:treasureHunts'])]
     private \DateTimeImmutable $lastParticipate;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['playerTeam:treasureHunts'])]
     private User $hunter;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['playerTeam:treasureHunts'])]
     private TreasureHunt $hunt;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]

@@ -99,6 +99,15 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: ['groups' => ['team:treasureHunts']],
             security: "is_granted('ROLE_USER')",
         ),
+        new Get(
+            uriTemplate: 'teams/{id}/treasure_hunts/player',
+            openapi: new Operation(
+                summary: 'Player Teams treasure hunts participations',
+                description: 'Retrieve detailed informations of the treasure hunts played from a specific team by their ID. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['playerTeam:treasureHunts']],
+            security: "is_granted('ROLE_USER')",
+        ),
     ]
 )]
 #[ORM\Entity(repositoryClass: TeamRepository::class)]
@@ -233,6 +242,15 @@ class Team
      */
     #[Groups(['team:treasureHunts'])]
     public function getHunts(): Collection
+    {
+        return new ArrayCollection();
+    }
+
+    /**
+     * @return Collection<int, ParticipateHunt>
+     */
+    #[Groups(['playerTeam:treasureHunts'])]
+    public function getParticipateHunts(): Collection
     {
         return new ArrayCollection();
     }
