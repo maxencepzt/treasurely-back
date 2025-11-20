@@ -91,7 +91,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             security: "is_granted('ROLE_USER')",
         ),
         new Get(
-            uriTemplate: 'teams/{id}/treasure_hunts',
+            uriTemplate: 'teams/{id}/treasure_hunts/designer',
             openapi: new Operation(
                 summary: 'Teams treasure hunts',
                 description: 'Retrieve detailed informations of the treasure hunts from a specific team by their ID. Requires ROLE_USER permission.'
@@ -226,6 +226,15 @@ class Team
         $this->getMembers()->removeElement($member);
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, TreasureHunt>
+     */
+    #[Groups(['team:treasureHunts'])]
+    public function getHunts(): Collection
+    {
+        return new ArrayCollection();
     }
 
     public function __toString(): string
