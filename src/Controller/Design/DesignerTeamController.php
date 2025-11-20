@@ -144,7 +144,7 @@ final class DesignerTeamController extends AbstractController
             $team->setDescription($description);
             $team->setOwner($currentUser);
 
-            // Gérer l'upload d'image si présent
+            // Gérer l'upload d'image si présente
             /** @var UploadedFile|null $uploadedFile */
             $uploadedFile = $request->files->get('image');
 
