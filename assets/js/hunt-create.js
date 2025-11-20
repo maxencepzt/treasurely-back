@@ -161,7 +161,7 @@ class RiddleManager {
         choiceDiv.innerHTML = `
             <input type="checkbox" class="mcq-choice-correct w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500" ${isCorrect ? 'checked' : ''}>
             <input type="text" class="mcq-choice-text flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
-                   placeholder="Choix ${choiceIndex + 1}" value="${value}" required>
+                   placeholder="Choix ${choiceIndex + 1}" value="${value}">
             ${choiceIndex >= 2 ? `
                 <button type="button" class="remove-choice-btn text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,35 +191,66 @@ class RiddleManager {
     }
 
     saveRiddle() {
-        const form = document.getElementById('riddle_form');
-        if (!form.checkValidity()) {
-            form.reportValidity();
+        // Valider les champs de base
+        const title = document.getElementById('riddle_title').value.trim();
+        const description = document.getElementById('riddle_description').value.trim();
+        const difficulty = document.getElementById('riddle_difficulty').value;
+        const type = document.getElementById('riddle_type').value;
+
+        if (!title) {
+            alert('Veuillez saisir un titre pour l\'énigme');
+            document.getElementById('riddle_title').focus();
+            return;
+        }
+
+        if (!description) {
+            alert('Veuillez saisir une description pour l\'énigme');
+            document.getElementById('riddle_description').focus();
             return;
         }
 
         const riddleData = {
-            title: document.getElementById('riddle_title').value,
-            description: document.getElementById('riddle_description').value,
-            difficulty: parseInt(document.getElementById('riddle_difficulty').value),
-            type: document.getElementById('riddle_type').value,
+            title: title,
+            description: description,
+            difficulty: parseInt(difficulty),
+            type: type,
         };
 
-        // Ajouter les données spécifiques selon le type
+        // Ajouter et valider les données spécifiques selon le type
         switch (riddleData.type) {
             case 'text':
-                riddleData.answer = document.getElementById('text_answer').value;
+                const textAnswer = document.getElementById('text_answer').value.trim();
+                if (!textAnswer) {
+                    alert('Veuillez saisir la réponse attendue');
+                    document.getElementById('text_answer').focus();
+                    return;
+                }
+                riddleData.answer = textAnswer;
                 break;
             case 'gps':
-                riddleData.latitude = parseFloat(document.getElementById('gps_latitude').value);
-                riddleData.longitude = parseFloat(document.getElementById('gps_longitude').value);
+                const latitude = document.getElementById('gps_latitude').value;
+                const longitude = document.getElementById('gps_longitude').value;
+
+                if (!latitude || !longitude) {
+                    alert('Veuillez saisir les coordonnées GPS (latitude et longitude)');
+                    if (!latitude) {
+                        document.getElementById('gps_latitude').focus();
+                    } else {
+                        document.getElementById('gps_longitude').focus();
+                    }
+                    return;
+                }
+
+                riddleData.latitude = parseFloat(latitude);
+                riddleData.longitude = parseFloat(longitude);
                 break;
             case 'mcq':
                 const choices = [];
                 const answers = [];
                 document.querySelectorAll('.mcq-choice-item').forEach(item => {
-                    const text = item.querySelector('.mcq-choice-text').value;
+                    const text = item.querySelector('.mcq-choice-text').value.trim();
                     const isCorrect = item.querySelector('.mcq-choice-correct').checked;
-                    if (text.trim()) {
+                    if (text) {
                         choices.push(text);
                         if (isCorrect) {
                             answers.push(text);
@@ -227,8 +258,13 @@ class RiddleManager {
                     }
                 });
 
+                if (choices.length < 2) {
+                    alert('Veuillez saisir au moins 2 choix de réponses pour le QCM');
+                    return;
+                }
+
                 if (answers.length === 0) {
-                    alert('Veuillez sélectionner au moins une bonne réponse pour le QCM');
+                    alert('Veuillez cocher au moins une bonne réponse pour le QCM');
                     return;
                 }
 
@@ -236,7 +272,13 @@ class RiddleManager {
                 riddleData.answers = answers;
                 break;
             case 'qr':
-                riddleData.code = document.getElementById('qr_code').value;
+                const qrCode = document.getElementById('qr_code').value.trim();
+                if (!qrCode) {
+                    alert('Veuillez saisir le code QR');
+                    document.getElementById('qr_code').focus();
+                    return;
+                }
+                riddleData.code = qrCode;
                 break;
         }
 
