@@ -51,10 +51,10 @@
                             <p class="mt-1 text-sm text-gray-500">Choisissez un nom captivant et descriptif</p>
                         </div>
 
-                        <!-- Description courte -->
+                        <!-- Description -->
                         <div>
                             <label for="hunt_description" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Description courte <span class="text-red-500">*</span>
+                                Description de la chasse <span class="text-red-500">*</span>
                             </label>
                             <textarea
                                 id="hunt_description"
@@ -64,22 +64,7 @@
                                 placeholder="Une courte description qui apparaîtra dans la liste des chasses..."
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition resize-none"
                             ></textarea>
-                            <p class="mt-1 text-sm text-gray-500">Maximum 200 caractères</p>
-                        </div>
-
-                        <!-- Description détaillée -->
-                        <div>
-                            <label for="hunt_full_description" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Description détaillée
-                            </label>
-                            <textarea
-                                id="hunt_full_description"
-                                name="hunt_full_description"
-                                rows="6"
-                                placeholder="Décrivez en détail votre chasse au trésor, le contexte, l'histoire, ce que les joueurs vont découvrir..."
-                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition resize-none"
-                            ></textarea>
-                            <p class="mt-1 text-sm text-gray-500">Maximum 1000 caractères</p>
+                            <p class="mt-1 text-sm text-gray-500">Maximum 3000 caractères</p>
                         </div>
 
                         <!-- Image de couverture (optionnel) -->
@@ -112,7 +97,7 @@
                     </div>
                 </div>
 
-                <!-- Section: Configuration -->
+                <!-- Section : Configuration -->
                 <div class="bg-white rounded-2xl shadow-lg p-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,24 +149,24 @@
                         <!-- Difficulté -->
                         <div>
                             <label for="hunt_difficulty" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Difficulté
+                                Difficulté <span class="text-red-500">*</span>
                             </label>
                             <select
                                 id="hunt_difficulty"
                                 name="hunt_difficulty"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition cursor-pointer"
+                                required
                             >
                                 <option value="facile">⭐ Facile</option>
                                 <option value="moyen" selected>⭐⭐ Moyen</option>
                                 <option value="difficile">⭐⭐⭐ Difficile</option>
-                                <option value="expert">⭐⭐⭐⭐ Expert</option>
                             </select>
                         </div>
 
                         <!-- Durée estimée -->
                         <div>
                             <label for="hunt_duration" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Durée estimée
+                                Durée estimée <span class="text-red-500">*</span>
                             </label>
                             <div class="flex items-center space-x-2">
                                 <input
@@ -253,7 +238,7 @@
                     <div class="space-y-4">
                         <div>
                             <label for="hunt_city" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Ville
+                                Ville <span class="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
@@ -262,20 +247,6 @@
                                 placeholder="Lyon, Paris, Marseille..."
                                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
                             />
-                        </div>
-
-                        <div>
-                            <label for="hunt_address" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Point de départ (optionnel)
-                            </label>
-                            <input
-                                type="text"
-                                id="hunt_address"
-                                name="hunt_address"
-                                placeholder="Place Bellecour, 69002 Lyon"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
-                            />
-                            <p class="mt-1 text-sm text-gray-500">Indiquez où les joueurs doivent commencer la chasse</p>
                         </div>
 
                         <!-- Carte (placeholder) -->
