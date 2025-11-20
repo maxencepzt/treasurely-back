@@ -34,12 +34,12 @@ class ParticipateHunt
     private \DateTimeImmutable $lastParticipate;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?User $hunter = null;
+    #[ORM\JoinColumn(nullable: false)]
+    private User $hunter;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?TreasureHunt $hunt = null;
+    #[ORM\JoinColumn(nullable: false)]
+    private TreasureHunt $hunt;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     private ?PlayerTeam $playerTeam = null;
