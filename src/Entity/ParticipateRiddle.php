@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     operations: [
         new Post(
-            uriTemplate: 'participateRiddles/new',
+            uriTemplate: 'participate_riddles/new',
             openapi: new Operation(
                 summary: 'Riddle participation creation',
                 description: 'Create a new participation record for a treasure riddle.'
