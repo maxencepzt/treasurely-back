@@ -18,6 +18,7 @@ class DesignerTeam extends Team
 
     public function __construct()
     {
+        parent::__construct();
         $this->hunts = new ArrayCollection();
     }
 
