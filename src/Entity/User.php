@@ -128,6 +128,15 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: ['groups' => ['user:picture']],
             security: "is_granted('ROLE_USER') and object == user",
         ),
+        new Get(
+            uriTemplate: '/users/{id}/teams',
+            openapi: new Operation(
+                summary: 'All teams where the user is present.',
+                description: 'Retrieves all the teams where the user is present and/or is the owner.'
+            ),
+            normalizationContext: ['groups' => ['user:teams']],
+            security: "is_granted('ROLE_USER')"
+        ),
     ]
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -223,6 +232,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var Collection<int, Team>
      */
     #[ORM\ManyToMany(targetEntity: Team::class, mappedBy: 'members')]
+    #[Groups(['user:teams'])]
     private Collection $teams;
 
     /**
