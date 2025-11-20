@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 description: 'Retrieve detailed information about a specific hunt participation by their ID. Requires ROLE_USER permission.'
             ),
             normalizationContext: ['groups' => ['participateHunt:read']],
-            security: "is_granted('ROLE_USER') and object == owner",
+            security: "is_granted('ROLE_USER') and object.getHunter() == user",
         ),
         new Patch(
             openapi: new Operation(
@@ -41,7 +41,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             normalizationContext: ['groups' => ['participateHunt:read', 'participateHunt:id']],
             denormalizationContext: ['groups' => ['participateHunt:write']],
-            security: "is_granted('ROLE_USER') and object == owner",
+            security: "is_granted('ROLE_USER') and object.getHunter() == user",
         ),
     ]
 )]
@@ -55,7 +55,7 @@ class ParticipateHunt
 
     #[ORM\Column(nullable: true)]
     #[Assert\Choice(choices: [0, 1, 2, 3, 4, 5])]
-    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts'])]
+    #[Groups(['participateHunt:read', 'participateHunt:write', 'playerTeam:treasureHunts'])]
     private ?int $rate = null;
 
     #[ORM\Column]
