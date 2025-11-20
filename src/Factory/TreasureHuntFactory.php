@@ -10,11 +10,6 @@ use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
  */
 final class TreasureHuntFactory extends PersistentProxyObjectFactory
 {
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     *
-     * @todo inject services if required
-     */
     public function __construct()
     {
     }
@@ -24,14 +19,9 @@ final class TreasureHuntFactory extends PersistentProxyObjectFactory
         return TreasureHunt::class;
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
-     * @todo add your default values here
-     */
     protected function defaults(): array|callable
     {
-        $team = TeamFactory::random();
+        $team = DesignerTeamFactory::random();
         $owner = self::faker()->randomElement($team->getMembers());
 
         return [
@@ -40,16 +30,13 @@ final class TreasureHuntFactory extends PersistentProxyObjectFactory
             'public' => self::faker()->boolean(),
             'difficulty' => self::faker()->numberBetween(1, 3),
             'riddleCount' => self::faker()->numberBetween(3, 10),
-            'team' => $team,
+            'designerTeam' => $team,
             'image' => PictureFactory::new(),
             'owner' => $owner,
             'location' => self::faker()->city(),
         ];
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
-     */
     protected function initialize(): static
     {
         return $this

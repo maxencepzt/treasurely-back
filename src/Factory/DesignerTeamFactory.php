@@ -2,33 +2,23 @@
 
 namespace App\Factory;
 
-use App\Entity\Team;
+use App\Entity\DesignerTeam;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Team>
+ * @extends PersistentProxyObjectFactory<DesignerTeam>
  */
-final class TeamFactory extends PersistentProxyObjectFactory
+final class DesignerTeamFactory extends PersistentProxyObjectFactory
 {
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     *
-     * @todo inject services if required
-     */
     public function __construct()
     {
     }
 
     public static function class(): string
     {
-        return Team::class;
+        return DesignerTeam::class;
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
-     * @todo add your default values here
-     */
     protected function defaults(): array|callable
     {
         return [
@@ -39,13 +29,10 @@ final class TeamFactory extends PersistentProxyObjectFactory
         ];
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
-     */
     protected function initialize(): static
     {
         return $this
-            ->afterInstantiate(function (Team $team): void {
+            ->afterInstantiate(function (DesignerTeam $team): void {
                 $team->addMember($team->getOwner());
                 for ($i = 0; $i < rand(3, 7); ++$i) {
                     $user = UserFactory::random();

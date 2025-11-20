@@ -34,12 +34,15 @@ class ParticipateHunt
     private \DateTimeImmutable $lastParticipate;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?User $hunter = null;
+    #[ORM\JoinColumn(nullable: false)]
+    private User $hunter;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?TreasureHunt $hunt = null;
+    #[ORM\JoinColumn(nullable: false)]
+    private TreasureHunt $hunt;
+
+    #[ORM\ManyToOne(inversedBy: 'participateHunts')]
+    private ?PlayerTeam $playerTeam = null;
 
     public function getId(): ?int
     {
@@ -126,6 +129,18 @@ class ParticipateHunt
     public function setHunt(?TreasureHunt $hunt): static
     {
         $this->hunt = $hunt;
+
+        return $this;
+    }
+
+    public function getPlayerTeam(): ?PlayerTeam
+    {
+        return $this->playerTeam;
+    }
+
+    public function setPlayerTeam(?PlayerTeam $playerTeam): static
+    {
+        $this->playerTeam = $playerTeam;
 
         return $this;
     }

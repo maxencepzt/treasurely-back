@@ -2,17 +2,17 @@
 
 namespace App\Repository;
 
-use App\Entity\QRRiddle;
+use App\Entity\DesignerTeam;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<QRRiddle>
+ * @extends ServiceEntityRepository<DesignerTeam>
  */
-class QRRiddleRepository extends ServiceEntityRepository
+class DesignerTeamRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, QRRiddle::class);
+        parent::__construct($registry, DesignerTeam::class);
     }
 }
