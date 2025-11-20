@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\TreasureHunt;
+use Random\RandomException;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
@@ -19,6 +20,9 @@ final class TreasureHuntFactory extends PersistentProxyObjectFactory
         return TreasureHunt::class;
     }
 
+    /**
+     * @throws RandomException
+     */
     protected function defaults(): array|callable
     {
         $team = DesignerTeamFactory::random();
@@ -34,6 +38,7 @@ final class TreasureHuntFactory extends PersistentProxyObjectFactory
             'image' => PictureFactory::new(),
             'owner' => $owner,
             'location' => self::faker()->city(),
+            'estimatedTime' => random_int(5, 120),
         ];
     }
 

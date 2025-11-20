@@ -132,6 +132,9 @@ class TreasureHunt
     #[Groups(['treasureHunt:read', 'team:treasureHunts'])]
     private string $location;
 
+    #[ORM\Column]
+    private int $estimatedTime;
+
     public function __construct()
     {
         $this->huntType = new ArrayCollection();
@@ -342,5 +345,17 @@ class TreasureHunt
     public function __toString(): string
     {
         return $this->title;
+    }
+
+    public function getEstimatedTime(): ?int
+    {
+        return $this->estimatedTime;
+    }
+
+    public function setEstimatedTime(int $estimatedTime): static
+    {
+        $this->estimatedTime = $estimatedTime;
+
+        return $this;
     }
 }
