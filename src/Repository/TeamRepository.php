@@ -44,4 +44,31 @@ class TeamRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Count teams owned by the user.
+     */
+    public function countByOwner(User $owner): int
+    {
+        return $this->createQueryBuilder('t')
+            ->select('COUNT(t.id)')
+            ->andWhere('t.owner = :owner')
+            ->setParameter('owner', $owner)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * Count total members in all teams owned by the user.
+     */
+    public function countMembersByOwner(User $owner): int
+    {
+        return $this->createQueryBuilder('t')
+            ->select('COUNT(DISTINCT m.id)')
+            ->innerJoin('t.members', 'm')
+            ->andWhere('t.owner = :owner')
+            ->setParameter('owner', $owner)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
