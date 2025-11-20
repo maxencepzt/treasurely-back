@@ -133,6 +133,7 @@ class TreasureHunt
     private string $location;
 
     #[ORM\Column]
+    #[Groups(['treasureHunt:read'])]
     private int $estimatedTime;
 
     public function __construct()
