@@ -129,6 +129,7 @@ class TreasureHunt
     private Collection $participateHunts;
 
     #[ORM\Column(length: 30)]
+    #[Groups(['treasureHunt:read'])]
     private string $location;
 
     public function __construct()
