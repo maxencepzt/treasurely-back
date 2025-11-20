@@ -22,8 +22,8 @@ use Symfony\Component\Validator\Constraints as Assert;
                 summary: 'Hunt participation creation',
                 description: 'Create a new participation record for a treasure hunt.'
             ),
-            normalizationContext: ['groups' => ['participate_hunt:read', 'participate_hunt:id']],
-            denormalizationContext: ['groups' => ['participate_hunt:write']],
+            normalizationContext: ['groups' => ['participateHunt:read', 'participateHunt:id']],
+            denormalizationContext: ['groups' => ['participateHunt:write']],
             security: 'is_granted("ROLE_USER")',
         ),
         new Get(
@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 summary: 'Hunt participation details',
                 description: 'Retrieve detailed information about a specific hunt participation by their ID. Requires ROLE_USER permission.'
             ),
-            normalizationContext: ['groups' => ['participate_hunt:read']],
+            normalizationContext: ['groups' => ['participateHunt:read']],
             security: "is_granted('ROLE_USER')",
         ),
         new Patch(
@@ -39,8 +39,8 @@ use Symfony\Component\Validator\Constraints as Assert;
                 summary: 'Update hunt participation',
                 description: 'Update a specific hunt participation by their ID.'
             ),
-            normalizationContext: ['groups' => ['participate_hunt:read', 'participate_hunt:id']],
-            denormalizationContext: ['groups' => ['participate_hunt:write']],
+            normalizationContext: ['groups' => ['participateHunt:read', 'participateHunt:id']],
+            denormalizationContext: ['groups' => ['participateHunt:write']],
             security: "is_granted('ROLE_USER')"
         ),
     ]
@@ -50,40 +50,40 @@ class ParticipateHunt
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['participate_hunt:read', 'participate_hunt:id'])]
+    #[Groups(['participateHunt:read', 'participateHunt:id'])]
     private ?int $id = null;
 
     #[ORM\Column(nullable: true)]
     #[Assert\Choice(choices: [0, 1, 2, 3, 4, 5])]
-    #[Groups(['playerTeam:treasureHunts', 'participate_hunt:read'])]
+    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts'])]
     private ?int $rate = null;
 
     #[ORM\Column]
     #[Assert\PositiveOrZero]
-    #[Groups(['playerTeam:treasureHunts', 'participate_hunt:read'])]
+    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts'])]
     private int $time = 0;
 
     #[ORM\Column]
     #[Assert\PositiveOrZero]
-    #[Groups(['playerTeam:treasureHunts', 'participate_hunt:read'])]
+    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts'])]
     private int $score;
 
     #[ORM\Column]
-    #[Groups(['playerTeam:treasureHunts', 'participate_hunt:read'])]
+    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts'])]
     private bool $finished = false;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    #[Groups(['playerTeam:treasureHunts', 'participate_hunt:read'])]
+    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts'])]
     private \DateTimeImmutable $lastParticipate;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['playerTeam:treasureHunts', 'participate_hunt:read'])]
+    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts'])]
     private User $hunter;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['playerTeam:treasureHunts', 'participate_hunt:read'])]
+    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts'])]
     private TreasureHunt $hunt;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
