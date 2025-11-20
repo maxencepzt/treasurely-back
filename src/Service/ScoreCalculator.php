@@ -8,9 +8,15 @@ use App\Entity\ParticipateRiddle;
 use App\Entity\Riddle;
 use App\Entity\TreasureHunt;
 use App\Entity\User;
+use DateTimeImmutable;
 
 class ScoreCalculator
 {
+    /**
+     *  Calcule le score en fonction du temps écoulé et de la difficulté.
+     *  Formule : difficulty * 1000 * exp(-0.001 * temps_en_secondes)
+     *  Plus le temps est court, plus le score est élevé (décroissance exponentielle).
+     */
     public function calculateScore(\DateTimeImmutable $startTime, \DateTimeImmutable $endTime, int $difficulty): int
     {
         $time = $endTime->getTimestamp() - $startTime->getTimestamp();
