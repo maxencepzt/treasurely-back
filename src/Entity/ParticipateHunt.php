@@ -66,7 +66,7 @@ class ParticipateHunt
     #[ORM\Column]
     #[Assert\PositiveOrZero]
     #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'participateHunt:patch'])]
-    private int $score;
+    private int $score = 0;
 
     #[ORM\Column]
     #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'participateHunt:patch'])]
