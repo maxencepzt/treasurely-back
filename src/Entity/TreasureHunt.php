@@ -68,7 +68,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class TreasureHunt
 {
     public const string STATE_DRAFT = 'draft';
-    public const string STATE_PUBLISHED = 'published';
+    public const string STATE_OPENED = 'opened';
     public const string STATE_CLOSED = 'closed';
 
     #[ORM\Id]
