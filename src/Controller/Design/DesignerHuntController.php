@@ -2,7 +2,11 @@
 
 namespace App\Controller\Design;
 
+use App\Entity\User;
+use App\Repository\DesignerTeamRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -23,8 +27,20 @@ final class DesignerHuntController extends AbstractController
     }
 
     #[Route('/designer/hunt/create', name: 'app_designer_hunt_create')]
-    public function create(): Response
+    public function create(Request $request, DesignerTeamRepository $designerTeamRepository, Security $security): Response
     {
-        return $this->render('designer/hunt/create.html.twig');
+        $designerTeamId = $request->query->get('designerTeamId');
+
+        /**
+         * @var User $currentUser
+         */
+        $currentUser = $security->getUser();
+
+        $designerTeams = $designerTeamRepository->findByMemberOrOwner($currentUser);
+
+        return $this->render('designer/hunt/create.html.twig', [
+            'designerTeamId' => $designerTeamId,
+            'designerTeams' => $designerTeams,
+        ]);
     }
 }
