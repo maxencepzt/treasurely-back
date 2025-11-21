@@ -120,6 +120,7 @@ class TreasureHunt
 
     #[ORM\ManyToOne(inversedBy: 'hunts')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['treasureHunt:read'])]
     private DesignerTeam $designerTeam;
 
     /**
