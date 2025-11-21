@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 description: 'Retrieve detailed information about a specific riddle participation by their ID. Requires ROLE_USER permission.'
             ),
             normalizationContext: ['groups' => ['participateRiddle:read']],
-            security: "is_granted('ROLE_USER') and object.getHunter() == user",
+            security: "(is_granted('ROLE_USER') and object.getHunter() == user) or is_granted('ROLE_ADMIN')",
         ),
         new Patch(
             openapi: new Operation(
@@ -41,7 +41,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             normalizationContext: ['groups' => ['participateRiddle:read', 'participateRiddle:id']],
             denormalizationContext: ['groups' => ['participateRiddle:patch']],
-            security: "is_granted('ROLE_USER') and object.getHunter() == user"
+            security: "(is_granted('ROLE_USER') and object.getHunter() == user) or is_granted('ROLE_ADMIN')"
         ),
     ]
 )]
