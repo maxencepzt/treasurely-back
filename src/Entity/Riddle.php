@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\OpenApi\Model\Operation;
 use App\Repository\RiddleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -21,6 +24,18 @@ use Symfony\Component\Validator\Constraints as Assert;
     'textRiddle' => TextRiddle::class,
     'gpsRiddle' => GPSRiddle::class,
 ])]
+#[ApiResource(
+    operations: [
+        new Get(
+            openapi: new Operation(
+                summary: 'Riddle details',
+                description: 'Retrieve detailed information about a specific riddle by their ID. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['riddle:read']],
+            security: "is_granted('ROLE_USER')",
+        ),
+    ]
+)]
 class Riddle
 {
     #[ORM\Id]
@@ -30,18 +45,18 @@ class Riddle
     private ?int $id = null;
 
     #[ORM\Column(length: 20)]
-    #[Groups(['treasureHunt:riddles'])]
+    #[Groups(['treasureHunt:riddles', 'riddle:read'])]
     private string $title;
 
     #[ORM\Column(length: 1000)]
-    #[Groups(['treasureHunt:riddles'])]
+    #[Groups(['treasureHunt:riddles', 'riddle:read'])]
     private string $description;
 
     #[ORM\Column]
     #[Assert\Choice(
         choices: [1, 2, 3],
     )]
-    #[Groups(['treasureHunt:riddles'])]
+    #[Groups(['treasureHunt:riddles', 'riddle:read'])]
     private int $difficulty;
 
     #[ORM\Column]
