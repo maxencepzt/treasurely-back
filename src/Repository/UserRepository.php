@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\DesignerTeam;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -43,6 +44,21 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->andWhere('u.activated = true')
             ->setParameter('query', '%'.$query.'%')
             ->setMaxResults(10)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return User[]
+     */
+    public function findByDesignerTeam(DesignerTeam $designerTeam): array
+    {
+        return $this->createQueryBuilder('u')
+            ->innerJoin('u.teams', 't')
+            ->andWhere('t = :team')
+            ->andWhere('u != t.owner')
+            ->setParameter('team', $designerTeam)
+            ->orderBy('u.id', 'ASC')
             ->getQuery()
             ->getResult();
     }

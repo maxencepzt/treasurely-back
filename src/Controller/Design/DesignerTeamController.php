@@ -70,6 +70,15 @@ final class DesignerTeamController extends AbstractController
         return $this->render('designer/team/create.html.twig');
     }
 
+    #[Route('/designer/team/{id}/edit', name: 'app_designer_team_edit')]
+    public function edit(DesignerTeam $designerTeam, UserRepository $userRepository): Response
+    {
+        return $this->render('designer/team/edit.html.twig', [
+            'designerTeam' => $designerTeam,
+            'members' => $userRepository->findByDesignerTeam($designerTeam),
+        ]);
+    }
+
     #[Route('/designer/team/search-users', name: 'api_designer_search_users', methods: ['GET'])]
     public function searchUsers(Request $request, UserRepository $userRepository): JsonResponse
     {
