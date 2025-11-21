@@ -91,16 +91,16 @@ use Symfony\Component\Serializer\Attribute\Groups;
             security: "is_granted('ROLE_USER')",
         ),
         new Get(
-            uriTemplate: 'teams/{id}/treasure_hunts/designer',
+            uriTemplate: 'teams/{id}/hunts',
             openapi: new Operation(
-                summary: 'Teams treasure hunts',
-                description: 'Retrieve detailed informations of the treasure hunts from a specific team by their ID. Requires ROLE_USER permission.'
+                summary: 'Designer Teams treasure hunts',
+                description: 'Retrieve detailed informations of the treasure hunts designed from a specific team by their ID. Requires ROLE_USER permission.'
             ),
             normalizationContext: ['groups' => ['team:treasureHunts']],
             security: "is_granted('ROLE_USER')",
         ),
         new Get(
-            uriTemplate: 'teams/{id}/treasure_hunts/player',
+            uriTemplate: 'teams/{id}/participations',
             openapi: new Operation(
                 summary: 'Player Teams treasure hunts participations',
                 description: 'Retrieve detailed informations of the treasure hunts played from a specific team by their ID. Requires ROLE_USER permission.'
