@@ -32,7 +32,7 @@ final class DesignerTeamController extends AbstractController
         $ownedTeams = $designerTeamRepository->findByOwner($currentUser);
 
         // Récupérer les équipes dont l'utilisateur est membre (mais pas propriétaire)
-        $memberTeams = $designerTeamRepository->findByMember($currentUser);
+        $memberTeams = $designerTeamRepository->findByMemberOnly($currentUser);
 
         return $this->render('designer/team/index.html.twig', [
             'ownedTeams' => $ownedTeams,

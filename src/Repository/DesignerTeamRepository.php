@@ -33,7 +33,7 @@ class DesignerTeamRepository extends ServiceEntityRepository
     /**
      * @return DesignerTeam[] Returns an array of Team objects where user is a member
      */
-    public function findByMember(User $user): array
+    public function findByMemberOnly(User $user): array
     {
         return $this->createQueryBuilder('t')
             ->innerJoin('t.members', 'm')
