@@ -36,7 +36,9 @@ class DesignerTeamRepository extends ServiceEntityRepository
     public function findByMemberOnly(User $user): array
     {
         return $this->createQueryBuilder('t')
+            ->select('t, m, o')
             ->innerJoin('t.members', 'm')
+            ->innerJoin('t.owner', 'o')
             ->andWhere('m = :user')
             ->andWhere('t.owner != :user')
             ->setParameter('user', $user)
