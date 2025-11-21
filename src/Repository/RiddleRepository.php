@@ -25,7 +25,7 @@ class RiddleRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('r')
             ->select('COUNT(r.id)')
             ->innerJoin('r.hunt', 'th')
-            ->innerJoin('th.team', 't')
+            ->innerJoin('th.designerTeam', 't')
             ->andWhere('t.owner = :owner')
             ->setParameter('owner', $owner)
             ->getQuery()

@@ -2,8 +2,9 @@
 
 namespace App\Controller\Design;
 
-use App\Entity\Team;
+use App\Entity\DesignerTeam;
 use App\Entity\User;
+use App\Repository\DesignerTeamRepository;
 use App\Repository\UserRepository;
 use App\Service\ImageUploadService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,22 +23,16 @@ final class DesignerTeamController extends AbstractController
     }
 
     #[Route('/designer/team', name: 'app_designer_team')]
-    public function index(EntityManagerInterface $entityManager): Response
+    public function index(DesignerTeamRepository $designerTeamRepository): Response
     {
-        /** @var User|null $currentUser */
+        /** @var User $currentUser */
         $currentUser = $this->security->getUser();
 
-        if (!$currentUser) {
-            return $this->redirectToRoute('sso_redirect_login');
-        }
-
-        $teamRepository = $entityManager->getRepository(Team::class);
-
         // Récupérer les équipes dont l'utilisateur est propriétaire
-        $ownedTeams = $teamRepository->findByOwner($currentUser);
+        $ownedTeams = $designerTeamRepository->findByOwner($currentUser);
 
         // Récupérer les équipes dont l'utilisateur est membre (mais pas propriétaire)
-        $memberTeams = $teamRepository->findByMember($currentUser);
+        $memberTeams = $designerTeamRepository->findByMember($currentUser);
 
         return $this->render('designer/team/index.html.twig', [
             'ownedTeams' => $ownedTeams,
@@ -46,32 +41,21 @@ final class DesignerTeamController extends AbstractController
     }
 
     #[Route('/designer/team/details/{id}', name: 'app_designer_team_details')]
-    public function details(int $id, EntityManagerInterface $entityManager): Response
+    public function details(DesignerTeam $designerTeam): Response
     {
-        /** @var User|null $currentUser */
+        /** @var User $currentUser */
         $currentUser = $this->security->getUser();
 
-        if (!$currentUser) {
-            return $this->redirectToRoute('sso_redirect_login');
-        }
-
-        $teamRepository = $entityManager->getRepository(Team::class);
-        $team = $teamRepository->find($id);
-
-        if (!$team) {
-            throw $this->createNotFoundException('Équipe non trouvée');
-        }
-
         // Vérifier que l'utilisateur est membre ou propriétaire de l'équipe
-        $isMember = $team->getMembers()->contains($currentUser);
-        $isOwner = $team->getOwner() === $currentUser;
+        $isMember = $designerTeam->getMembers()->contains($currentUser);
+        $isOwner = $designerTeam->getOwner() === $currentUser;
 
         if (!$isMember && !$isOwner) {
             throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette équipe');
         }
 
         return $this->render('designer/team/details.html.twig', [
-            'team' => $team,
+            'designerTeam' => $designerTeam,
             'isOwner' => $isOwner,
             'currentUser' => $currentUser,
         ]);
@@ -92,13 +76,7 @@ final class DesignerTeamController extends AbstractController
             return $this->json([]);
         }
 
-        $qb = $userRepository->createQueryBuilder('u')
-            ->where('u.nickname LIKE :query OR u.firstname LIKE :query OR u.lastname LIKE :query')
-            ->andWhere('u.activated = true')
-            ->setParameter('query', '%'.$query.'%')
-            ->setMaxResults(10);
-
-        $users = $qb->getQuery()->getResult();
+        $users = $userRepository->searchUsersByQuery($query);
 
         $result = array_map(function (User $user) {
             return [
@@ -131,18 +109,14 @@ final class DesignerTeamController extends AbstractController
                 return $this->json(['error' => 'Le nom de l\'équipe est requis'], Response::HTTP_BAD_REQUEST);
             }
 
-            /** @var User|null $currentUser */
+            /** @var User $currentUser */
             $currentUser = $this->security->getUser();
 
-            if (!$currentUser) {
-                return $this->json(['error' => 'Utilisateur non authentifié'], Response::HTTP_UNAUTHORIZED);
-            }
-
             // Créer la nouvelle équipe
-            $team = new Team();
-            $team->setName($name);
-            $team->setDescription($description);
-            $team->setOwner($currentUser);
+            $designerTeam = new DesignerTeam();
+            $designerTeam->setName($name);
+            $designerTeam->setDescription($description);
+            $designerTeam->setOwner($currentUser);
 
             // Gérer l'upload d'image si présente
             /** @var UploadedFile|null $uploadedFile */
@@ -151,7 +125,7 @@ final class DesignerTeamController extends AbstractController
             if ($uploadedFile) {
                 try {
                     $picture = $imageUploadService->uploadImage($uploadedFile);
-                    $team->setImage($picture);
+                    $designerTeam->setImage($picture);
                 } catch (\InvalidArgumentException $e) {
                     return $this->json([
                         'error' => 'Erreur lors de l\'upload de l\'image',
@@ -167,21 +141,21 @@ final class DesignerTeamController extends AbstractController
                     foreach ($memberIds as $memberId) {
                         $member = $userRepository->find($memberId);
                         if ($member) {
-                            $team->addMember($member);
+                            $designerTeam->addMember($member);
                         }
                     }
                 }
             }
 
-            $entityManager->persist($team);
+            $entityManager->persist($designerTeam);
             $entityManager->flush();
 
             return $this->json([
                 'success' => true,
                 'message' => 'Équipe créée avec succès',
                 'team' => [
-                    'id' => $team->getId(),
-                    'name' => $team->getName(),
+                    'id' => $designerTeam->getId(),
+                    'name' => $designerTeam->getName(),
                 ],
             ], Response::HTTP_CREATED);
         } catch (\Exception $e) {

@@ -24,7 +24,7 @@ class TreasureHuntRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('th')
             ->select('COUNT(th.id)')
-            ->innerJoin('th.team', 't')
+            ->innerJoin('th.designerTeam', 't')
             ->andWhere('t.owner = :owner')
             ->setParameter('owner', $owner)
             ->getQuery()

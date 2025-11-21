@@ -3,8 +3,8 @@
 namespace App\Controller\Design;
 
 use App\Entity\User;
+use App\Repository\DesignerTeamRepository;
 use App\Repository\RiddleRepository;
-use App\Repository\TeamRepository;
 use App\Repository\TreasureHuntRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -15,7 +15,7 @@ final class DesignerDashboardController extends AbstractController
 {
     #[Route('/designer/dashboard', name: 'app_designer_dashboard')]
     public function index(
-        TeamRepository $teamRepository,
+        DesignerTeamRepository $designerTeamRepository,
         TreasureHuntRepository $treasureHuntRepository,
         RiddleRepository $riddleRepository,
         Security $security,
@@ -26,8 +26,8 @@ final class DesignerDashboardController extends AbstractController
         $user = $security->getUser();
 
         // Calculer les statistiques
-        $nbTeams = $teamRepository->countByOwner($user);
-        $nbMembers = $teamRepository->countMembersByOwner($user);
+        $nbTeams = $designerTeamRepository->countByOwner($user);
+        $nbMembers = $designerTeamRepository->countMembersByOwner($user);
         $nbTreasureHunts = $treasureHuntRepository->countByTeamOwner($user);
         $nbRiddles = $riddleRepository->countByTeamOwner($user);
 
