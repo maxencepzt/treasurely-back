@@ -255,6 +255,12 @@ class Team
         return new ArrayCollection();
     }
 
+    #[Groups(['team:read'])]
+    public function getCode(): ?string
+    {
+        return '';
+    }
+
     public function __toString(): string
     {
         return $this->name;
