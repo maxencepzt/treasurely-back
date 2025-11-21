@@ -41,7 +41,7 @@ final class DesignerTeamController extends AbstractController
         ]);
     }
 
-    #[Route('/designer/team/details/{id}', name: 'app_designer_team_details')]
+    #[Route('/designer/team/{id}/details', name: 'app_designer_team_details')]
     public function details(DesignerTeam $designerTeam, TreasureHuntRepository $treasureHuntRepository): Response
     {
         /** @var User $currentUser */

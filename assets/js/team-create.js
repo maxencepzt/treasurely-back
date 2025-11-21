@@ -252,7 +252,7 @@ class TeamCreator {
             }
             this.showSuccess('Équipe créée avec succès !');
             setTimeout(() => {
-                window.location.href = `/designer/team/details/${result.team.id}`;
+                window.location.href = `/designer/team/${result.team.id}/details`;
             }, 1000);
         } catch (error) {
             console.error('Erreur lors de la création de l\'équipe:', error);
