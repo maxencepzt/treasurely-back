@@ -38,6 +38,7 @@ final class TreasureHuntFactory extends PersistentProxyObjectFactory
             'owner' => $owner,
             'location' => self::faker()->city(),
             'estimatedTime' => random_int(5, 120),
+            'status' => self::faker()->randomElement([TreasureHunt::STATE_DRAFT, TreasureHunt::STATE_OPENED, TreasureHunt::STATE_CLOSED]),
         ];
     }
 
