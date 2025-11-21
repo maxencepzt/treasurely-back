@@ -117,6 +117,7 @@ final class DesignerTeamController extends AbstractController
             $designerTeam->setName($name);
             $designerTeam->setDescription($description);
             $designerTeam->setOwner($currentUser);
+            $designerTeam->addMember($currentUser);
 
             // Gérer l'upload d'image si présente
             /** @var UploadedFile|null $uploadedFile */

@@ -51,8 +51,8 @@ class DesignerTeamRepository extends ServiceEntityRepository
     public function findByMemberOrOwner(User $user): array
     {
         return $this->createQueryBuilder('t')
-            ->leftJoin('t.members', 'm')
-            ->andWhere('m = :user OR t.owner = :user')
+            ->innerJoin('t.members', 'm')
+            ->andWhere('m = :user')
             ->setParameter('user', $user)
             ->orderBy('t.id', 'DESC')
             ->getQuery()
