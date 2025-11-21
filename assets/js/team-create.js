@@ -17,8 +17,27 @@ class TeamCreator {
             console.error('Éléments requis non trouvés dans le DOM');
             return;
         }
+        this.loadExistingMembers();
         this.attachEventListeners();
         this.updateMembersDisplay();
+    }
+
+    loadExistingMembers() {
+        // Charger les membres existants depuis le DOM (pour le mode édition)
+        const existingMembers = this.membersList.querySelectorAll('.existing-member');
+        existingMembers.forEach(memberElement => {
+            const userId = parseInt(memberElement.dataset.userId);
+            const userFullName = memberElement.dataset.userFullname;
+            const userNickname = memberElement.dataset.userNickname;
+
+            if (userId && userFullName && userNickname) {
+                this.selectedMembers.set(userId, {
+                    id: userId,
+                    fullName: userFullName,
+                    nickname: userNickname
+                });
+            }
+        });
     }
     attachEventListeners() {
         this.searchInput.addEventListener('input', () => {
@@ -81,7 +100,6 @@ class TeamCreator {
         }
         users.forEach((user, index) => {
             const isAlreadyAdded = this.selectedMembers.has(user.id);
-            const initials = this.getInitials(user.fullName);
             const colorClass = this.getColorClass(index);
             const userElement = document.createElement('div');
             userElement.className = `p-3 hover:bg-blue-50 cursor-pointer transition flex items-center space-x-3 ${index < users.length - 1 ? 'border-b border-gray-100' : ''}`;
@@ -169,7 +187,6 @@ class TeamCreator {
         }
         let index = 0;
         this.selectedMembers.forEach((user) => {
-            const initials = this.getInitials(user.fullName);
             const colorClass = this.getColorClass(index);
             const bgColorClass = this.getBgColorClass(index);
             const memberElement = document.createElement('div');
@@ -242,13 +259,7 @@ class TeamCreator {
             this.showError(error.message || 'Une erreur est survenue');
         }
     }
-    getInitials(fullName) {
-        return fullName
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase())
-            .slice(0, 2)
-            .join('');
-    }
+
     getColorClass(index) {
         const colors = [
             'from-blue-500 to-blue-600',
@@ -262,6 +273,7 @@ class TeamCreator {
         ];
         return colors[index % colors.length];
     }
+
     getBgColorClass(index) {
         const bgColors = [
             'bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200',
