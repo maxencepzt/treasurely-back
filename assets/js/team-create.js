@@ -104,8 +104,8 @@ class TeamCreator {
             const userElement = document.createElement('div');
             userElement.className = `p-3 hover:bg-blue-50 cursor-pointer transition flex items-center space-x-3 ${index < users.length - 1 ? 'border-b border-gray-100' : ''}`;
             userElement.innerHTML = `
-                <div class="w-10 h-10 bg-gradient-to-br ${colorClass} rounded-full flex items-center justify-center text-white font-bold text-sm">
-                    ${initials}
+                <div class="w-10 h-10 bg-gradient-to-br ${colorClass} rounded-full flex items-center justify-center text-white font-bold text-sm overflow-hidden">
+                    <img src="/api/users/${user.id}/picture/" alt="${user.nickname}" />
                 </div>
                 <div class="flex-1">
                     <p class="font-semibold text-gray-800">${user.fullName}</p>
@@ -193,8 +193,8 @@ class TeamCreator {
             memberElement.className = `flex items-center justify-between p-4 ${bgColorClass} rounded-xl border border-opacity-50`;
             memberElement.innerHTML = `
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-br ${colorClass} rounded-full flex items-center justify-center text-white font-bold text-sm">
-                        ${initials}
+                    <div class="w-10 h-10 bg-gradient-to-br ${colorClass} rounded-full flex items-center justify-center text-white font-bold text-sm overflow-hidden">
+                        <img src="/api/users/${user.id}/picture/" alt="${user.nickname}" />
                     </div>
                     <div>
                         <p class="font-semibold text-gray-800">${user.fullName}</p>
