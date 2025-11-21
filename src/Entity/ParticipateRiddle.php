@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 description: 'Create a new participation record for a treasure riddle.'
             ),
             normalizationContext: ['groups' => ['participateRiddle:read', 'participateRiddle:id']],
-            denormalizationContext: ['groups' => ['participateRiddle:write']],
+            denormalizationContext: ['groups' => ['participateRiddle:create']],
             security: 'is_granted("ROLE_USER")',
         ),
         new Get(
@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 description: 'Retrieve detailed information about a specific riddle participation by their ID. Requires ROLE_USER permission.'
             ),
             normalizationContext: ['groups' => ['participateRiddle:read']],
-            security: "is_granted('ROLE_USER')",
+            security: "is_granted('ROLE_USER') and object.getHunter() == user",
         ),
         new Patch(
             openapi: new Operation(
@@ -40,8 +40,8 @@ use Symfony\Component\Validator\Constraints as Assert;
                 description: 'Update a specific riddle participation by their ID.'
             ),
             normalizationContext: ['groups' => ['participateRiddle:read', 'participateRiddle:id']],
-            denormalizationContext: ['groups' => ['participateRiddle:write']],
-            security: "is_granted('ROLE_USER')"
+            denormalizationContext: ['groups' => ['participateRiddle:patch']],
+            security: "is_granted('ROLE_USER') and object.getHunter() == user"
         ),
     ]
 )]
@@ -54,34 +54,34 @@ class ParticipateRiddle
     private ?int $id = null;
 
     #[ORM\Column]
-    #[Assert\LessThanOrEqual('today')]
+    #[Assert\GreaterThanOrEqual('today')]
     #[Gedmo\Timestampable(on: 'create')]
     #[Groups(['participateRiddle:read'])]
     private \DateTimeImmutable $startTime;
 
     #[ORM\Column(nullable: true)]
-    #[Assert\LessThanOrEqual('today')]
-    #[Groups(['participateRiddle:read', 'participateRiddle:write'])]
+    #[Assert\GreaterThanOrEqual('today')]
+    #[Groups(['participateRiddle:read', 'participateRiddle:patch'])]
     private ?\DateTimeImmutable $finishTime = null;
 
     #[ORM\Column]
     #[Assert\Positive]
-    #[Groups(['participateRiddle:read', 'participateRiddle:write'])]
+    #[Groups(['participateRiddle:read', 'participateRiddle:create', 'participateRiddle:patch'])]
     private int $score;
 
     #[ORM\Column]
-    #[Assert\LessThanOrEqual('today')]
-    #[Groups(['participateRiddle:read', 'participateRiddle:write'])]
+    #[Assert\GreaterThanOrEqual('today')]
+    #[Groups(['participateRiddle:read', 'participateRiddle:create', 'participateRiddle:patch'])]
     private \DateTime $lastParticipate;
 
     #[ORM\ManyToOne(inversedBy: 'participateRiddles')]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups(['participateRiddle:read'])]
+    #[Groups(['participateRiddle:read', 'participateRiddle:create'])]
     private ?User $hunter = null;
 
     #[ORM\ManyToOne(inversedBy: 'participateRiddles')]
     #[ORM\JoinColumn(nullable: true)]
-    #[Groups(['participateRiddle:read'])]
+    #[Groups(['participateRiddle:read', 'participateRiddle:create'])]
     private ?Riddle $riddle = null;
 
     public function getId(): int
