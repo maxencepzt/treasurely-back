@@ -51,4 +51,9 @@ class DesignerTeam extends Team
 
         return $this;
     }
+
+    public function getCode(): null
+    {
+        return null;
+    }
 }
