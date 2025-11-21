@@ -11,7 +11,9 @@ use App\Controller\TreasureHunt\GetTreasureHuntPictureController;
 use App\Repository\TreasureHuntRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -139,6 +141,10 @@ class TreasureHunt
 
     #[ORM\Column(type: 'string', length: 10)]
     private string $status = self::STATE_DRAFT;
+
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Gedmo\Timestampable(on: 'create')]
+    private \DateTimeImmutable $createdAt;
 
     #[ORM\Column]
     #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
@@ -376,6 +382,18 @@ class TreasureHunt
     public function setEstimatedTime(int $estimatedTime): static
     {
         $this->estimatedTime = $estimatedTime;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }
