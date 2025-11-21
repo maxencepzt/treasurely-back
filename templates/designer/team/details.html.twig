@@ -25,7 +25,7 @@
                         </div>
                     </div>
                     <!-- Bouton modifier visible uniquement pour le propriétaire -->
-                    {% if isOwner %}
+                    {% if canEdit %}
                     <div class="flex items-center space-x-3">
                         <a href="{{ path('app_designer_team_edit', {id: designerTeam.id}) }}" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transform transition hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 flex items-center space-x-2 cursor-pointer">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,7 +107,7 @@
                                 </svg>
                                 <span>Concepteurs ({{ designerTeam.members.count }})</span>
                             </h2>
-                            {% if isOwner %}
+                            {% if canEdit %}
                             <!-- Bouton ajouter concepteur visible uniquement pour le propriétaire -->
                             <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow transform transition hover:scale-105 flex items-center space-x-2 cursor-pointer">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -150,7 +150,7 @@
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     <span class="text-gray-500 text-sm">Compte créé le {{ member.creationDate|date('d/m/Y') }}</span>
-                                    {% if isOwner %}
+                                    {% if canDelete %}
                                         <!-- Bouton supprimer visible uniquement pour le propriétaire -->
                                         <button class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition cursor-pointer" title="Retirer de l'équipe">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -278,14 +278,16 @@
                                 </svg>
                                 <span>Créer une nouvelle chasse</span>
                             </a>
-                            {% if isOwner %}
-                                <button class="w-full text-left px-4 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-xl transition flex items-center space-x-3 cursor-pointer">
+                            {% if not isOwner %}
+                                <button id="leaveTeamBtn" data-team-name="{{ designerTeam.name }}" data-team-id="{{ designerTeam.id }}" class="w-full text-left px-4 py-3 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 font-semibold rounded-xl transition flex items-center space-x-3 cursor-pointer">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
-                                    <span>Inviter un concepteur</span>
+                                    <span>Quitter l'équipe</span>
                                 </button>
-                                <button class="w-full text-left px-4 py-3 bg-red-50 hover:bg-red-100 text-red-700 font-semibold rounded-xl transition flex items-center space-x-3 cursor-pointer">
+                            {% endif %}
+                            {% if canDelete %}
+                                <button id="deleteTeamBtn" data-team-name="{{ designerTeam.name }}" data-team-id="{{ designerTeam.id }}" class="w-full text-left px-4 py-3 bg-red-50 hover:bg-red-100 text-red-700 font-semibold rounded-xl transition flex items-center space-x-3 cursor-pointer">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                     </svg>
@@ -298,4 +300,279 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de confirmation pour supprimer l'équipe -->
+    <div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all">
+            <div class="p-6">
+                <!-- Icône d'avertissement -->
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </div>
+                <!-- Titre -->
+                <h3 class="text-xl font-bold text-gray-900 text-center mb-2">Supprimer l'équipe ?</h3>
+                <!-- Message -->
+                <p class="text-gray-600 text-center mb-2">
+                    Êtes-vous sûr de vouloir supprimer l'équipe <span class="font-semibold text-gray-900" id="deleteTeamName"></span> ?
+                </p>
+                <p class="text-red-600 text-sm text-center mb-6">
+                    ⚠️ Cette action est irréversible et supprimera également toutes les chasses au trésor associées.
+                </p>
+                <!-- Boutons -->
+                <div class="flex space-x-3">
+                    <button id="cancelDeleteBtn" class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition">
+                        Annuler
+                    </button>
+                    <button id="confirmDeleteBtn" class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        <span>Supprimer</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation pour quitter l'équipe -->
+    <div id="leaveModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all">
+            <div class="p-6">
+                <!-- Icône d'avertissement -->
+                <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                </div>
+                <!-- Titre -->
+                <h3 class="text-xl font-bold text-gray-900 text-center mb-2">Quitter l'équipe ?</h3>
+                <!-- Message -->
+                <p class="text-gray-600 text-center mb-6">
+                    Êtes-vous sûr de vouloir quitter l'équipe <span class="font-semibold text-gray-900" id="leaveTeamName"></span> ?
+                    <br><br>
+                    Vous n'aurez plus accès aux chasses au trésor de cette équipe.
+                </p>
+                <!-- Boutons -->
+                <div class="flex space-x-3">
+                    <button id="cancelLeaveBtn" class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition">
+                        Annuler
+                    </button>
+                    <button id="confirmLeaveBtn" class="flex-1 px-4 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold rounded-xl transition flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        <span>Quitter</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de notification -->
+    <div id="toast" class="hidden fixed top-4 right-4 z-50 transform transition-all duration-300">
+        <div class="bg-white rounded-xl shadow-2xl p-4 flex items-center space-x-3 min-w-[300px]">
+            <div id="toastIcon" class="flex-shrink-0"></div>
+            <div class="flex-1">
+                <p id="toastMessage" class="font-semibold text-gray-900"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gestion des modales
+        const deleteModal = document.getElementById('deleteModal');
+        const leaveModal = document.getElementById('leaveModal');
+        const toast = document.getElementById('toast');
+
+        // Fonction pour afficher un toast
+        function showToast(message, isSuccess = true) {
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+
+            toastMessage.textContent = message;
+
+            if (isSuccess) {
+                toastIcon.innerHTML = `
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                `;
+            } else {
+                toastIcon.innerHTML = `
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </div>
+                `;
+            }
+
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Supprimer l'équipe
+        const deleteTeamBtn = document.getElementById('deleteTeamBtn');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+        if (deleteTeamBtn) {
+            let teamId, teamName;
+
+            deleteTeamBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                teamName = this.dataset.teamName;
+                teamId = this.dataset.teamId;
+
+                document.getElementById('deleteTeamName').textContent = teamName;
+                deleteModal.classList.remove('hidden');
+            });
+
+            cancelDeleteBtn.addEventListener('click', function() {
+                deleteModal.classList.add('hidden');
+            });
+
+            confirmDeleteBtn.addEventListener('click', function() {
+                // Désactiver le bouton pendant la requête
+                this.disabled = true;
+                this.innerHTML = `
+                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Suppression...</span>
+                `;
+
+                fetch(`/designer/team/${teamId}/delete`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    deleteModal.classList.add('hidden');
+                    if (data.success) {
+                        showToast(data.message, true);
+                        setTimeout(() => {
+                            window.location.href = '/designer/team';
+                        }, 1500);
+                    } else {
+                        showToast(data.error || 'Une erreur est survenue', false);
+                        this.disabled = false;
+                        this.innerHTML = `
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            <span>Supprimer</span>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    deleteModal.classList.add('hidden');
+                    showToast('Une erreur est survenue lors de la suppression de l\'équipe', false);
+                    this.disabled = false;
+                    this.innerHTML = `
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        <span>Supprimer</span>
+                    `;
+                });
+            });
+
+            // Fermer la modale en cliquant en dehors
+            deleteModal.addEventListener('click', function(e) {
+                if (e.target === deleteModal) {
+                    deleteModal.classList.add('hidden');
+                }
+            });
+        }
+
+        // Quitter l'équipe
+        const leaveTeamBtn = document.getElementById('leaveTeamBtn');
+        const cancelLeaveBtn = document.getElementById('cancelLeaveBtn');
+        const confirmLeaveBtn = document.getElementById('confirmLeaveBtn');
+
+        if (leaveTeamBtn) {
+            let teamId, teamName;
+
+            leaveTeamBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                teamName = this.dataset.teamName;
+                teamId = this.dataset.teamId;
+
+                document.getElementById('leaveTeamName').textContent = teamName;
+                leaveModal.classList.remove('hidden');
+            });
+
+            cancelLeaveBtn.addEventListener('click', function() {
+                leaveModal.classList.add('hidden');
+            });
+
+            confirmLeaveBtn.addEventListener('click', function() {
+                // Désactiver le bouton pendant la requête
+                this.disabled = true;
+                this.innerHTML = `
+                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>En cours...</span>
+                `;
+
+                fetch(`/designer/team/${teamId}/leave`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    leaveModal.classList.add('hidden');
+                    if (data.success) {
+                        showToast(data.message, true);
+                        setTimeout(() => {
+                            window.location.href = '/designer/team';
+                        }, 1500);
+                    } else {
+                        showToast(data.error || 'Une erreur est survenue', false);
+                        this.disabled = false;
+                        this.innerHTML = `
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                            <span>Quitter</span>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    leaveModal.classList.add('hidden');
+                    showToast('Une erreur est survenue', false);
+                    this.disabled = false;
+                    this.innerHTML = `
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        <span>Quitter</span>
+                    `;
+                });
+            });
+
+            // Fermer la modale en cliquant en dehors
+            leaveModal.addEventListener('click', function(e) {
+                if (e.target === leaveModal) {
+                    leaveModal.classList.add('hidden');
+                }
+            });
+        }
+    </script>
 {% endblock %}
