@@ -91,12 +91,21 @@ use Symfony\Component\Serializer\Attribute\Groups;
             security: "is_granted('ROLE_USER')",
         ),
         new Get(
-            uriTemplate: 'teams/{id}/treasure_hunts',
+            uriTemplate: 'teams/{id}/treasure_hunts/designer',
             openapi: new Operation(
                 summary: 'Teams treasure hunts',
                 description: 'Retrieve detailed informations of the treasure hunts from a specific team by their ID. Requires ROLE_USER permission.'
             ),
             normalizationContext: ['groups' => ['team:treasureHunts']],
+            security: "is_granted('ROLE_USER')",
+        ),
+        new Get(
+            uriTemplate: 'teams/{id}/treasure_hunts/player',
+            openapi: new Operation(
+                summary: 'Player Teams treasure hunts participations',
+                description: 'Retrieve detailed informations of the treasure hunts played from a specific team by their ID. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['playerTeam:treasureHunts']],
             security: "is_granted('ROLE_USER')",
         ),
     ]
@@ -226,6 +235,24 @@ class Team
         $this->getMembers()->removeElement($member);
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, TreasureHunt>
+     */
+    #[Groups(['team:treasureHunts'])]
+    public function getHunts(): Collection
+    {
+        return new ArrayCollection();
+    }
+
+    /**
+     * @return Collection<int, ParticipateHunt>
+     */
+    #[Groups(['playerTeam:treasureHunts'])]
+    public function getParticipateHunts(): Collection
+    {
+        return new ArrayCollection();
     }
 
     public function __toString(): string

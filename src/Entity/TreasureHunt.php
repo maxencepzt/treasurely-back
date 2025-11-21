@@ -87,12 +87,12 @@ class TreasureHunt
     #[Assert\Choice(
         choices: [1, 2, 3],
     )]
-    #[Groups(['treasureHunt:read'])]
+    #[Groups(['treasureHunt:read', 'team:treasureHunts'])]
     private int $difficulty;
 
     #[ORM\Column]
     #[Assert\PositiveOrZero]
-    #[Groups(['treasureHunt:read'])]
+    #[Groups(['treasureHunt:read', 'team:treasureHunts'])]
     private int $riddleCount;
 
     /**
@@ -129,7 +129,12 @@ class TreasureHunt
     private Collection $participateHunts;
 
     #[ORM\Column(length: 30)]
+    #[Groups(['treasureHunt:read', 'team:treasureHunts'])]
     private string $location;
+
+    #[ORM\Column]
+    #[Groups(['treasureHunt:read'])]
+    private int $estimatedTime;
 
     public function __construct()
     {
@@ -341,5 +346,17 @@ class TreasureHunt
     public function __toString(): string
     {
         return $this->title;
+    }
+
+    public function getEstimatedTime(): ?int
+    {
+        return $this->estimatedTime;
+    }
+
+    public function setEstimatedTime(int $estimatedTime): static
+    {
+        $this->estimatedTime = $estimatedTime;
+
+        return $this;
     }
 }
