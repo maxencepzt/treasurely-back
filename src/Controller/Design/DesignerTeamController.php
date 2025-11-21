@@ -5,6 +5,7 @@ namespace App\Controller\Design;
 use App\Entity\DesignerTeam;
 use App\Entity\User;
 use App\Repository\DesignerTeamRepository;
+use App\Repository\TreasureHuntRepository;
 use App\Repository\UserRepository;
 use App\Service\ImageUploadService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -41,7 +42,7 @@ final class DesignerTeamController extends AbstractController
     }
 
     #[Route('/designer/team/details/{id}', name: 'app_designer_team_details')]
-    public function details(DesignerTeam $designerTeam): Response
+    public function details(DesignerTeam $designerTeam, TreasureHuntRepository $treasureHuntRepository): Response
     {
         /** @var User $currentUser */
         $currentUser = $this->security->getUser();
@@ -54,10 +55,12 @@ final class DesignerTeamController extends AbstractController
             throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette équipe');
         }
 
+        $hunts = $treasureHuntRepository->findByDesignerTeam($designerTeam);
+
         return $this->render('designer/team/details.html.twig', [
             'designerTeam' => $designerTeam,
             'isOwner' => $isOwner,
-            'currentUser' => $currentUser,
+            'treasureHunts' => $hunts,
         ]);
     }
 

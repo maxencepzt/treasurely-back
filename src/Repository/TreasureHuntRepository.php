@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\DesignerTeam;
 use App\Entity\TreasureHunt;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -15,6 +16,22 @@ class TreasureHuntRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, TreasureHunt::class);
+    }
+
+    /**
+     * Find treasure hunts by designer team.
+     *
+     * @return TreasureHunt[]
+     */
+    public function findByDesignerTeam(DesignerTeam $designerTeam): array
+    {
+        return $this->createQueryBuilder('th')
+            ->andWhere('th.designerTeam = :designerTeam')
+            ->andWhere('th.status != :draft')
+            ->setParameter('designerTeam', $designerTeam)
+            ->setParameter('draft', TreasureHunt::STATE_DRAFT)
+            ->getQuery()
+            ->getResult();
     }
 
     /**
