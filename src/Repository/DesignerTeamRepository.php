@@ -46,6 +46,20 @@ class DesignerTeamRepository extends ServiceEntityRepository
     }
 
     /**
+     * @return array<DesignerTeam> Returns an array of Team objects where user is a member or owner
+     */
+    public function findByMemberOrOwner(User $user): array
+    {
+        return $this->createQueryBuilder('t')
+            ->leftJoin('t.members', 'm')
+            ->andWhere('m = :user OR t.owner = :user')
+            ->setParameter('user', $user)
+            ->orderBy('t.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Count teams owned by the user.
      */
     public function countByOwner(User $owner): int
