@@ -258,7 +258,7 @@ class Team
     #[Groups(['team:read'])]
     public function getCode(): ?string
     {
-        return '';
+        return null;
     }
 
     public function __toString(): string
