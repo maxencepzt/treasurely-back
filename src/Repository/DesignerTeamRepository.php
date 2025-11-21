@@ -83,6 +83,7 @@ class DesignerTeamRepository extends ServiceEntityRepository
             ->select('COUNT(DISTINCT m.id)')
             ->innerJoin('t.members', 'm')
             ->andWhere('t.owner = :owner')
+            ->andWhere('m != :owner')
             ->setParameter('owner', $owner)
             ->getQuery()
             ->getSingleScalarResult();
