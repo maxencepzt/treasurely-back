@@ -86,10 +86,6 @@ class TreasureHunt
     private ?string $description = null;
 
     #[ORM\Column]
-    #[Groups(['treasureHunt:read'])]
-    private bool $public = true;
-
-    #[ORM\Column]
     #[Assert\Choice(
         choices: [1, 2, 3],
     )]
@@ -182,18 +178,6 @@ class TreasureHunt
     public function setDescription(?string $description): static
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function isPublic(): ?bool
-    {
-        return $this->public;
-    }
-
-    public function setPublic(bool $public): static
-    {
-        $this->public = $public;
 
         return $this;
     }

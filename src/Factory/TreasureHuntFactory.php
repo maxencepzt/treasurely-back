@@ -31,7 +31,6 @@ final class TreasureHuntFactory extends PersistentProxyObjectFactory
         return [
             'title' => self::faker()->text(20),
             'description' => self::faker()->text(3000),
-            'public' => self::faker()->boolean(),
             'difficulty' => self::faker()->numberBetween(1, 3),
             'riddleCount' => self::faker()->numberBetween(3, 10),
             'designerTeam' => $team,
