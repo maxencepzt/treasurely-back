@@ -4,24 +4,13 @@
 
 {% block body %}
     <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-        <!-- Header -->
-        <header class="bg-white shadow-md">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-4">
-                        <a href="{{ path('app_designer_hunt') }}" class="text-gray-600 hover:text-gray-800 transition cursor-pointer" title="Retour aux chasses">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                            </svg>
-                        </a>
-                        <div>
-                            <h1 class="text-2xl font-bold text-gray-800">Créer une chasse au trésor</h1>
-                            <p class="text-sm text-gray-500">Concevez une nouvelle aventure pour vos joueurs</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
+        {{ include('designer/_partials/header.html.twig', {
+            type: 'simple',
+            title: 'Créer une chasse au trésor',
+            subtitle: 'Concevez une nouvelle aventure pour vos joueurs',
+            backUrl: path('app_designer_hunt'),
+            backTitle: 'Retour aux chasses',
+        }) }}
 
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <form class="space-y-8">
