@@ -23,5 +23,8 @@
         </div>
     </div>
 
-    <script src="{{ asset('js/team-form.js') }}"></script>
+    <!-- Toast global pour les notifications -->
+    {{ include('_partials/toast.html.twig', {id: 'globalToast'}) }}
+
+    {{ importmap('team-form') }}
 {% endblock %}

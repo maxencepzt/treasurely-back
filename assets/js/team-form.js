@@ -1,3 +1,6 @@
+// Importer ToastManager depuis modal-manager
+import { ToastManager } from 'modal-manager';
+
 // Gestion du formulaire d'équipe (création et édition) avec autocomplétion des membres
 class TeamFormManager {
     constructor() {
@@ -10,6 +13,9 @@ class TeamFormManager {
         this.selectedMembers = new Map();
         this.selectedImage = null;
         this.searchTimeout = null;
+
+        // Initialiser le ToastManager
+        this.toast = new ToastManager('globalToast');
 
         // Déterminer le mode (création ou édition)
         this.mode = this.teamForm?.dataset.mode || 'create';
@@ -285,8 +291,8 @@ class TeamFormManager {
 
         // Déterminer l'URL et la méthode en fonction du mode
         const url = this.mode === 'edit'
-            ? `/designer/team/${this.teamId}/edit-team`
-            : '/designer/team/create-team';
+            ? `/designer/team/${this.teamId}/edit`
+            : '/designer/team/create';
 
         const successMessage = this.mode === 'edit'
             ? 'Équipe modifiée avec succès !'
@@ -349,46 +355,11 @@ class TeamFormManager {
     }
 
     showError(message) {
-        this.showNotification(message, 'error');
+        this.toast.error(message);
     }
 
     showSuccess(message) {
-        this.showNotification(message, 'success');
-    }
-
-    showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-
-        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform transition-all duration-300 ${
-            type === 'error' ? 'bg-red-500' : 'bg-green-500'
-        } text-white max-w-md`;
-
-        notification.innerHTML = `
-            <div class="flex items-center space-x-3">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    ${type === 'error' ? 
-                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>' :
-                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>'
-                    }
-                </svg>
-                <p class="font-semibold">${message}</p>
-            </div>
-        `;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.style.opacity = '1';
-            notification.style.transform = 'translateX(0)';
-        }, 10);
-
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            notification.style.transform = 'translateX(100px)';
-            setTimeout(() => {
-                notification.remove();
-            }, 300);
-        }, 5000);
+        this.toast.success(message);
     }
 }
 
