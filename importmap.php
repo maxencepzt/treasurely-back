@@ -16,6 +16,14 @@ return [
         'path' => './assets/app.js',
         'entrypoint' => true,
     ],
+    'modal-manager' => [
+        'path' => './assets/js/modal-manager.js',
+        'entrypoint' => false,
+    ],
+    'team-details' => [
+        'path' => './assets/js/team-details.js',
+        'entrypoint' => true,
+    ],
     '@hotwired/stimulus' => [
         'version' => '3.2.2',
     ],
