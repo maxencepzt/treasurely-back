@@ -276,7 +276,7 @@
                                 </svg>
                                 <span>Créer une nouvelle chasse</span>
                             </a>
-                            {% if not isOwner %}
+                            {% if not isOwner and not is_granted('ROLE_ADMIN') %}
                                 <button id="leaveTeamBtn" data-team-name="{{ designerTeam.name }}" data-team-id="{{ designerTeam.id }}" class="w-full text-left px-4 py-3 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 font-semibold rounded-xl transition flex items-center space-x-3 cursor-pointer">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
