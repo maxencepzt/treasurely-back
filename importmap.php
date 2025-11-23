@@ -24,6 +24,10 @@ return [
         'path' => './assets/js/team-details.js',
         'entrypoint' => true,
     ],
+    'team-form' => [
+        'path' => './assets/js/team-form.js',
+        'entrypoint' => true,
+    ],
     '@hotwired/stimulus' => [
         'version' => '3.2.2',
     ],

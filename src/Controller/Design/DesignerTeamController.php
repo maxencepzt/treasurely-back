@@ -63,13 +63,13 @@ final class DesignerTeamController extends AbstractController
         ]);
     }
 
-    #[Route('/designer/team/create', name: 'app_designer_team_create')]
+    #[Route('/designer/team/create', name: 'app_designer_team_create', methods: ['GET'])]
     public function create(): Response
     {
         return $this->render('designer/team/create.html.twig');
     }
 
-    #[Route('/designer/team/{id}/edit', name: 'app_designer_team_edit')]
+    #[Route('/designer/team/{id}/edit', name: 'app_designer_team_edit', methods: ['GET'])]
     public function edit(DesignerTeam $designerTeam, UserRepository $userRepository): Response
     {
         // Vérifier les permissions de modification
@@ -105,7 +105,7 @@ final class DesignerTeamController extends AbstractController
         return $this->json($result);
     }
 
-    #[Route('/designer/team/create-team', name: 'api_designer_team_create', methods: ['POST'])]
+    #[Route('/designer/team/create', name: 'api_designer_team_create', methods: ['POST'])]
     public function createTeam(
         Request $request,
         EntityManagerInterface $entityManager,
@@ -181,7 +181,7 @@ final class DesignerTeamController extends AbstractController
         }
     }
 
-    #[Route('/designer/team/{id}/update', name: 'api_designer_team_update', methods: ['POST'])]
+    #[Route('/designer/team/{id}/edit', name: 'api_designer_team_update', methods: ['POST'])]
     public function updateTeam(
         DesignerTeam $designerTeam,
         Request $request,
