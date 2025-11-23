@@ -1,17 +1,29 @@
-// Gestion de la création d'équipe avec autocomplétion des membres
-class TeamCreator {
+// Gestion du formulaire d'équipe (création et édition) avec autocomplétion des membres
+class TeamFormManager {
     constructor() {
         this.searchInput = document.getElementById('member_search');
         this.autocompleteResults = document.getElementById('autocomplete_results');
         this.membersList = document.getElementById('members_list');
-        this.teamForm = document.querySelector('form');
+        this.teamForm = document.querySelector('form[data-team-form]');
         this.imageInput = document.getElementById('team_image');
         this.imagePreview = document.querySelector('.w-24.h-24');
         this.selectedMembers = new Map();
         this.selectedImage = null;
         this.searchTimeout = null;
+
+        // Déterminer le mode (création ou édition)
+        this.mode = this.teamForm?.dataset.mode || 'create';
+        this.teamId = this.extractTeamIdFromUrl();
+
         this.init();
     }
+
+    extractTeamIdFromUrl() {
+        // Extraire l'ID de l'équipe depuis l'URL pour le mode édition
+        const match = window.location.pathname.match(/\/team\/(\d+)\/edit/);
+        return match ? parseInt(match[1]) : null;
+    }
+
     init() {
         if (!this.searchInput || !this.autocompleteResults || !this.membersList || !this.teamForm) {
             console.error('Éléments requis non trouvés dans le DOM');
@@ -39,6 +51,7 @@ class TeamCreator {
             }
         });
     }
+
     attachEventListeners() {
         this.searchInput.addEventListener('input', () => {
             clearTimeout(this.searchTimeout);
@@ -66,12 +79,14 @@ class TeamCreator {
             });
         }
     }
+
     async searchUsers(query) {
         if (query.length < 2) {
             this.autocompleteResults.innerHTML = '';
             this.autocompleteResults.classList.add('hidden');
             return;
         }
+
         try {
             const response = await fetch(`/designer/team/search-users?q=${encodeURIComponent(query)}`);
             if (!response.ok) {
@@ -84,8 +99,10 @@ class TeamCreator {
             this.showError('Erreur lors de la recherche des utilisateurs');
         }
     }
+
     displayAutocompleteResults(users) {
         this.autocompleteResults.innerHTML = '';
+
         if (users.length === 0) {
             this.autocompleteResults.innerHTML = `
                 <div class="p-6 text-center">
@@ -98,10 +115,12 @@ class TeamCreator {
             this.autocompleteResults.classList.remove('hidden');
             return;
         }
+
         users.forEach((user, index) => {
             const isAlreadyAdded = this.selectedMembers.has(user.id);
             const colorClass = this.getColorClass(index);
             const userElement = document.createElement('div');
+
             userElement.className = `p-3 hover:bg-blue-50 cursor-pointer transition flex items-center space-x-3 ${index < users.length - 1 ? 'border-b border-gray-100' : ''}`;
             userElement.innerHTML = `
                 <div class="w-10 h-10 bg-gradient-to-br ${colorClass} rounded-full flex items-center justify-center text-white font-bold text-sm overflow-hidden">
@@ -118,6 +137,7 @@ class TeamCreator {
                     </svg>`
                 }
             `;
+
             if (!isAlreadyAdded) {
                 userElement.addEventListener('click', () => {
                     this.addMember(user);
@@ -125,8 +145,10 @@ class TeamCreator {
                     this.autocompleteResults.classList.add('hidden');
                 });
             }
+
             this.autocompleteResults.appendChild(userElement);
         });
+
         this.autocompleteResults.classList.remove('hidden');
     }
     handleImageSelect(event) {
@@ -134,19 +156,23 @@ class TeamCreator {
         if (!file) {
             return;
         }
+
         const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
         if (!validTypes.includes(file.type)) {
             this.showError('Format d\'image non supporté. Utilisez PNG, JPG ou GIF.');
             this.imageInput.value = '';
             return;
         }
+
         const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
             this.showError('L\'image est trop volumineuse. Taille maximum : 5MB');
             this.imageInput.value = '';
             return;
         }
+
         this.selectedImage = file;
+
         const reader = new FileReader();
         reader.onload = (e) => {
             this.imagePreview.innerHTML = `
@@ -155,23 +181,29 @@ class TeamCreator {
         };
         reader.readAsDataURL(file);
     }
+
     addMember(user) {
         if (this.selectedMembers.has(user.id)) {
             return;
         }
+
         this.selectedMembers.set(user.id, user);
         this.updateMembersDisplay();
     }
+
     removeMember(userId) {
         this.selectedMembers.delete(userId);
         this.updateMembersDisplay();
     }
+
     updateMembersDisplay() {
         const membersContainer = this.membersList.querySelector('.space-y-2') || this.createMembersContainer();
         const countElement = this.membersList.querySelector('h3');
+
         if (countElement) {
             countElement.textContent = `Membres ajoutés (${this.selectedMembers.size})`;
         }
+
         membersContainer.innerHTML = '';
         if (this.selectedMembers.size === 0) {
             membersContainer.innerHTML = `
@@ -185,6 +217,7 @@ class TeamCreator {
             `;
             return;
         }
+
         let index = 0;
         this.selectedMembers.forEach((user) => {
             const colorClass = this.getColorClass(index);
@@ -218,44 +251,69 @@ class TeamCreator {
             index++;
         });
     }
+
     createMembersContainer() {
         const container = document.createElement('div');
         container.className = 'space-y-2';
         this.membersList.appendChild(container);
         return container;
     }
+
     async submitTeam() {
         const teamName = document.getElementById('team_name')?.value;
         const teamDescription = document.getElementById('team_description')?.value;
+
         if (!teamName || teamName.trim() === '') {
             this.showError('Le nom de l\'équipe est requis');
             return;
         }
+
         const memberIds = Array.from(this.selectedMembers.keys());
         const formData = new FormData();
+
         formData.append('name', teamName.trim());
+
         if (teamDescription && teamDescription.trim()) {
             formData.append('description', teamDescription.trim());
         }
+
         formData.append('members', JSON.stringify(memberIds));
+
         if (this.selectedImage) {
             formData.append('image', this.selectedImage);
         }
+
+        // Déterminer l'URL et la méthode en fonction du mode
+        const url = this.mode === 'edit'
+            ? `/designer/team/${this.teamId}/edit-team`
+            : '/designer/team/create-team';
+
+        const successMessage = this.mode === 'edit'
+            ? 'Équipe modifiée avec succès !'
+            : 'Équipe créée avec succès !';
+
+        const redirectPath = this.mode === 'edit'
+            ? `/designer/team/${this.teamId}/details`
+            : null; // Sera défini par la réponse en mode création
+
         try {
-            const response = await fetch('/designer/team/create-team', {
+            const response = await fetch(url, {
                 method: 'POST',
                 body: formData
             });
+
             const result = await response.json();
             if (!response.ok) {
-                throw new Error(result.error || 'Erreur lors de la création de l\'équipe');
+                throw new Error(result.error || `Erreur lors de ${this.mode === 'edit' ? 'la modification' : 'la création'} de l'équipe`);
             }
-            this.showSuccess('Équipe créée avec succès !');
+
+            this.showSuccess(successMessage);
+
             setTimeout(() => {
-                window.location.href = `/designer/team/${result.team.id}/details`;
+                window.location.href = redirectPath || `/designer/team/${result.team.id}/details`;
             }, 1000);
         } catch (error) {
-            console.error('Erreur lors de la création de l\'équipe:', error);
+            console.error(`Erreur lors de ${this.mode === 'edit' ? 'la modification' : 'la création'} de l'équipe:`, error);
             this.showError(error.message || 'Une erreur est survenue');
         }
     }
@@ -271,6 +329,7 @@ class TeamCreator {
             'from-red-500 to-red-600',
             'from-teal-500 to-teal-600'
         ];
+
         return colors[index % colors.length];
     }
 
@@ -285,19 +344,25 @@ class TeamCreator {
             'bg-gradient-to-r from-red-50 to-pink-50 border-red-200',
             'bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-200'
         ];
+
         return bgColors[index % bgColors.length];
     }
+
     showError(message) {
         this.showNotification(message, 'error');
     }
+
     showSuccess(message) {
         this.showNotification(message, 'success');
     }
+
     showNotification(message, type = 'info') {
         const notification = document.createElement('div');
+
         notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform transition-all duration-300 ${
             type === 'error' ? 'bg-red-500' : 'bg-green-500'
         } text-white max-w-md`;
+
         notification.innerHTML = `
             <div class="flex items-center space-x-3">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -309,11 +374,14 @@ class TeamCreator {
                 <p class="font-semibold">${message}</p>
             </div>
         `;
+
         document.body.appendChild(notification);
+
         setTimeout(() => {
             notification.style.opacity = '1';
             notification.style.transform = 'translateX(0)';
         }, 10);
+
         setTimeout(() => {
             notification.style.opacity = '0';
             notification.style.transform = 'translateX(100px)';
@@ -323,6 +391,7 @@ class TeamCreator {
         }, 5000);
     }
 }
+
 document.addEventListener('DOMContentLoaded', () => {
-    new TeamCreator();
+    new TeamFormManager();
 });

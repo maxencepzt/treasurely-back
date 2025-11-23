@@ -23,23 +23,5 @@
         </div>
     </div>
 
-                <!-- Boutons d'action -->
-                <div class="flex items-center justify-between bg-white rounded-2xl shadow-lg p-6">
-                    <a href="{{ path('app_designer_team') }}" class="text-gray-600 hover:text-gray-800 font-semibold px-6 py-3 rounded-xl hover:bg-gray-100 transition cursor-pointer">
-                        Annuler
-                    </a>
-                    <div class="flex items-center space-x-3">
-                        <button type="submit" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transform transition hover:scale-105 cursor-pointer flex items-center space-x-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            <span>Créer l'équipe</span>
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script src="{{ asset('js/team-create.js') }}"></script>
+    <script src="{{ asset('js/team-form.js') }}"></script>
 {% endblock %}
