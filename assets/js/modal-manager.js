@@ -135,7 +135,7 @@ class ModalManager {
         }
 
         // Configurer le bouton de confirmation
-        this.elements.confirmBtn.className = `modal-confirm flex-1 px-4 py-3 font-semibold rounded-xl transition flex items-center justify-center space-x-2 ${typeConfig.confirmBtnClass}`;
+        this.elements.confirmBtn.className = `cursor-pointer modal-confirm flex-1 px-4 py-3 font-semibold rounded-xl transition flex items-center justify-center space-x-2 ${typeConfig.confirmBtnClass}`;
         this.elements.confirmText.textContent = config.confirmText || 'Confirmer';
 
         if (config.customConfirmIcon) {
