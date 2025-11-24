@@ -90,6 +90,10 @@ class ParticipateHunt
     #[Groups(['participateHunt:read', 'participateHunt:create'])]
     private ?PlayerTeam $playerTeam = null;
 
+    #[ORM\ManyToOne(inversedBy: 'participateHunts')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Riddle $currentRiddle = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -187,6 +191,18 @@ class ParticipateHunt
     public function setPlayerTeam(?PlayerTeam $playerTeam): static
     {
         $this->playerTeam = $playerTeam;
+
+        return $this;
+    }
+
+    public function getCurrentRiddle(): ?Riddle
+    {
+        return $this->currentRiddle;
+    }
+
+    public function setCurrentRiddle(?Riddle $currentRiddle): static
+    {
+        $this->currentRiddle = $currentRiddle;
 
         return $this;
     }
