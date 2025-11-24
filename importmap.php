@@ -28,6 +28,14 @@ return [
         'path' => './assets/js/team-form.js',
         'entrypoint' => true,
     ],
+    'member-autocomplete' => [
+        'path' => './assets/js/member-autocomplete.js',
+        'entrypoint' => true,
+    ],
+    'member-list-display' => [
+        'path' => './assets/js/member-list-display.js',
+        'entrypoint' => true,
+    ],
     '@hotwired/stimulus' => [
         'version' => '3.2.2',
     ],
