@@ -43,6 +43,8 @@ class TreasureHuntRepository extends ServiceEntityRepository
             ->select('COUNT(th.id)')
             ->innerJoin('th.designerTeam', 't')
             ->andWhere('t.owner = :owner')
+            ->andWhere('th.status != :draft')
+            ->setParameter('draft', TreasureHunt::STATE_DRAFT)
             ->setParameter('owner', $owner)
             ->getQuery()
             ->getSingleScalarResult();
