@@ -20,11 +20,6 @@ final class UserGetCest
         return [
             'id' => 'integer',
             'nickname' => 'string',
-            'firstname' => 'string',
-            'lastname' => 'string',
-            'email' => 'string:email',
-            'birthDate' => 'string:date',
-            'phone' => 'string',
             'creationDate' => 'string:date',
             'public' => 'boolean',
             'gender' => 'string',
@@ -37,16 +32,10 @@ final class UserGetCest
     public function getUserDetail(ApiTester $I): void
     {
         // 1. 'Arrange'
-        $birthDate = new \DateTime('1990-01-01');
         $creationDate = new \DateTimeImmutable('2020-01-01 00:00:00', new \DateTimeZone('UTC'));
 
         $user = UserFactory::createOne([
             'nickname' => 'johndoe',
-            'firstname' => 'John',
-            'lastname' => 'Doe',
-            'email' => 'johndoe@example.com',
-            'birthDate' => $birthDate,
-            'phone' => '1234567890',
             'creationDate' => $creationDate,
             'public' => true,
             'gender' => Gender::MAN,
@@ -66,11 +55,6 @@ final class UserGetCest
 
         $expectedData = [
             'nickname' => 'johndoe',
-            'firstname' => 'John',
-            'lastname' => 'Doe',
-            'email' => 'johndoe@example.com',
-            'birthDate' => $birthDate->format(\DateTimeInterface::W3C),
-            'phone' => '1234567890',
             'creationDate' => $creationDate->format(\DateTimeInterface::W3C),
             'public' => true,
             'gender' => Gender::MAN->value,
@@ -79,6 +63,13 @@ final class UserGetCest
         ];
 
         $I->seeResponseIsAnItem(self::expectedProperties(), $expectedData);
+
+        // Les champs sensibles ne doivent pas être retournés dans user:read
+        $I->dontSeeResponseJsonMatchesJsonPath('$.firstname');
+        $I->dontSeeResponseJsonMatchesJsonPath('$.lastname');
+        $I->dontSeeResponseJsonMatchesJsonPath('$.email');
+        $I->dontSeeResponseJsonMatchesJsonPath('$.birthDate');
+        $I->dontSeeResponseJsonMatchesJsonPath('$.phone');
     }
 
     public function cannotGetNonExistentUser(ApiTester $I): void
