@@ -43,6 +43,58 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: ['groups' => ['user:read']],
             security: "is_granted('ROLE_USER')",
         ),
+        // Get details of a specific user by ID (only if the user is activated or the requester is an admin)
+        new Get(
+            openapi: new Operation(
+                summary: 'User details',
+                description: 'Retrieve detailed information about a specific user by their ID. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['user:read']],
+            security: "is_granted('ROLE_USER') and (is_granted('ROLE_ADMIN') or object.isActivated())",
+        ),
+        // Get the currently authenticated user's information
+        new Get(
+            uriTemplate: 'me',
+            openapi: new Operation(
+                summary: 'Get my account',
+                description: 'Retrieve the currently authenticated user\'s information. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['user:me', 'user:id']],
+            security: "is_granted('ROLE_USER') and object == user",
+            provider: MeProvider::class,
+        ),
+        new Get(
+            uriTemplate: '/users/{id}/picture',
+            formats: [
+                'png' => 'image/png',
+            ],
+            controller: GetUserPictureController::class,
+            openapi: new Operation(
+                summary: 'Retrieves the picture from the user',
+                description: 'Retrieves the PNG image corresponding to the picture of the user',
+            ),
+            normalizationContext: ['groups' => ['user:picture']],
+            security: "is_granted('ROLE_USER')",
+        ),
+        new Get(
+            uriTemplate: '/users/{id}/teams',
+            openapi: new Operation(
+                summary: 'All teams where the user is present.',
+                description: 'Retrieves all the teams where the user is present and/or is the owner.'
+            ),
+            normalizationContext: ['groups' => ['user:teams']],
+            security: "is_granted('ROLE_USER')"
+        ),
+        new Post(
+            uriTemplate: '/users/{id}/picture',
+            controller: UploadUserPictureController::class,
+            openapi: new Operation(
+                summary: 'Upload a picture for the user',
+                description: 'Upload an image to set as the picture for the user',
+            ),
+            normalizationContext: ['groups' => ['user:picture']],
+            security: "is_granted('ROLE_USER') and object == user",
+        ),
         // Register a new user
         new Post(
             uriTemplate: 'register',
@@ -53,15 +105,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: ['groups' => ['user:read', 'user:id']],
             denormalizationContext: ['groups' => ['user:write', 'user:password']],
             security: 'is_granted("PUBLIC_ACCESS")',
-        ),
-        // Get details of a specific user by ID (only if the user is activated or the requester is an admin)
-        new Get(
-            openapi: new Operation(
-                summary: 'User details',
-                description: 'Retrieve detailed information about a specific user by their ID. Requires ROLE_USER permission.'
-            ),
-            normalizationContext: ['groups' => ['user:read']],
-            security: "is_granted('ROLE_USER') and (is_granted('ROLE_ADMIN') or object.isActivated())",
         ),
         // Update a specific user by ID (only the user themselves can update their information)
         new Patch(
@@ -81,30 +124,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             security: "is_granted('ROLE_USER') and object == user"
         ),
-        // Get the currently authenticated user's information
-        new Get(
-            uriTemplate: 'me',
-            openapi: new Operation(
-                summary: 'Get my account',
-                description: 'Retrieve the currently authenticated user\'s information. Requires ROLE_USER permission.'
-            ),
-            normalizationContext: ['groups' => ['user:read', 'user:id']],
-            security: "is_granted('ROLE_USER') and object == user",
-            provider: MeProvider::class,
-        ),
-        new Get(
-            uriTemplate: '/users/{id}/picture',
-            formats: [
-                'png' => 'image/png',
-            ],
-            controller: GetUserPictureController::class,
-            openapi: new Operation(
-                summary: 'Retrieves the picture from the user',
-                description: 'Retrieves the PNG image corresponding to the picture of the user',
-            ),
-            normalizationContext: ['groups' => ['user:picture']],
-            security: "is_granted('ROLE_USER')",
-        ),
         new Delete(
             uriTemplate: '/users/{id}/picture',
             formats: [
@@ -118,25 +137,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             denormalizationContext: ['groups' => ['user:picture']],
             security: "is_granted('ROLE_USER')",
         ),
-        new Post(
-            uriTemplate: '/users/{id}/picture',
-            controller: UploadUserPictureController::class,
-            openapi: new Operation(
-                summary: 'Upload a picture for the user',
-                description: 'Upload an image to set as the picture for the user',
-            ),
-            normalizationContext: ['groups' => ['user:picture']],
-            security: "is_granted('ROLE_USER') and object == user",
-        ),
-        new Get(
-            uriTemplate: '/users/{id}/teams',
-            openapi: new Operation(
-                summary: 'All teams where the user is present.',
-                description: 'Retrieves all the teams where the user is present and/or is the owner.'
-            ),
-            normalizationContext: ['groups' => ['user:teams']],
-            security: "is_granted('ROLE_USER')"
-        ),
     ]
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -144,11 +144,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:read', 'user:id'])]
+    #[Groups(['user:me', 'user:id', 'user:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['user:read', 'user:write', 'team:members'])]
+    #[Groups(['user:me', 'user:write', 'team:members', 'user:read'])]
     private string $nickname;
 
     /**
@@ -165,28 +165,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $password;
 
     #[ORM\Column(length: 100)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:me', 'user:write'])]
     private string $firstname;
 
     #[ORM\Column(length: 100)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:me', 'user:write'])]
     private string $lastname;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:me', 'user:write'])]
     #[Assert\Email(
         message: 'The email {{ value }} is not a valid email.',
     )]
     private string $email;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:me', 'user:write'])]
     #[Assert\Type(\DateTime::class)]
     #[Assert\LessThan('today', message: 'The birth date cannot be in the future.')]
     private \DateTime $birthDate;
 
     #[ORM\Column(length: 12)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:me', 'user:write'])]
     private string $phone;
 
     #[ORM\Column]
@@ -194,7 +194,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     #[Gedmo\Timestampable(on: 'create')]
-    #[Groups(['user:read'])]
+    #[Groups(['user:me', 'user:read'])]
     private \DateTimeImmutable $creationDate;
 
     // TODO Gérer comment connaitre la dernière fois que quelqu'un s'est connecté (peut pas fonctionner avec Timestampable)
@@ -202,11 +202,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private \DateTime $lastLogin;
 
     #[ORM\Column]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:me', 'user:write', 'user:read'])]
     private bool $public;
 
     #[ORM\Column(type: 'string', enumType: Gender::class)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:me', 'user:write', 'user:read'])]
     private Gender $gender;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
@@ -215,11 +215,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?Picture $profilePicture = null;
 
     #[ORM\Column]
-    #[Groups(['user:read'])]
+    #[Groups(['user:me', 'user:read'])]
     private int $totalTime;
 
     #[ORM\Column]
-    #[Groups(['user:read'])]
+    #[Groups(['user:me', 'user:read'])]
     private int $totalHunt;
 
     /**
@@ -251,7 +251,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $symfonySessionId = null;
 
     #[ORM\Column(length: 150)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:me', 'user:write', 'user:read'])]
     private string $description = '';
 
     /**

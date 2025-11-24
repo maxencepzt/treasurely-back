@@ -20,17 +20,12 @@ final class UserPostCest
         return [
             'id' => 'integer',
             'nickname' => 'string',
-            'firstname' => 'string',
-            'lastname' => 'string',
-            'email' => 'string:email',
-            'birthDate' => 'string:date',
-            'phone' => 'string',
             'creationDate' => 'string:date',
             'public' => 'boolean',
             'gender' => 'string',
-            'profilePicture' => 'array',
             'totalTime' => 'integer',
             'totalHunt' => 'integer',
+            'description' => 'string',
         ];
     }
 
@@ -58,14 +53,17 @@ final class UserPostCest
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson([
             'nickname' => 'newuser',
-            'firstname' => 'New',
-            'lastname' => 'User',
-            'email' => 'newuser@example.com',
             'public' => true,
             'gender' => Gender::MAN->value,
         ]);
         $I->seeResponseJsonMatchesJsonPath('$.id');
         $I->dontSeeResponseJsonMatchesJsonPath('$.password');
+        // Les champs sensibles ne sont pas retournés après l'enregistrement (user:read seulement)
+        $I->dontSeeResponseJsonMatchesJsonPath('$.firstname');
+        $I->dontSeeResponseJsonMatchesJsonPath('$.lastname');
+        $I->dontSeeResponseJsonMatchesJsonPath('$.email');
+        $I->dontSeeResponseJsonMatchesJsonPath('$.birthDate');
+        $I->dontSeeResponseJsonMatchesJsonPath('$.phone');
     }
 
     public function cannotRegisterWithDuplicateNickname(ApiTester $I): void

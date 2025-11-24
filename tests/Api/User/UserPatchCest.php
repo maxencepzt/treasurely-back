@@ -35,7 +35,11 @@ final class UserPatchCest
         $I->seeResponseCodeIsSuccessful();
         $I->seeResponseIsJson();
         $I->seeResponseIsAnEntity(User::class, '/api/users/'.$user->getId());
-        $I->seeResponseContainsJson($updatedData);
+        // Seuls les champs publics (user:read) sont retournés après la mise à jour
+        $I->seeResponseContainsJson(['nickname' => 'newnickname']);
+        // Les champs sensibles ne sont pas retournés
+        $I->dontSeeResponseJsonMatchesJsonPath('$.firstname');
+        $I->dontSeeResponseJsonMatchesJsonPath('$.lastname');
     }
 
     public function cannotUpdateOtherUserProfile(ApiTester $I): void
@@ -126,7 +130,17 @@ final class UserPatchCest
         // 3. 'Assert'
         $I->seeResponseCodeIsSuccessful();
         $I->seeResponseIsJson();
-        $I->seeResponseContainsJson($updatedData);
+        // Seuls les champs publics (user:read) sont retournés
+        $I->seeResponseContainsJson([
+            'nickname' => 'newnickname',
+            'public' => true,
+            'gender' => Gender::WOMAN->value,
+        ]);
+        // Les champs sensibles ne sont pas retournés dans user:read
+        $I->dontSeeResponseJsonMatchesJsonPath('$.firstname');
+        $I->dontSeeResponseJsonMatchesJsonPath('$.lastname');
+        $I->dontSeeResponseJsonMatchesJsonPath('$.email');
+        $I->dontSeeResponseJsonMatchesJsonPath('$.phone');
     }
 
     public function cannotUpdateWithInvalidEmail(ApiTester $I): void
@@ -229,8 +243,11 @@ final class UserPatchCest
         // 3. 'Assert'
         $I->seeResponseCodeIsSuccessful();
         $I->seeResponseIsJson();
-        $I->seeResponseContainsJson([
-            'nickname' => 'newnickname',
+        $I->seeResponseContainsJson(['nickname' => 'newnickname']);
+
+        // Vérifier que les autres champs n'ont pas été modifiés en base de données
+        $I->seeInRepository(User::class, [
+            'id' => $user->getId(),
             'firstname' => 'OriginalFirstname',
             'lastname' => 'OriginalLastname',
         ]);
