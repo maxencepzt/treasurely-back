@@ -25,6 +25,8 @@ final class UserGetCest
             'gender' => 'string',
             'totalTime' => 'integer',
             'totalHunt' => 'integer',
+            'totalScore' => 'integer',
+            'totalRiddles' => 'integer',
             'description' => 'string',
         ];
     }
@@ -39,6 +41,8 @@ final class UserGetCest
             'creationDate' => $creationDate,
             'public' => true,
             'gender' => Gender::MAN,
+            'totalScore' => 250,
+            'totalRiddles' => 42,
             'totalTime' => 3600,
             'totalHunt' => 15,
             'password' => 'test',
@@ -56,6 +60,8 @@ final class UserGetCest
         $expectedData = [
             'nickname' => 'johndoe',
             'creationDate' => $creationDate->format(\DateTimeInterface::W3C),
+            'totalScore' => 250,
+            'totalRiddles' => 42,
             'public' => true,
             'gender' => Gender::MAN->value,
             'totalTime' => 3600,

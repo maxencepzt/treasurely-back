@@ -30,6 +30,8 @@ final class MeGetCest
             'gender' => 'string',
             'totalTime' => 'integer',
             'totalHunt' => 'integer',
+            'totalScore' => 'integer',
+            'totalRiddles' => 'integer',
             'description' => 'string',
         ];
     }
@@ -50,6 +52,8 @@ final class MeGetCest
             'creationDate' => $creationDate,
             'public' => true,
             'gender' => Gender::MAN,
+            'totalScore' => 250,
+            'totalRiddles' => 42,
             'totalTime' => 3600,
             'totalHunt' => 15,
             'password' => 'test',
@@ -73,6 +77,8 @@ final class MeGetCest
             'birthDate' => $birthDate->format(\DateTimeInterface::W3C),
             'phone' => '1234567890',
             'creationDate' => $creationDate->format(\DateTimeInterface::W3C),
+            'totalScore' => 250,
+            'totalRiddles' => 42,
             'public' => true,
             'gender' => Gender::MAN->value,
             'totalTime' => 3600,

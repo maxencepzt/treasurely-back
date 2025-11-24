@@ -96,7 +96,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
                 summary: 'Teams treasure hunts',
                 description: 'Retrieve detailed informations of the treasure hunts from a specific team by their ID. Requires ROLE_USER permission.'
             ),
-            normalizationContext: ['groups' => ['team:treasureHunts']],
+            normalizationContext: ['groups' => ['designerTeam:treasureHunts']],
             security: "is_granted('ROLE_USER')",
         ),
         new Get(
@@ -240,7 +240,7 @@ class Team
     /**
      * @return Collection<int, TreasureHunt>
      */
-    #[Groups(['team:treasureHunts'])]
+    #[Groups(['designerTeam:treasureHunts'])]
     public function getHunts(): Collection
     {
         return new ArrayCollection();

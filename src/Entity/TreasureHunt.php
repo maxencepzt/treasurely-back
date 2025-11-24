@@ -72,7 +72,7 @@ class TreasureHunt
     private ?int $id = null;
 
     #[ORM\Column(length: 20)]
-    #[Groups(['treasureHunt:read', 'team:treasureHunts'])]
+    #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
     private string $title;
 
     #[ORM\Column(length: 3000, nullable: true)]
@@ -87,12 +87,12 @@ class TreasureHunt
     #[Assert\Choice(
         choices: [1, 2, 3],
     )]
-    #[Groups(['treasureHunt:read', 'team:treasureHunts'])]
+    #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
     private int $difficulty;
 
     #[ORM\Column]
     #[Assert\PositiveOrZero]
-    #[Groups(['treasureHunt:read', 'team:treasureHunts'])]
+    #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
     private int $riddleCount;
 
     /**
@@ -130,11 +130,11 @@ class TreasureHunt
     private Collection $participateHunts;
 
     #[ORM\Column(length: 30)]
-    #[Groups(['treasureHunt:read', 'team:treasureHunts'])]
+    #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
     private string $location;
 
     #[ORM\Column]
-    #[Groups(['treasureHunt:read', 'teams:treasureHunts'])]
+    #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
     private int $estimatedTime;
 
     public function __construct()
