@@ -168,8 +168,8 @@ if (addMemberBtn) {
                     if (data.success) {
                         toast.success(data.message);
                         setTimeout(() => {
-                            //window.location.reload();
-                        }, 1500);
+                            window.location.reload();
+                        }, 1000);
                     } else {
                         toast.error(data.error || 'Une erreur est survenue');
                     }
