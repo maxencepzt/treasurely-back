@@ -223,3 +223,47 @@ if (addMemberBtn) {
         }, 100);
     });
 }
+
+const removeMemberButtons = document.querySelectorAll('.removeMemberBtn');
+removeMemberButtons.forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const teamId = this.dataset.teamId;
+        const userId = this.dataset.userId;
+        const userName = this.dataset.nickname;
+
+        modal.show({
+            type: 'warning',
+            title: 'Retirer le membre de l\'équipe ?',
+            message: `Êtes-vous sûr de vouloir retirer <strong>${userName}</strong> de l'équipe ?<br><br>Il n'aura plus accès aux chasses au trésor de cette équipe.`,
+            confirmText: 'Retirer',
+            onConfirm: (modalInstance) => {
+                modalInstance.setLoading('En cours...');
+
+                fetch(`/designer/team/${teamId}/remove-member/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    modalInstance.hide();
+                    if (data.success) {
+                        toast.success(data.message);
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        toast.error(data.error || 'Une erreur est survenue');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    modalInstance.hide();
+                    toast.error('Une erreur est survenue');
+                });
+            }
+        });
+    });
+});
