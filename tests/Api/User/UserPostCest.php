@@ -25,6 +25,8 @@ final class UserPostCest
             'gender' => 'string',
             'totalTime' => 'integer',
             'totalHunt' => 'integer',
+            'totalScore' => 'integer',
+            'totalRiddles' => 'integer',
             'description' => 'string',
         ];
     }

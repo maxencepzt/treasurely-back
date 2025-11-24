@@ -261,11 +261,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $participateHunts;
 
     #[ORM\Column]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:me', 'user:write', 'user:read'])]
     private int $totalScore;
 
     #[ORM\Column]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:me', 'user:write', 'user:read'])]
     private int $totalRiddles;
 
     public function __construct()
@@ -278,6 +278,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->activated = true;
         $this->setTotalTime(0);
         $this->setTotalHunt(0);
+        $this->setTotalScore(0);
+        $this->setTotalRiddles(0);
         $this->participateHunts = new ArrayCollection();
     }
 
