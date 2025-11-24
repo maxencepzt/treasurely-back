@@ -346,4 +346,75 @@ final class DesignerTeamController extends AbstractController
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    #[Route('/designer/team/{id}/add-member/{userId}', name: 'api_designer_team_add_member', requirements: ['id' => '\d+', 'userId' => '\d+'], methods: ['POST'])]
+    public function addMemberToTeam(
+        ?DesignerTeam $designerTeam,
+        int $userId,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager,
+    ): JsonResponse {
+        if (!$designerTeam) {
+            return $this->json(['error' => 'Équipe non trouvé'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Vérifier les permissions de modification
+        $this->denyAccessUnlessGranted(DesignerTeamVoter::EDIT, $designerTeam);
+
+        $user = $userRepository->find($userId);
+        if (!$user) {
+            return $this->json(['error' => 'Utilisateur non trouvé'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Vérifier si l'utilisateur est déjà membre
+        if ($designerTeam->hasMember($user)) {
+            return $this->json(['error' => 'L\'utilisateur est déjà membre de l\'équipe'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $designerTeam->addMember($user);
+        $entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Membre ajouté avec succès',
+        ], Response::HTTP_OK);
+    }
+
+    #[Route('/designer/team/{id}/remove-member/{userId}', name: 'api_designer_team_remove_member', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function removeMemberFromTeam(
+        ?DesignerTeam $designerTeam,
+        int $userId,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager,
+    ): JsonResponse {
+        if (!$designerTeam) {
+            return $this->json(['error' => 'Équipe non trouvé'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Vérifier les permissions de modification
+        $this->denyAccessUnlessGranted(DesignerTeamVoter::EDIT, $designerTeam);
+
+        $user = $userRepository->find($userId);
+        if (!$user) {
+            return $this->json(['error' => 'Utilisateur non trouvé'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Vérifier si l'utilisateur est membre
+        if (!$designerTeam->hasMember($user)) {
+            return $this->json(['error' => 'L\'utilisateur n\'est pas membre de l\'équipe'], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Empêcher de retirer le propriétaire
+        if ($designerTeam->getOwner() === $user) {
+            return $this->json(['error' => 'Le propriétaire ne peut pas être retiré de l\'équipe'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $designerTeam->removeMember($user);
+        $entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Membre retiré avec succès',
+        ], Response::HTTP_OK);
+    }
 }
