@@ -41,9 +41,13 @@ final class DesignerTeamController extends AbstractController
         ]);
     }
 
-    #[Route('/designer/team/{id}/details', name: 'app_designer_team_details')]
-    public function details(DesignerTeam $designerTeam, TreasureHuntRepository $treasureHuntRepository): Response
+    #[Route('/designer/team/{id}/details', name: 'app_designer_team_details', requirements: ['id' => '\d+'])]
+    public function details(?DesignerTeam $designerTeam, TreasureHuntRepository $treasureHuntRepository): Response
     {
+        if (!$designerTeam) {
+            return $this->redirectToRoute('app_designer_team');
+        }
+
         // Vérifier les permissions de consultation
         $this->denyAccessUnlessGranted('DESIGNER_TEAM_VIEW', $designerTeam);
 
@@ -69,9 +73,13 @@ final class DesignerTeamController extends AbstractController
         return $this->render('designer/team/create.html.twig');
     }
 
-    #[Route('/designer/team/{id}/edit', name: 'app_designer_team_edit', methods: ['GET'])]
-    public function edit(DesignerTeam $designerTeam, UserRepository $userRepository): Response
+    #[Route('/designer/team/{id}/edit', name: 'app_designer_team_edit', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function edit(?DesignerTeam $designerTeam, UserRepository $userRepository): Response
     {
+        if (!$designerTeam) {
+            return $this->redirectToRoute('app_designer_team');
+        }
+
         // Vérifier les permissions de modification
         $this->denyAccessUnlessGranted('DESIGNER_TEAM_EDIT', $designerTeam);
 
@@ -181,14 +189,18 @@ final class DesignerTeamController extends AbstractController
         }
     }
 
-    #[Route('/designer/team/{id}/edit', name: 'api_designer_team_update', methods: ['POST'])]
+    #[Route('/designer/team/{id}/edit', name: 'api_designer_team_update', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function updateTeam(
-        DesignerTeam $designerTeam,
+        ?DesignerTeam $designerTeam,
         Request $request,
         EntityManagerInterface $entityManager,
         UserRepository $userRepository,
         ImageUploadService $imageUploadService,
     ): JsonResponse {
+        if (!$designerTeam) {
+            return $this->json(['error' => 'Équipe non trouvée'], Response::HTTP_NOT_FOUND);
+        }
+
         // Vérifier les permissions de modification
         $this->denyAccessUnlessGranted('DESIGNER_TEAM_EDIT', $designerTeam);
 
@@ -267,11 +279,15 @@ final class DesignerTeamController extends AbstractController
         }
     }
 
-    #[Route('/designer/team/{id}/delete', name: 'api_designer_team_delete', methods: ['DELETE'])]
+    #[Route('/designer/team/{id}/delete', name: 'api_designer_team_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     public function deleteTeam(
-        DesignerTeam $designerTeam,
+        ?DesignerTeam $designerTeam,
         EntityManagerInterface $entityManager,
     ): JsonResponse {
+        if (!$designerTeam) {
+            return $this->json(['error' => 'Équipe non trouvée'], Response::HTTP_NOT_FOUND);
+        }
+
         // Vérifier les permissions de suppression
         $this->denyAccessUnlessGranted('DESIGNER_TEAM_DELETE', $designerTeam);
 
@@ -292,11 +308,15 @@ final class DesignerTeamController extends AbstractController
         }
     }
 
-    #[Route('/designer/team/{id}/leave', name: 'api_designer_team_leave', methods: ['POST'])]
+    #[Route('/designer/team/{id}/leave', name: 'api_designer_team_leave', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function leaveTeam(
-        DesignerTeam $designerTeam,
+        ?DesignerTeam $designerTeam,
         EntityManagerInterface $entityManager,
     ): JsonResponse {
+        if (!$designerTeam) {
+            return $this->json(['error' => 'Équipe non trouvée'], Response::HTTP_NOT_FOUND);
+        }
+
         // Vérifier que l'utilisateur peut voir l'équipe (donc en est membre)
         $this->denyAccessUnlessGranted('DESIGNER_TEAM_VIEW', $designerTeam);
 

@@ -175,7 +175,7 @@
                         <div class="space-y-3">
                             {% for hunt in treasureHunts %}
                                 {% if hunt.status != 'draft' %}
-                                    <a class="block" href="{{ path('app_designer_hunt_details', { id: hunt.id }) }}">
+                                    <a class="block" href="{{ path('app_designer_hunt_details', {id: hunt.id}) }}">
                                         <div class="p-4 bg-gradient-to-r
                                     {{ hunt.status == 'closed' ? 'from-gray-50 to-slate-50 border-gray-200' : 'from-emerald-50 to-emerald-100 border-emerald-200' }}
                                     rounded-xl border-2 hover:shadow-md transition cursor-pointer"
