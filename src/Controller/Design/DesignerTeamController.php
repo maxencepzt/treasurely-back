@@ -335,6 +335,13 @@ final class DesignerTeamController extends AbstractController
 
         try {
             $designerTeam->removeMember($currentUser);
+
+            foreach ($currentUser->getTreasureHunts() as $hunt) {
+                if ($hunt->getDesignerTeam() === $designerTeam) {
+                    $hunt->setOwner($designerTeam->getOwner());
+                }
+            }
+
             $entityManager->flush();
 
             return $this->json([
