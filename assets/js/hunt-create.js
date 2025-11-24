@@ -1,5 +1,3 @@
-// Gestion de la création d'énigmes pour les chasses au trésor
-
 class RiddleManager {
     constructor() {
         this.riddles = [];
