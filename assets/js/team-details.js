@@ -235,7 +235,8 @@ removeMemberButtons.forEach(button => {
         modal.show({
             type: 'warning',
             title: 'Retirer le membre de l\'équipe ?',
-            message: `Êtes-vous sûr de vouloir retirer <strong>${userName}</strong> de l'équipe ?<br><br>Il n'aura plus accès aux chasses au trésor de cette équipe.`,
+            message: `Êtes-vous sûr de vouloir retirer <strong>${userName}</strong> de l'équipe ?`,
+            warning: 'Il n\'aura plus accès aux chasses au trésor de cette équipe.',
             confirmText: 'Retirer',
             onConfirm: (modalInstance) => {
                 modalInstance.setLoading('En cours...');
