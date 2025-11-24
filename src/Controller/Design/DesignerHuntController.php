@@ -2,6 +2,7 @@
 
 namespace App\Controller\Design;
 
+use App\Entity\TreasureHunt;
 use App\Entity\User;
 use App\Repository\DesignerTeamRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,9 +22,11 @@ final class DesignerHuntController extends AbstractController
     }
 
     #[Route('/designer/hunt/details/{id}', name: 'app_designer_hunt_details')]
-    public function details(int $id): Response
+    public function details(TreasureHunt $treasureHunt): Response
     {
-        return $this->render('designer/hunt/details.html.twig');
+        return $this->render('designer/hunt/details.html.twig', [
+            'treasureHunt' => $treasureHunt,
+        ]);
     }
 
     #[Route('/designer/hunt/create', name: 'app_designer_hunt_create')]
