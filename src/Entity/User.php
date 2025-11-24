@@ -260,6 +260,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: ParticipateHunt::class, mappedBy: 'hunter')]
     private Collection $participateHunts;
 
+    #[ORM\Column]
+    #[Groups(['user:read', 'user:write'])]
+    private int $totalScore;
+
+    #[ORM\Column]
+    #[Groups(['user:read', 'user:write'])]
+    private int $totalRiddles;
+
     public function __construct()
     {
         $this->ownedTeams = new ArrayCollection();
@@ -671,5 +679,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __toString(): string
     {
         return $this->nickname;
+    }
+
+    public function getTotalScore(): ?int
+    {
+        return $this->totalScore;
+    }
+
+    public function setTotalScore(int $totalScore): static
+    {
+        $this->totalScore = $totalScore;
+
+        return $this;
+    }
+
+    public function getTotalRiddles(): ?int
+    {
+        return $this->totalRiddles;
+    }
+
+    public function setTotalRiddles(int $totalRiddles): static
+    {
+        $this->totalRiddles = $totalRiddles;
+
+        return $this;
     }
 }
