@@ -243,6 +243,11 @@ class Team
         return $this;
     }
 
+    public function hasMember(User $user): bool
+    {
+        return $this->getMembers()->contains($user);
+    }
+
     /**
      * @return Collection<int, TreasureHunt>
      */

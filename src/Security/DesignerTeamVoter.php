@@ -50,7 +50,7 @@ final class DesignerTeamVoter extends Voter
     {
         // Un utilisateur peut voir une équipe s'il en est membre ou propriétaire
         return $designerTeam->getOwner() === $user
-            || $designerTeam->getMembers()->contains($user);
+            || $designerTeam->hasMember($user);
     }
 
     private function canEdit(DesignerTeam $designerTeam, User $user): bool
