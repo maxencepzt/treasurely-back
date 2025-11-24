@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Repository\DesignerTeamRepository;
 use App\Repository\TreasureHuntRepository;
 use App\Repository\UserRepository;
+use App\Security\DesignerTeamVoter;
 use App\Service\ImageUploadService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -49,7 +50,7 @@ final class DesignerTeamController extends AbstractController
         }
 
         // Vérifier les permissions de consultation
-        $this->denyAccessUnlessGranted('DESIGNER_TEAM_VIEW', $designerTeam);
+        $this->denyAccessUnlessGranted(DesignerTeamVoter::VIEW, $designerTeam);
 
         /** @var User $currentUser */
         $currentUser = $this->security->getUser();
@@ -63,6 +64,8 @@ final class DesignerTeamController extends AbstractController
             'isOwner' => $isOwner,
             'canEdit' => $this->isGranted('DESIGNER_TEAM_EDIT', $designerTeam),
             'canDelete' => $this->isGranted('DESIGNER_TEAM_DELETE', $designerTeam),
+            'canEdit' => $this->isGranted(DesignerTeamVoter::EDIT, $designerTeam),
+            'canDelete' => $this->isGranted(DesignerTeamVoter::DELETE, $designerTeam),
             'treasureHunts' => $hunts,
         ]);
     }
@@ -81,7 +84,7 @@ final class DesignerTeamController extends AbstractController
         }
 
         // Vérifier les permissions de modification
-        $this->denyAccessUnlessGranted('DESIGNER_TEAM_EDIT', $designerTeam);
+        $this->denyAccessUnlessGranted(DesignerTeamVoter::EDIT, $designerTeam);
 
         return $this->render('designer/team/edit.html.twig', [
             'designerTeam' => $designerTeam,
@@ -202,7 +205,7 @@ final class DesignerTeamController extends AbstractController
         }
 
         // Vérifier les permissions de modification
-        $this->denyAccessUnlessGranted('DESIGNER_TEAM_EDIT', $designerTeam);
+        $this->denyAccessUnlessGranted(DesignerTeamVoter::EDIT, $designerTeam);
 
         try {
             // Récupérer les données depuis FormData
@@ -289,7 +292,7 @@ final class DesignerTeamController extends AbstractController
         }
 
         // Vérifier les permissions de suppression
-        $this->denyAccessUnlessGranted('DESIGNER_TEAM_DELETE', $designerTeam);
+        $this->denyAccessUnlessGranted(DesignerTeamVoter::DELETE, $designerTeam);
 
         try {
             $teamName = $designerTeam->getName();
@@ -318,7 +321,7 @@ final class DesignerTeamController extends AbstractController
         }
 
         // Vérifier que l'utilisateur peut voir l'équipe (donc en est membre)
-        $this->denyAccessUnlessGranted('DESIGNER_TEAM_VIEW', $designerTeam);
+        $this->denyAccessUnlessGranted(DesignerTeamVoter::VIEW, $designerTeam);
 
         /** @var User $currentUser */
         $currentUser = $this->security->getUser();
