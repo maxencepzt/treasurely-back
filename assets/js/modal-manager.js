@@ -1,8 +1,3 @@
-/**
- * Gestionnaire de Modals Global
- * Système réutilisable pour créer et gérer des modals de confirmation personnalisables
- */
-
 class ModalManager {
     constructor(modalId = 'globalModal') {
         this.modal = document.querySelector(`[data-modal="${modalId}"]`);
@@ -30,13 +25,6 @@ class ModalManager {
     }
 
     setupEventListeners() {
-        // Fermer en cliquant sur le fond
-        this.elements.container.addEventListener('click', (e) => {
-            if (e.target === this.elements.container) {
-                this.hide();
-            }
-        });
-
         // Bouton annuler
         this.elements.cancelBtn.addEventListener('click', () => {
             this.hide();
@@ -63,7 +51,7 @@ class ModalManager {
     /**
      * Affiche le modal avec une configuration personnalisée
      * @param {Object} config - Configuration du modal
-     * @param {string} config.type - Type de modal: 'danger', 'warning', 'info', 'success'
+     * @param {string} config.type - Type de modal : 'danger', 'warning', 'info', 'success'
      * @param {string} config.title - Titre du modal
      * @param {string} config.message - Message principal (peut contenir du HTML)
      * @param {string} config.warning - Message d'avertissement optionnel
@@ -71,7 +59,7 @@ class ModalManager {
      * @param {string} config.cancelText - Texte du bouton d'annulation
      * @param {Function} config.onConfirm - Callback lors de la confirmation
      * @param {Function} config.onCancel - Callback lors de l'annulation
-     * @param {Object} config.customIcon - Icône personnalisée {container: 'classes', icon: 'svg-path'}
+     * @param {Object} config.customIcon - Icône personnalisée {container : 'classes', icon : 'svg-path'}
      * @param {Object} config.customConfirmIcon - Icône personnalisée du bouton de confirmation
      */
     show(config) {
@@ -201,10 +189,6 @@ class ModalManager {
     }
 }
 
-/**
- * Gestionnaire de Toast Global
- * Système réutilisable pour afficher des notifications toast
- */
 class ToastManager {
     constructor(toastId = 'globalToast') {
         this.toastId = toastId;
@@ -296,10 +280,5 @@ class ToastManager {
     }
 }
 
-// Exporter les classes pour utilisation globale
-window.ModalManager = ModalManager;
-window.ToastManager = ToastManager;
-
-// Export ES6 pour les modules
 export { ModalManager, ToastManager };
 

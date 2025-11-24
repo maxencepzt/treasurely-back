@@ -62,8 +62,6 @@ final class DesignerTeamController extends AbstractController
         return $this->render('designer/team/details.html.twig', [
             'designerTeam' => $designerTeam,
             'isOwner' => $isOwner,
-            'canEdit' => $this->isGranted('DESIGNER_TEAM_EDIT', $designerTeam),
-            'canDelete' => $this->isGranted('DESIGNER_TEAM_DELETE', $designerTeam),
             'canEdit' => $this->isGranted(DesignerTeamVoter::EDIT, $designerTeam),
             'canDelete' => $this->isGranted(DesignerTeamVoter::DELETE, $designerTeam),
             'treasureHunts' => $hunts,
