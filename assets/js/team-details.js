@@ -11,7 +11,6 @@ let selectedUser = null;
 
 // Bouton de transfert de la propriété de l'équipe
 const transferOwnershipBtn = document.getElementById('transferOwnershipBtn');
-// TODO : autocomplete pour le nouveau propriétaire parmi les membres existants
 if (transferOwnershipBtn) {
     transferOwnershipBtn.addEventListener('click', function(e) {
         e.preventDefault();
@@ -61,6 +60,7 @@ if (transferOwnershipBtn) {
                 container: 'bg-red-100',
                 icon: 'M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z',
             },
+            customConfirmIcon: 'M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z',
             onConfirm: (modalInstance) => {
                 modalInstance.setLoading('Transfert en cours...');
 
@@ -282,6 +282,7 @@ if (addMemberBtn) {
                 container: 'bg-green-100',
                 icon: 'M12 4v16m8-8H4',
             },
+            customConfirmIcon: 'M12 4v16m8-8H4',
             onConfirm: (modalInstance) => {
                 if (!selectedUser) {
                     toast.error('Veuillez sélectionner un utilisateur');
