@@ -19,7 +19,7 @@ if (transferOwnershipBtn) {
         const teamName = this.dataset.teamName;
 
         modal.show({
-            type: 'warning',
+            type: 'danger',
             title: 'Transférer la propriété de l\'équipe ?',
             message: `
                 <div class="text-center">
@@ -58,7 +58,7 @@ if (transferOwnershipBtn) {
             warning: 'Cette action est définitive.',
             confirmText: 'Transférer',
             customIcon: {
-                container: 'bg-yellow-100',
+                container: 'bg-red-100',
                 icon: 'M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z',
             },
             onConfirm: (modalInstance) => {
@@ -238,7 +238,7 @@ if (addMemberBtn) {
         selectedUser = null;
 
         modal.show({
-            type: 'info',
+            type: 'success',
             title: 'Ajouter un membre à l\'équipe',
             message: `
                 <div class="text-center">
@@ -277,6 +277,10 @@ if (addMemberBtn) {
             `,
             warning: 'Le membre aura accès à toutes les chasses au trésor de cette équipe.',
             confirmText: 'Ajouter',
+            customIcon: {
+                container: 'bg-green-100',
+                icon: 'M12 4v16m8-8H4',
+            },
             onConfirm: (modalInstance) => {
                 if (!selectedUser) {
                     toast.error('Veuillez sélectionner un utilisateur');
