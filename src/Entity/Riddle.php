@@ -213,4 +213,46 @@ class Riddle
 
         return $this;
     }
+
+    #[Groups(['riddle:read'])]
+    public function getCode(): ?string
+    {
+        return null;
+    }
+
+    /**
+     * @return string[]|null
+     */
+    #[Groups(['riddle:read'])]
+    public function getChoices(): ?array
+    {
+        return null;
+    }
+
+    /**
+     * @return string[]|null
+     */
+    #[Groups(['riddle:read'])]
+    public function getAnswers(): ?array
+    {
+        return null;
+    }
+
+    #[Groups(['riddle:read'])]
+    public function getAnswer(): ?string
+    {
+        return null;
+    }
+
+    #[Groups(['riddle:read'])]
+    public function getLatitude(): ?float
+    {
+        return null;
+    }
+
+    #[Groups(['riddle:read'])]
+    public function getLongitude(): ?float
+    {
+        return null;
+    }
 }
