@@ -72,9 +72,16 @@ class Riddle
     #[ORM\OneToMany(targetEntity: ParticipateRiddle::class, mappedBy: 'riddle', orphanRemoval: true)]
     private Collection $participateRiddles;
 
+    /**
+     * @var Collection<int, ParticipateHunt>
+     */
+    #[ORM\OneToMany(targetEntity: ParticipateHunt::class, mappedBy: 'currentRiddle')]
+    private Collection $participateHunts;
+
     public function __construct()
     {
         $this->participateRiddles = new ArrayCollection();
+        $this->participateHunts = new ArrayCollection();
     }
 
     public function getId(): int
@@ -175,5 +182,35 @@ class Riddle
     public function __toString(): string
     {
         return $this->title;
+    }
+
+    /**
+     * @return Collection<int, ParticipateHunt>
+     */
+    public function getParticipateHunts(): Collection
+    {
+        return $this->participateHunts;
+    }
+
+    public function addParticipateHunt(ParticipateHunt $participateHunt): static
+    {
+        if (!$this->participateHunts->contains($participateHunt)) {
+            $this->participateHunts->add($participateHunt);
+            $participateHunt->setCurrentRiddle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParticipateHunt(ParticipateHunt $participateHunt): static
+    {
+        if ($this->participateHunts->removeElement($participateHunt)) {
+            // set the owning side to null (unless already changed)
+            if ($participateHunt->getCurrentRiddle() === $this) {
+                $participateHunt->setCurrentRiddle(null);
+            }
+        }
+
+        return $this;
     }
 }
