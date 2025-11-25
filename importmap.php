@@ -36,6 +36,10 @@ return [
         'path' => './assets/js/member-list-display.js',
         'entrypoint' => true,
     ],
+    'file-drag-drop' => [
+        'path' => './assets/js/file-drag-drop.js',
+        'entrypoint' => true,
+    ],
     '@hotwired/stimulus' => [
         'version' => '3.2.2',
     ],

@@ -1,13 +1,13 @@
 import { ToastManager } from 'modal-manager';
 import { MemberAutocomplete } from 'member-autocomplete';
 import { MemberListDisplay } from 'member-list-display';
+import { FileDragDrop } from 'file-drag-drop';
 
 class TeamFormManager {
     constructor() {
         this.teamForm = document.querySelector('form[data-team-form]');
         this.imageInput = document.getElementById('team_image');
         this.imagePreview = document.querySelector('.w-24.h-24');
-        this.selectedImage = null;
 
         // Initialiser le ToastManager
         this.toast = new ToastManager('globalToast');
@@ -57,6 +57,19 @@ class TeamFormManager {
         // Charger les membres existants (en mode édition)
         this.loadExistingMembers();
 
+        // Initialiser le drag and drop pour l'image
+        if (this.imageInput) {
+            this.fileDragDrop = new FileDragDrop(this.imageInput, {
+                onFileSelected: (file) => {
+                    console.log('Fichier sélectionné:', file.name);
+                },
+                onError: (message) => this.showError(message),
+                allowedTypes: ['image/jpeg', 'image/png', 'image/gif'],
+                maxSize: 5 * 1024 * 1024, // 5MB
+                previewElement: this.imagePreview
+            });
+        }
+
         // Attacher les événements
         this.attachEventListeners();
     }
@@ -74,12 +87,6 @@ class TeamFormManager {
             e.preventDefault();
             this.submitTeam();
         });
-
-        if (this.imageInput) {
-            this.imageInput.addEventListener('change', (e) => {
-                this.handleImageSelect(e);
-            });
-        }
     }
 
     handleMemberAdded(user) {
@@ -94,36 +101,6 @@ class TeamFormManager {
         }
     }
 
-    handleImageSelect(event) {
-        const file = event.target.files[0];
-        if (!file) {
-            return;
-        }
-
-        const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
-        if (!validTypes.includes(file.type)) {
-            this.showError('Format d\'image non supporté. Utilisez PNG, JPG ou GIF.');
-            this.imageInput.value = '';
-            return;
-        }
-
-        const maxSize = 5 * 1024 * 1024;
-        if (file.size > maxSize) {
-            this.showError('L\'image est trop volumineuse. Taille maximum : 5MB');
-            this.imageInput.value = '';
-            return;
-        }
-
-        this.selectedImage = file;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            this.imagePreview.innerHTML = `
-                <img src="${e.target.result}" alt="Preview" class="w-full h-full object-cover rounded-xl" />
-            `;
-        };
-        reader.readAsDataURL(file);
-    }
 
     async submitTeam() {
         const teamName = document.getElementById('team_name')?.value;
@@ -145,8 +122,12 @@ class TeamFormManager {
 
         formData.append('members', JSON.stringify(memberIds));
 
-        if (this.selectedImage) {
-            formData.append('image', this.selectedImage);
+        // Récupérer le fichier image via le composant FileDragDrop
+        if (this.fileDragDrop) {
+            const imageFile = this.fileDragDrop.getFile();
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
         }
 
         // Déterminer l'URL et la méthode en fonction du mode
