@@ -1,4 +1,16 @@
 export class MemberAutocomplete {
+    /**
+     * @param {Object} options
+     * @param {HTMLElement} options.searchInput - L'élément input pour la recherche
+     * @param {HTMLElement} options.autocompleteResults - Le conteneur pour afficher les résultats
+     * @param {number} [options.searchDelay=300] - Délai en ms avant de lancer la recherche
+     * @param {number} [options.minSearchLength=2] - Longueur minimale de la chaîne de recherche
+     * @param {string} [options.searchUrl='/designer/team/search-users'] - URL de l'API de recherche
+     * @param {number} [options.designerTeamId=null] - ID de l'équipe de concepteurs (optionnel)
+     * @param {function} [options.onMemberAdded] - Callback lorsqu'un membre est ajouté
+     * @param {function} [options.onMemberRemoved] - Callback lorsqu'un membre est supprimé
+     * @param {function} [options.onError] - Callback en cas d'erreur
+     */
     constructor(options = {}) {
         this.searchInput = options.searchInput;
         this.autocompleteResults = options.autocompleteResults;
@@ -7,6 +19,7 @@ export class MemberAutocomplete {
         this.searchDelay = options.searchDelay || 300;
         this.minSearchLength = options.minSearchLength || 2;
         this.searchUrl = options.searchUrl || '/designer/team/search-users';
+        this.designerTeamId = options.designerTeamId || null;
         
         // Callbacks optionnels
         this.onMemberAdded = options.onMemberAdded || (() => {});
@@ -54,7 +67,7 @@ export class MemberAutocomplete {
         }
 
         try {
-            const response = await fetch(`${this.searchUrl}?q=${encodeURIComponent(query)}`);
+            const response = await fetch(`${this.searchUrl}?q=${encodeURIComponent(query)}${this.designerTeamId ? `&designerTeamId=${this.designerTeamId}` : ''}`);
             if (!response.ok) {
                 throw new Error('Erreur lors de la recherche');
             }

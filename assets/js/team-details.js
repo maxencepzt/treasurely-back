@@ -206,7 +206,8 @@ if (addMemberBtn) {
                         searchInput.value = '';
                         autocompleteResults.classList.add('hidden');
                     },
-                    onError: (message) => toast.error(message)
+                    onError: (message) => toast.error(message),
+                    designerTeamId: teamId,
                 });
 
                 // Bouton pour retirer la sélection

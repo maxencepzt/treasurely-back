@@ -40,7 +40,8 @@ class TeamFormManager {
                 searchInput,
                 autocompleteResults,
                 onMemberAdded: (user) => this.handleMemberAdded(user),
-                onError: (message) => this.showError(message)
+                onError: (message) => this.showError(message),
+                designerTeamId: this.mode === 'edit' ? this.teamId : null
             });
         }
 
