@@ -282,6 +282,13 @@
                                 </svg>
                                 <span>Créer une nouvelle chasse</span>
                             </a>
+                            {% if isOwner or is_granted('ROLE_ADMIN') %}
+                                <button id="transferOwnershipBtn" data-team-name="{{ designerTeam.name }}" data-team-id="{{ designerTeam.id }}" class="w-full text-left px-4 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-xl transition flex items-center space-x-3 cursor-pointer">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>                                    </svg>
+                                    <span>Transférer la propriété de l'équipe</span>
+                                </button>
+                            {% endif %}
                             {% if not isOwner and isMember %}
                                 <button id="leaveTeamBtn" data-team-name="{{ designerTeam.name }}" data-team-id="{{ designerTeam.id }}" class="w-full text-left px-4 py-3 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 font-semibold rounded-xl transition flex items-center space-x-3 cursor-pointer">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
