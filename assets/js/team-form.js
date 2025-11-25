@@ -63,30 +63,8 @@ class TeamFormManager {
     loadExistingMembers() {
         if (!this.memberListDisplay) return;
 
-        // Charger les membres existants depuis le DOM (pour le mode édition)
-        const membersList = document.getElementById('members_list');
-        const existingMembers = membersList?.querySelectorAll('.existing-member');
-
-        const members = [];
-        existingMembers?.forEach(memberElement => {
-            const userId = parseInt(memberElement.dataset.userId);
-            const userFullName = memberElement.dataset.userFullname;
-            const userNickname = memberElement.dataset.userNickname;
-
-            if (userId && userFullName && userNickname) {
-                members.push({
-                    id: userId,
-                    fullName: userFullName,
-                    nickname: userNickname
-                });
-            }
-        });
-
-        if (members.length > 0) {
-            this.memberListDisplay.setMembers(members);
-            if (this.memberAutocomplete) {
-                this.memberAutocomplete.setSelectedMembers(members);
-            }
+        if (this.memberAutocomplete) {
+            this.memberAutocomplete.setSelectedMembers(this.memberListDisplay.getMembers());
         }
     }
 

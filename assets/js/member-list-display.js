@@ -15,15 +15,27 @@ export class MemberListDisplay {
     }
 
     init() {
+        this.loadExistingMembers();
+
         this.render();
     }
 
-    setMembers(members) {
-        this.members.clear();
-        members.forEach(member => {
-            this.members.set(member.id, member);
+    loadExistingMembers() {
+        const existingMembers = this.container.querySelectorAll('.existing-member');
+
+        existingMembers.forEach(memberElement => {
+            const userId = parseInt(memberElement.dataset.userId);
+            const userFullName = memberElement.dataset.userFullname;
+            const userNickname = memberElement.dataset.userNickname;
+
+            if (userId && userFullName && userNickname) {
+                this.addMember({
+                    id: userId,
+                    fullName: userFullName,
+                    nickname: userNickname
+                });
+            }
         });
-        this.render();
     }
 
     addMember(member) {

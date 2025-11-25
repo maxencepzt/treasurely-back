@@ -145,14 +145,6 @@ export class MemberAutocomplete {
         this.onMemberRemoved(user);
     }
 
-    getSelectedMembers() {
-        return Array.from(this.selectedMembers.values());
-    }
-
-    getSelectedMemberIds() {
-        return Array.from(this.selectedMembers.keys());
-    }
-
     clearSelectedMembers() {
         this.selectedMembers.clear();
     }
@@ -162,10 +154,6 @@ export class MemberAutocomplete {
         members.forEach(member => {
             this.selectedMembers.set(member.id, member);
         });
-    }
-
-    hasMember(userId) {
-        return this.selectedMembers.has(userId);
     }
 
     getColorClass(index) {
