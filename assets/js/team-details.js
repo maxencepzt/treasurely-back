@@ -94,7 +94,7 @@ if (deleteTeamBtn) {
                         toast.success(data.message);
                         setTimeout(() => {
                             window.location.href = '/designer/team';
-                        }, 1500);
+                        }, 1000);
                     } else {
                         toast.error(data.error || 'Une erreur est survenue');
                     }
@@ -138,7 +138,7 @@ if (leaveTeamBtn) {
                         toast.success(data.message);
                         setTimeout(() => {
                             window.location.href = '/designer/team';
-                        }, 1500);
+                        }, 1000);
                     } else {
                         toast.error(data.error || 'Une erreur est survenue');
                     }
