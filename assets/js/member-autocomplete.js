@@ -8,6 +8,7 @@ export class MemberAutocomplete {
      * @param {string} [options.searchUrl='/designer/team/search-users'] - URL de l'API de recherche
      * @param {number} [options.designerTeamId=null] - ID de l'équipe de concepteurs (optionnel)
      * @param {string} [options.searchType='exclude'] - Type de recherche ('exclude' ou 'include')
+     * @param {boolean} [options.singleMemberSelection=false] - Si true, permet uniquement la sélection d'un membre
      * @param {function} [options.onMemberAdded] - Callback lorsqu'un membre est ajouté
      * @param {function} [options.onMemberRemoved] - Callback lorsqu'un membre est supprimé
      * @param {function} [options.onError] - Callback en cas d'erreur
@@ -22,6 +23,7 @@ export class MemberAutocomplete {
         this.searchUrl = options.searchUrl || '/designer/team/search-users';
         this.designerTeamId = options.designerTeamId || null;
         this.searchType = options.searchType || 'exclude';
+        this.singleMemberSelection = options.singleMemberSelection || false;
         
         // Callbacks optionnels
         this.onMemberAdded = options.onMemberAdded || (() => {});
@@ -146,6 +148,10 @@ export class MemberAutocomplete {
     addMember(user) {
         if (this.selectedMembers.has(user.id)) {
             return;
+        }
+
+        if (this.singleMemberSelection) {
+            this.clearSelectedMembers();
         }
 
         this.selectedMembers.set(user.id, user);
