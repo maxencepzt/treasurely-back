@@ -101,7 +101,15 @@ final class DesignerTeamController extends AbstractController
             return $this->json([]);
         }
 
-        $users = $userRepository->searchUsersByQuery($query);
+        /**
+         * @var User $userToExclude
+         */
+        $userToExclude = $this->security->getUser();
+        if (in_array('ROLE_ADMIN', $userToExclude->getRoles())) {
+            $userToExclude = null;
+        }
+
+        $users = $userRepository->searchUsersByQuery($query, $userToExclude);
 
         $result = array_map(function (User $user) {
             return [
