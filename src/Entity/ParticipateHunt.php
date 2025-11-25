@@ -92,7 +92,7 @@ class ParticipateHunt
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Riddle $currentRiddle = null;
+    private Riddle $currentRiddle;
 
     public function getId(): ?int
     {
