@@ -97,6 +97,7 @@ final class DesignerTeamController extends AbstractController
     {
         $query = $request->query->get('q', '');
         $designerTeamId = $request->query->get('designerTeamId');
+        $searchType = $request->query->get('type', 'exclude');
 
         if (strlen($query) < 2) {
             return $this->json([]);
@@ -123,7 +124,7 @@ final class DesignerTeamController extends AbstractController
             }
         }
 
-        $users = $userRepository->searchUsersByQuery($query, $usersToExclude);
+        $users = $userRepository->searchUsersByQuery($query, $usersToExclude, $searchType);
 
         $result = array_map(function (User $user) {
             return [
@@ -476,6 +477,7 @@ final class DesignerTeamController extends AbstractController
 
         // Vérifier les permissions de modification
         $this->denyAccessUnlessGranted(DesignerTeamVoter::EDIT, $designerTeam);
+
         $user = $userRepository->find($userId);
         if (!$user) {
             return $this->json(['error' => 'Utilisateur non trouvé'], Response::HTTP_NOT_FOUND);
