@@ -396,7 +396,7 @@ final class DesignerTeamController extends AbstractController
         ], Response::HTTP_OK);
     }
 
-    #[Route('/designer/team/{id}/remove-member/{userId}', name: 'api_designer_team_remove_member', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[Route('/designer/team/{id}/remove-member/{userId}', name: 'api_designer_team_remove_member', requirements: ['id' => '\d+', 'userId' => '\d+'], methods: ['POST'])]
     public function removeMemberFromTeam(
         ?DesignerTeam $designerTeam,
         int $userId,
@@ -438,6 +438,38 @@ final class DesignerTeamController extends AbstractController
         return $this->json([
             'success' => true,
             'message' => 'Membre retiré avec succès',
+        ], Response::HTTP_OK);
+    }
+
+    #[Route('/designer/team/{id}/transfer-ownership/{userId}', name: 'api_designer_team_transfer_ownership', requirements: ['id' => '\d+', 'userId' => '\d+'], methods: ['POST'])]
+    public function transferTeamOwnership(
+        ?DesignerTeam $designerTeam,
+        int $userId,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager,
+    ): JsonResponse {
+        if (!$designerTeam) {
+            return $this->json(['error' => 'Équipe non trouvé'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Vérifier les permissions de modification
+        $this->denyAccessUnlessGranted(DesignerTeamVoter::EDIT, $designerTeam);
+        $user = $userRepository->find($userId);
+        if (!$user) {
+            return $this->json(['error' => 'Utilisateur non trouvé'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Vérifier si l'utilisateur est membre
+        if (!$designerTeam->hasMember($user)) {
+            return $this->json(['error' => 'L\'utilisateur n\'est pas membre de l\'équipe'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $designerTeam->setOwner($user);
+        $entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Propriété transférée avec succès',
         ], Response::HTTP_OK);
     }
 }
