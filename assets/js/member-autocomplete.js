@@ -7,6 +7,7 @@ export class MemberAutocomplete {
      * @param {number} [options.minSearchLength=2] - Longueur minimale de la chaîne de recherche
      * @param {string} [options.searchUrl='/designer/team/search-users'] - URL de l'API de recherche
      * @param {number} [options.designerTeamId=null] - ID de l'équipe de concepteurs (optionnel)
+     * @param {string} [options.searchType='exclude'] - Type de recherche ('exclude' ou 'include')
      * @param {function} [options.onMemberAdded] - Callback lorsqu'un membre est ajouté
      * @param {function} [options.onMemberRemoved] - Callback lorsqu'un membre est supprimé
      * @param {function} [options.onError] - Callback en cas d'erreur
@@ -20,6 +21,7 @@ export class MemberAutocomplete {
         this.minSearchLength = options.minSearchLength || 2;
         this.searchUrl = options.searchUrl || '/designer/team/search-users';
         this.designerTeamId = options.designerTeamId || null;
+        this.searchType = options.searchType || 'exclude';
         
         // Callbacks optionnels
         this.onMemberAdded = options.onMemberAdded || (() => {});
@@ -67,7 +69,9 @@ export class MemberAutocomplete {
         }
 
         try {
-            const response = await fetch(`${this.searchUrl}?q=${encodeURIComponent(query)}${this.designerTeamId ? `&designerTeamId=${this.designerTeamId}` : ''}`);
+            const response = await fetch(
+                `${this.searchUrl}?q=${encodeURIComponent(query)}${this.designerTeamId ? `&designerTeamId=${this.designerTeamId}` : ''}${this.searchType ? `&type=${this.searchType}` : ''}`
+            );
             if (!response.ok) {
                 throw new Error('Erreur lors de la recherche');
             }
@@ -183,20 +187,4 @@ export class MemberAutocomplete {
 
         return colors[index % colors.length];
     }
-
-    getBgColorClass(index) {
-        const bgColors = [
-            'bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200',
-            'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200',
-            'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200',
-            'bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200',
-            'bg-gradient-to-r from-pink-50 to-rose-50 border-pink-200',
-            'bg-gradient-to-r from-indigo-50 to-blue-50 border-indigo-200',
-            'bg-gradient-to-r from-red-50 to-pink-50 border-red-200',
-            'bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-200'
-        ];
-
-        return bgColors[index % bgColors.length];
-    }
 }
-

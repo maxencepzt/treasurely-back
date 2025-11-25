@@ -171,4 +171,3 @@ export class MemberListDisplay {
         return bgColors[index % bgColors.length];
     }
 }
-
