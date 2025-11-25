@@ -195,12 +195,12 @@ class ParticipateHunt
         return $this;
     }
 
-    public function getCurrentRiddle(): ?Riddle
+    public function getCurrentRiddle(): Riddle
     {
         return $this->currentRiddle;
     }
 
-    public function setCurrentRiddle(?Riddle $currentRiddle): static
+    public function setCurrentRiddle(Riddle $currentRiddle): static
     {
         $this->currentRiddle = $currentRiddle;
 
