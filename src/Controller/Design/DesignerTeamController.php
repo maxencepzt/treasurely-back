@@ -239,40 +239,34 @@ final class DesignerTeamController extends AbstractController
 
             // Mettre à jour les membres
             if (!empty($membersJson)) {
-                $oldsMembers = $designerTeam->getMembers();
                 $memberIds = json_decode($membersJson, true);
                 if (is_array($memberIds)) {
-                    // Retirer tous les membres sauf le propriétaire
                     $owner = $designerTeam->getOwner();
-                    foreach ($designerTeam->getMembers() as $member) {
-                        if ($member !== $owner) {
-                            $designerTeam->removeMember($member);
+                    $currentMembers = $designerTeam->getMembers()->toArray();
+
+                    // Identifier les membres à retirer (sauf le propriétaire)
+                    $membersToRemove = array_filter($currentMembers, function (User $member) use ($memberIds, $owner) {
+                        return $member !== $owner && !in_array($member->getId(), $memberIds, true);
+                    });
+
+                    // Réassigner les chasses aux membres retirés
+                    foreach ($membersToRemove as $member) {
+                        foreach ($member->getTreasureHunts() as $hunt) {
+                            if ($hunt->getDesignerTeam() === $designerTeam) {
+                                $hunt->setOwner($owner);
+                            }
                         }
+                        $designerTeam->removeMember($member);
                     }
 
                     // Ajouter les nouveaux membres
                     foreach ($memberIds as $memberId) {
-                        $member = $userRepository->find($memberId);
-                        if ($member) {
-                            $designerTeam->addMember($member);
-                        }
-                    }
-
-                    // Récupérer les membres qui ne sont plus dans l'équipe
-                    foreach ($oldsMembers as $oldMember) {
-                        if (!in_array($oldMember->getId(), $memberIds, true) && $oldMember !== $owner) {
-                            // Mettre à jour les chasses associées
-                            foreach ($oldMember->getTreasureHunts() as $hunt) {
-                                if ($hunt->getDesignerTeam() === $designerTeam) {
-                                    $hunt->setOwner($owner);
-                                }
+                        if (!in_array($memberId, array_map(fn ($m) => $m->getId(), $currentMembers), true)) {
+                            $member = $userRepository->find($memberId);
+                            if ($member) {
+                                $designerTeam->addMember($member);
                             }
                         }
-                    }
-
-                    // S'assurer que le propriétaire est toujours membre
-                    if (!$designerTeam->getMembers()->contains($owner)) {
-                        $designerTeam->addMember($owner);
                     }
                 }
             }
