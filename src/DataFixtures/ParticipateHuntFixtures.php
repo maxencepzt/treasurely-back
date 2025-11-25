@@ -21,6 +21,7 @@ class ParticipateHuntFixtures extends Fixture implements DependentFixtureInterfa
 
             return [
                 'playerTeam' => 1 == random_int(0, 1) ? $playerTeam : null,
+                'hunt' => $hunt,
                 'currentRiddle' => $currentRiddle,
             ];
         });
