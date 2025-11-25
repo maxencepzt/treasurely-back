@@ -8,7 +8,7 @@
             type: 'simple',
             title: 'Créer une chasse au trésor',
             subtitle: 'Concevez une nouvelle aventure pour vos joueurs',
-            backUrl: path('app_designer_hunt'),
+            backUrl: designerTeamId ? path('app_designer_team_details', { id: designerTeamId }) : path('app_designer_hunt'),
             backTitle: 'Retour aux chasses',
         }) }}
 
