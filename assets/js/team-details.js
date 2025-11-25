@@ -76,7 +76,7 @@ if (transferOwnershipBtn) {
                     if (data.success) {
                         toast.success(data.message);
                         setTimeout(() => {
-                            window.location.href = '/designer/team';
+                            window.location.reload();
                         }, 1000);
                     } else {
                         toast.error(data.error || 'Une erreur est survenue');
