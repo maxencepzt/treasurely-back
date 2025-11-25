@@ -35,9 +35,13 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
+     * Search users by a query string matching nickname, firstname or lastname.
+     *
+     * @param User[]|null $usersToExclude
+     *
      * @return User[]
      */
-    public function searchUsersByQuery(string $query, ?User $userToExclude = null): array
+    public function searchUsersByQuery(string $query, ?array $usersToExclude = null): array
     {
         $query = $this->createQueryBuilder('u')
             ->where('UPPER(u.nickname) LIKE UPPER(:query) OR UPPER(u.firstname) LIKE UPPER(:query) OR UPPER(u.lastname) LIKE UPPER(:query)')
@@ -45,9 +49,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->setParameter('query', '%'.$query.'%')
             ->setMaxResults(10);
 
-        if ($userToExclude) {
-            $query->andWhere('u != :userToExclude')
-                ->setParameter('userToExclude', $userToExclude);
+        if ($usersToExclude) {
+            $query->andWhere('u NOT IN (:excludedUsers)')
+                ->setParameter('excludedUsers', $usersToExclude);
         }
 
         return $query
