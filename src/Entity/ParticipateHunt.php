@@ -92,6 +92,7 @@ class ParticipateHunt
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['participateHunt:read', 'participateHunt:patch'])]
     private Riddle $currentRiddle;
 
     public function getId(): ?int
