@@ -9,6 +9,57 @@ const toast = new ToastManager('globalToast');
 let memberAutocomplete = null;
 let selectedUser = null;
 
+// Bouton de transfert de la propriété de l'équipe
+const transferOwnershipBtn = document.getElementById('transferOwnershipBtn');
+// TODO : autocomplete pour le nouveau propriétaire parmi les membres existants
+if (transferOwnershipBtn) {
+    transferOwnershipBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const teamId = this.dataset.teamId;
+        const teamName = this.dataset.teamName;
+
+        modal.show({
+            type: 'warning',
+            title: 'Transférer la propriété de l\'équipe ?',
+            message: `Êtes-vous sûr de vouloir transférer la propriété de l'équipe <strong>${teamName}</strong> ?`,
+            warning: 'Vous ne serez plus le propriétaire de cette équipe et perdrez vos droits d\'administration de l\'équipe.',
+            confirmText: 'Transférer',
+            customIcon: {
+                container: 'bg-yellow-100',
+                icon: 'M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z',
+            },
+            onConfirm: (modalInstance) => {
+                modalInstance.setLoading('Transfert en cours...');
+
+                fetch(`/designer/team/${teamId}/transfer-ownership`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    modalInstance.hide();
+                    if (data.success) {
+                        toast.success(data.message);
+                        setTimeout(() => {
+                            window.location.href = '/designer/team';
+                        }, 1000);
+                    }
+                    else {
+                        toast.error(data.error || 'Une erreur est survenue');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    modalInstance.hide();
+                    toast.error('Une erreur est survenue lors du transfert de propriété de l\'équipe');
+                });
+            }
+        });
+    });
+}
+
 // Bouton de suppression d'équipe
 const deleteTeamBtn = document.getElementById('deleteTeamBtn');
 if (deleteTeamBtn) {
