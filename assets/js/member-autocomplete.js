@@ -150,6 +150,7 @@ export class MemberAutocomplete {
 
         this.selectedMembers.set(user.id, user);
         this.onMemberAdded(user);
+        this.autocompleteResults.innerHTML = '';
     }
 
     removeMember(userId) {
