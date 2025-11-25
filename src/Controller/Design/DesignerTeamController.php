@@ -93,23 +93,37 @@ final class DesignerTeamController extends AbstractController
     }
 
     #[Route('/designer/team/search-users', name: 'api_designer_search_users', methods: ['GET'])]
-    public function searchUsers(Request $request, UserRepository $userRepository): JsonResponse
+    public function searchUsers(Request $request, UserRepository $userRepository, DesignerTeamRepository $designerTeamRepository): JsonResponse
     {
         $query = $request->query->get('q', '');
+        $designerTeamId = $request->query->get('designerTeamId');
 
         if (strlen($query) < 2) {
             return $this->json([]);
         }
 
-        /**
-         * @var User $userToExclude
-         */
-        $userToExclude = $this->security->getUser();
-        if (in_array('ROLE_ADMIN', $userToExclude->getRoles())) {
-            $userToExclude = null;
+        /** @var User $currentUser */
+        $currentUser = $this->security->getUser();
+
+        $usersToExclude = [];
+
+        if (!in_array('ROLE_ADMIN', $currentUser->getRoles())) {
+            $usersToExclude[] = $currentUser;
         }
 
-        $users = $userRepository->searchUsersByQuery($query, $userToExclude);
+        if ($designerTeamId) {
+            $designerTeam = $designerTeamRepository->find($designerTeamId);
+            if ($designerTeam) {
+                $members = $designerTeam->getMembers();
+                foreach ($members as $member) {
+                    if (!in_array($member, $usersToExclude, true)) {
+                        $usersToExclude[] = $member;
+                    }
+                }
+            }
+        }
+
+        $users = $userRepository->searchUsersByQuery($query, $usersToExclude);
 
         $result = array_map(function (User $user) {
             return [
