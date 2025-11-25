@@ -117,6 +117,7 @@ if (transferOwnershipBtn) {
                     onError: (message) => toast.error(message),
                     designerTeamId: teamId,
                     searchType: 'include',
+                    singleMemberSelection: true,
                 });
 
                 // Bouton pour retirer la sélection
@@ -341,6 +342,7 @@ if (addMemberBtn) {
                     },
                     onError: (message) => toast.error(message),
                     designerTeamId: teamId,
+                    singleMemberSelection: true,
                 });
 
                 // Bouton pour retirer la sélection
