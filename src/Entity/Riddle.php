@@ -59,6 +59,7 @@ class Riddle
     #[Groups(['treasureHunt:riddles', 'riddle:read'])]
     private int $difficulty;
 
+    #[Groups(['treasureHunt:riddles', 'riddle:read'])]
     #[ORM\Column]
     private int $orderNumber;
 
