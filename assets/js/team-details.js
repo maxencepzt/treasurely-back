@@ -280,6 +280,7 @@ if (addMemberBtn) {
     });
 }
 
+// Boutons de suppression de membre
 const removeMemberButtons = document.querySelectorAll('.removeMemberBtn');
 removeMemberButtons.forEach(button => {
     button.addEventListener('click', function(e) {
