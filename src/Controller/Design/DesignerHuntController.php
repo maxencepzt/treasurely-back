@@ -30,6 +30,33 @@ final class DesignerHuntController extends AbstractController
     {
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function getRiddlesWithTypes(RiddleRepository $riddleRepository, TreasureHunt $treasureHunt): array
+    {
+        $riddles = $riddleRepository->findByTreasureHunt($treasureHunt);
+        $realRiddles = [];
+
+        foreach ($riddles as $riddle) {
+            $realRiddles[] = [
+                'title' => $riddle->getTitle(),
+                'description' => $riddle->getDescription(),
+                'difficulty' => $riddle->getDifficulty(),
+                'orderNumber' => $riddle->getOrderNumber(),
+                'type' => match ($riddle::class) {
+                    TextRiddle::class => 'Textuelle',
+                    GPSRiddle::class => 'GPS',
+                    MCQRiddle::class => 'QCM',
+                    QRRiddle::class => 'QR Code',
+                    default => 'Unknown',
+                },
+            ];
+        }
+
+        return $realRiddles;
+    }
+
     #[Route('/designer/hunt', name: 'app_designer_hunt')]
     public function index(TreasureHuntRepository $treasureHuntRepository): Response
     {
@@ -52,28 +79,9 @@ final class DesignerHuntController extends AbstractController
     #[Route('/designer/hunt/{id}/details', name: 'app_designer_hunt_details')]
     public function details(TreasureHunt $treasureHunt, RiddleRepository $riddleRepository): Response
     {
-        $riddles = $riddleRepository->findByTreasureHunt($treasureHunt);
-        $realRiddles = [];
-
-        foreach ($riddles as $riddle) {
-            $realRiddles[] = [
-                'title' => $riddle->getTitle(),
-                'description' => $riddle->getDescription(),
-                'difficulty' => $riddle->getDifficulty(),
-                'orderNumber' => $riddle->getOrderNumber(),
-                'type' => match ($riddle::class) {
-                    TextRiddle::class => 'Textuelle',
-                    GPSRiddle::class => 'GPS',
-                    MCQRiddle::class => 'QCM',
-                    QRRiddle::class => 'QR Code',
-                    default => 'Unknown',
-                },
-            ];
-        }
-
         return $this->render('designer/hunt/details.html.twig', [
             'treasureHunt' => $treasureHunt,
-            'riddles' => $realRiddles,
+            'riddles' => $this->getRiddlesWithTypes($riddleRepository, $treasureHunt),
         ]);
     }
 
@@ -98,8 +106,12 @@ final class DesignerHuntController extends AbstractController
     }
 
     #[Route('/designer/hunt/{id}/edit', name: 'app_designer_hunt_edit', methods: ['GET'])]
-    public function edit(TreasureHunt $treasureHunt, HuntTypeRepository $huntTypeRepository, DesignerTeamRepository $designerTeamRepository): Response
-    {
+    public function edit(
+        TreasureHunt $treasureHunt,
+        HuntTypeRepository $huntTypeRepository,
+        DesignerTeamRepository $designerTeamRepository,
+        RiddleRepository $riddleRepository,
+    ): Response {
         /**
          * @var User $currentUser
          */
@@ -113,6 +125,7 @@ final class DesignerHuntController extends AbstractController
             'designerTeamId' => $treasureHunt->getDesignerTeam()->getId(),
             'designerTeams' => $designerTeams,
             'huntTypes' => $huntTypes,
+            'riddles' => $this->getRiddlesWithTypes($riddleRepository, $treasureHunt),
         ]);
     }
 

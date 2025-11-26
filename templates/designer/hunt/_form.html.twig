@@ -193,7 +193,7 @@
 
     <!-- Section : Énigmes -->
     {{ include('_partials/riddle_section.html.twig', {
-        riddles: hunt.riddles|default([]),
+        riddles: riddles|default([]),
         showAddButton: true,
         readonly: false,
     }) }}
