@@ -3,6 +3,7 @@
 namespace App\Listener;
 
 use App\Entity\ParticipateRiddle;
+use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
@@ -14,6 +15,7 @@ use Doctrine\ORM\Events;
 #[AsDoctrineListener(event: Events::postFlush)]
 class ParticipateRiddleListener implements EventSubscriber
 {
+    /** @var array<int, User> */
     private array $usersToUpdate = [];
     private bool $isUpdating = false;
 
@@ -43,7 +45,17 @@ class ParticipateRiddleListener implements EventSubscriber
         foreach ($unitOfWork->getScheduledEntityInsertions() as $entity) {
             if ($entity instanceof ParticipateRiddle) {
                 $hunter = $entity->getHunter();
-                if (null !== $hunter) {
+                $this->usersToUpdate[$hunter->getId()] = $hunter;
+            }
+        }
+
+        // Check for updated ParticipateRiddle entities (finishTime changes)
+        foreach ($unitOfWork->getScheduledEntityUpdates() as $entity) {
+            if ($entity instanceof ParticipateRiddle) {
+                $hunter = $entity->getHunter();
+                // Check if finishTime was updated
+                $changeSet = $unitOfWork->getEntityChangeSet($entity);
+                if (isset($changeSet['finishTime'])) {
                     $this->usersToUpdate[$hunter->getId()] = $hunter;
                 }
             }
@@ -53,16 +65,14 @@ class ParticipateRiddleListener implements EventSubscriber
         foreach ($unitOfWork->getScheduledEntityDeletions() as $entity) {
             if ($entity instanceof ParticipateRiddle) {
                 $hunter = $entity->getHunter();
-                if (null !== $hunter) {
-                    $this->usersToUpdate[$hunter->getId()] = $hunter;
-                }
+                $this->usersToUpdate[$hunter->getId()] = $hunter;
             }
         }
     }
 
     public function postFlush(PostFlushEventArgs $event): void
     {
-        if (empty($this->usersToUpdate) || $this->isUpdating) {
+        if ([] === $this->usersToUpdate || $this->isUpdating) {
             return;
         }
 
@@ -82,9 +92,7 @@ class ParticipateRiddleListener implements EventSubscriber
             $entityManager->persist($user);
         }
 
-        if (!empty($usersToProcess)) {
-            $entityManager->flush();
-        }
+        $entityManager->flush();
 
         $this->isUpdating = false;
     }
