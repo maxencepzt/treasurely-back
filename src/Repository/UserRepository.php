@@ -78,4 +78,20 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Calculate the total score of a user by summing all scores from their ParticipateHunt entities.
+     */
+    public function getTotalScore(User $user): int
+    {
+        $result = $this->createQueryBuilder('u')
+            ->select('COALESCE(SUM(ph.score), 0) as totalScore')
+            ->leftJoin('u.participateHunts', 'ph')
+            ->where('u = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int) $result;
+    }
 }
