@@ -39,19 +39,42 @@ final class DesignerHuntController extends AbstractController
         $realRiddles = [];
 
         foreach ($riddles as $riddle) {
-            $realRiddles[] = [
+            $riddleData = [
                 'title' => $riddle->getTitle(),
                 'description' => $riddle->getDescription(),
                 'difficulty' => $riddle->getDifficulty(),
                 'orderNumber' => $riddle->getOrderNumber(),
-                'type' => match ($riddle::class) {
-                    TextRiddle::class => 'Textuelle',
-                    GPSRiddle::class => 'GPS',
-                    MCQRiddle::class => 'QCM',
-                    QRRiddle::class => 'QR Code',
-                    default => 'Unknown',
-                },
             ];
+
+            // Déterminer le type et ajouter les champs spécifiques
+            switch ($riddle::class) {
+                case TextRiddle::class:
+                    /* @var TextRiddle $riddle */
+                    $riddleData['type'] = 'text';
+                    $riddleData['answer'] = $riddle->getAnswer();
+                    break;
+                case GPSRiddle::class:
+                    /* @var GPSRiddle $riddle */
+                    $riddleData['type'] = 'gps';
+                    $riddleData['latitude'] = $riddle->getLatitude();
+                    $riddleData['longitude'] = $riddle->getLongitude();
+                    break;
+                case MCQRiddle::class:
+                    /* @var MCQRiddle $riddle */
+                    $riddleData['type'] = 'mcq';
+                    $riddleData['choices'] = $riddle->getChoices();
+                    $riddleData['answers'] = $riddle->getAnswers();
+                    break;
+                case QRRiddle::class:
+                    /* @var QRRiddle $riddle */
+                    $riddleData['type'] = 'qr';
+                    $riddleData['code'] = $riddle->getCode();
+                    break;
+                default:
+                    $riddleData['type'] = 'text';
+            }
+
+            $realRiddles[] = $riddleData;
         }
 
         return $realRiddles;
