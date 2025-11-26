@@ -342,7 +342,7 @@ class RiddleManager {
 
     createRiddleCard(riddle, index) {
         const typeInfo = this.getRiddleTypeInfo(riddle.type);
-        const difficultyStars = '⭐'.repeat(riddle.difficulty);
+        const difficultyFires = '🔥'.repeat(riddle.difficulty);
 
         return `
             <div class="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 group hover:shadow-md transition" data-riddle-index="${index}">
@@ -358,7 +358,7 @@ class RiddleManager {
                             <p class="text-xs text-gray-500 flex items-center space-x-2">
                                 <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">${typeInfo}</span>
                                 <span>•</span>
-                                <span>${difficultyStars}</span>
+                                <span>${difficultyFires}</span>
                             </p>
                         </div>
                     </div>
