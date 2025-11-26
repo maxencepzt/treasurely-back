@@ -36,7 +36,7 @@ class RiddleRepository extends ServiceEntityRepository
     /**
      * Find riddles by treasure hunts.
      *
-     * @return array<int, array{title: string, description: string, difficulty: int, orderNumber: int}>
+     * @return Riddle[]
      */
     public function findByTreasureHunt(TreasureHunt $treasureHunt): array
     {
