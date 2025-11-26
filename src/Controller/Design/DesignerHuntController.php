@@ -10,6 +10,7 @@ use App\Entity\TreasureHunt;
 use App\Entity\User;
 use App\Repository\DesignerTeamRepository;
 use App\Repository\RiddleRepository;
+use App\Repository\TreasureHuntRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,10 +24,21 @@ final class DesignerHuntController extends AbstractController
     }
 
     #[Route('/designer/hunt', name: 'app_designer_hunt')]
-    public function index(): Response
+    public function index(TreasureHuntRepository $treasureHuntRepository): Response
     {
+        /**
+         * @var User $currentUser
+         */
+        $currentUser = $this->security->getUser();
+
+        $treasureHunts = $treasureHuntRepository->findByOwner($currentUser);
+        $countStatus = $treasureHuntRepository->countStatusByOwner($currentUser);
+
         return $this->render('designer/hunt/index.html.twig', [
-            'controller_name' => 'DesignerHuntController',
+            'treasureHunts' => $treasureHunts,
+            'nbDrafts' => $countStatus[TreasureHunt::STATE_DRAFT] ?? 0,
+            'nbOpened' => $countStatus[TreasureHunt::STATE_OPENED] ?? 0,
+            'nbClosed' => $countStatus[TreasureHunt::STATE_CLOSED] ?? 0,
         ]);
     }
 
