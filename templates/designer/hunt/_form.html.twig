@@ -1,0 +1,260 @@
+{# Partial réutilisable pour le formulaire de chasse (création et édition) #}
+{# Variables attendues :
+   - mode: 'create' ou 'edit'
+   - hunt: objet chasse (null pour create)
+   - designerTeams: liste des équipes disponibles
+   - designerTeamId: ID de l'équipe présélectionnée (optionnel)
+   - submitButtonText: texte du bouton submit principal
+   - cancelUrl: URL de retour
+#}
+
+<form class="space-y-8" data-hunt-form data-mode="{{ mode }}" {% if mode == 'edit' %}data-hunt-id="{{ hunt.id }}"{% endif %}>
+    <!-- Section: Informations de base -->
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>Informations de base</span>
+        </h2>
+
+        <div class="space-y-6">
+            <!-- Nom de la chasse -->
+            <div>
+                <label for="hunt_name" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Nom de la chasse <span class="text-red-500">*</span>
+                </label>
+                <input
+                    type="text"
+                    id="hunt_name"
+                    name="hunt_name"
+                    required
+                    placeholder="Ex: Trésors du Vieux Lyon, Mystères du Musée..."
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                    value="{{ hunt.title|default('') }}"
+                />
+                <p class="mt-1 text-sm text-gray-500">Choisissez un nom captivant et descriptif</p>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label for="hunt_description" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Description de la chasse <span class="text-red-500">*</span>
+                </label>
+                <textarea
+                    id="hunt_description"
+                    name="hunt_description"
+                    rows="3"
+                    required
+                    placeholder="Une courte description qui apparaîtra dans la liste des chasses..."
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition resize-none"
+                >{{ hunt.description|default('') }}</textarea>
+                <p class="mt-1 text-sm text-gray-500">Maximum 3000 caractères</p>
+            </div>
+
+            <!-- Image de couverture (optionnel) -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Image de couverture
+                </label>
+                <div class="flex items-center space-x-4">
+                    <div class="w-24 h-24 bg-gradient-to-br from-green-100 to-emerald-200 rounded-xl flex items-center justify-center text-4xl">
+                        {% if mode == 'edit' %}
+                            <img src="{{ path('_api_/treasure_hunts/{id}/picture_get', {id: hunt.id}) }}" alt="{{ hunt.title }}" class="w-full h-full object-cover rounded-xl" />
+                        {% else %}
+                            {{ ':map:'|emojify }}
+                        {% endif %}
+                    </div>
+                    <div class="flex-1">
+                        <label for="hunt_image" class="cursor-pointer">
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl px-6 py-4 hover:border-blue-500 transition">
+                                <div class="flex items-center space-x-3">
+                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-700">Cliquez pour uploader une image</p>
+                                        <p class="text-xs text-gray-500">GIF, PNG, JPG jusqu'à 5MB</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="file" id="hunt_image" name="hunt_image" accept="image/*" class="hidden" />
+                        </label>
+                        <p class="mt-2 text-xs text-gray-400 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                            </svg>
+                            Glissez-déposez votre image directement dans la zone ci-dessus
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section : Configuration -->
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span>Configuration</span>
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Équipe -->
+            <div>
+                <label for="hunt_team" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Équipe <span class="text-red-500">*</span>
+                </label>
+                <select
+                    id="hunt_team"
+                    name="hunt_team"
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition cursor-pointer"
+                >
+                    <option value="">Sélectionnez une équipe</option>
+                    {% for team in designerTeams %}
+                        <option value="{{ team.id }}"
+                            {% if (mode == 'create' and designerTeamId == team.id) or (mode == 'edit' and hunt.designerTeam.id == team.id) %}
+                                selected
+                            {% endif %}>
+                            {{ team.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <p class="mt-1 text-sm text-gray-500">L'équipe propriétaire de cette chasse</p>
+            </div>
+
+            <!-- Difficulté -->
+            <div>
+                <label for="hunt_difficulty" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Difficulté <span class="text-red-500">*</span>
+                </label>
+                <select
+                    id="hunt_difficulty"
+                    name="hunt_difficulty"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition cursor-pointer"
+                    required
+                >
+                    <option value="1" {% if hunt.difficulty|default('2') == '1' %}selected{% endif %}>{{ ':fire:'|emojify }} Facile</option>
+                    <option value="2" {% if hunt.difficulty|default('2') == '2' %}selected{% endif %}>{{ ':fire::fire:'|emojify }} Moyen</option>
+                    <option value="3" {% if hunt.difficulty|default('2') == '3' %}selected{% endif %}>{{ ':fire::fire::fire:'|emojify }} Difficile</option>
+                </select>
+            </div>
+
+            <!-- Type de chasse -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Type de chasse <span class="text-red-500">*</span>
+                </label>
+                <div class="space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-xl p-4">
+                    {% for huntType in huntTypes %}
+                        <label class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                            <input
+                                    type="checkbox"
+                                    name="hunt_type[]"
+                                    value="{{ huntType.id }}"
+                                    class="hunt-type-checkbox w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
+                                    {% if mode == 'edit' and huntType in hunt.huntType %}
+                                        checked
+                                    {% endif %}
+                            />
+                            <span class="text-sm font-medium text-gray-700">{{ huntType.title }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+                <p class="mt-2 text-sm text-gray-500">Sélectionnez un ou plusieurs types pour votre chasse</p>
+            </div>
+
+            <!-- Durée estimée -->
+            <div>
+                <label for="hunt_duration" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Durée estimée <span class="text-red-500">*</span>
+                </label>
+                <div class="flex items-center space-x-2">
+                    <input
+                        type="number"
+                        id="hunt_duration"
+                        name="hunt_duration"
+                        min="15"
+                        step="15"
+                        placeholder="120"
+                        class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                        value="{{ hunt.estimatedTime|default('') }}"
+                    />
+                    <span class="text-sm text-gray-600 font-semibold">minutes</span>
+                </div>
+                <p class="mt-1 text-sm text-gray-500">Temps moyen pour compléter la chasse</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section : Énigmes -->
+    {{ include('_partials/riddle_section.html.twig', {
+        riddles: hunt.riddles|default([]),
+        showAddButton: true,
+        readonly: false,
+    }) }}
+
+    <!-- Section: Localisation -->
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
+            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span>Localisation</span>
+        </h2>
+
+        <div class="space-y-4">
+            <div>
+                <label for="hunt_city" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Ville <span class="text-red-500">*</span>
+                </label>
+                <input
+                    type="text"
+                    id="hunt_city"
+                    name="hunt_city"
+                    placeholder="Lyon, Paris, Marseille..."
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                    value="{{ hunt.location|default('') }}"
+                />
+            </div>
+
+            <!-- Carte (placeholder) -->
+            <div class="h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center border-2 border-dashed border-gray-300">
+                <div class="text-center">
+                    <svg class="w-16 h-16 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                    </svg>
+                    <p class="text-gray-500 text-sm">Carte interactive (à venir)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Boutons d'action -->
+    <div class="flex items-center justify-between bg-white rounded-2xl shadow-lg p-6">
+        <a href="{{ cancelUrl }}" class="text-gray-600 hover:text-gray-800 font-semibold px-6 py-3 rounded-xl hover:bg-gray-100 transition cursor-pointer">
+            Annuler
+        </a>
+        <div class="flex items-center space-x-3">
+            <button type="submit" name="action" value="draft" class="bg-white border border-gray-300 hover:border-gray-400 px-8 py-3 rounded-xl shadow-lg transform transition hover:scale-105 cursor-pointer flex items-center space-x-2 font-semibold hover:bg-gray-100">
+                <span class="text-gray-600 hover:text-gray-800">
+                    Enregistrer le brouillon
+                </span>
+            </button>
+            <button type="submit" name="action" value="publish" class="bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transform transition hover:scale-105 cursor-pointer flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>{{ submitButtonText }}</span>
+            </button>
+        </div>
+    </div>
+</form>
+
+<!-- Modal de gestion des énigmes -->
+{{ include('_partials/riddle_modal.html.twig') }}
