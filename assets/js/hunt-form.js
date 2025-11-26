@@ -37,11 +37,10 @@ class HuntFormManager {
         if (this.imageInput) {
             this.fileDragDrop = new FileDragDrop(this.imageInput, {
                 onFileSelected: (file) => {
-                    console.log('Fichier sélectionné:', file.name);
                     this.updateImagePreview(file);
                 },
                 onError: (message) => this.showError(message),
-                allowedTypes: ['image/jpeg', 'image/png', 'image/gif'],
+                allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
                 maxSize: 5 * 1024 * 1024, // 5MB
                 previewElement: this.imagePreview
             });

@@ -12,7 +12,7 @@ export class FileDragDrop {
         this.options = {
             onFileSelected: options.onFileSelected || null,
             onError: options.onError || null,
-            allowedTypes: options.allowedTypes || ['image/jpeg', 'image/png', 'image/gif'],
+            allowedTypes: options.allowedTypes || ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
             maxSize: options.maxSize || 5 * 1024 * 1024, // 5MB par défaut
             previewElement: options.previewElement || null
         };

@@ -8,8 +8,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImageUploadService
 {
-    private const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 Mo
-    private const ALLOWED_MIME_TYPES = [
+    private const int|float MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 Mo
+    private const array ALLOWED_MIME_TYPES = [
         'image/jpeg',
         'image/png',
         'image/gif',

@@ -68,12 +68,13 @@ class PictureCrudController extends AbstractCrudController
                                 'image/jpg',
                                 'image/png',
                                 'image/gif',
+                                'image/webp',
                             ],
-                            'mimeTypesMessage' => 'Veuillez uploader une image valide (JPG, PNG, GIF)',
+                            'mimeTypesMessage' => 'Veuillez uploader une image valide (JPG, PNG, GIF, WebP)',
                         ]),
                     ],
                 ])
-                ->setHelp('Formats acceptés : PNG, JPG, JPEG, GIF (max 5MB). L\'image sera stockée directement en base de données.');
+                ->setHelp('Formats acceptés : PNG, JPG, JPEG, GIF, WebP (max 5MB). L\'image sera stockée directement en base de données.');
         }
 
         return $fields;
