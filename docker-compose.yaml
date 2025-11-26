@@ -1,0 +1,66 @@
+
+services:
+###> doctrine/doctrine-bundle ###
+  database:
+    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      # You should definitely change the password in production
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-app}", "-U", "${POSTGRES_USER:-app}"]
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    volumes:
+      - treasurely_database_data:/var/lib/postgresql/data:rw
+      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+      # - ./docker/db/data:/var/lib/postgresql/data:rw
+  adminer:
+    image: butopea/adminer
+    ports:
+      - "7080:8080"
+    environment:
+      ADMINER_DB: ${POSTGRES_DB:-app}
+      ADMINER_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+      ADMINER_SERVER: database
+      ADMINER_DRIVER: pgsql
+      ADMINER_USERNAME: ${POSTGRES_USER:-app}
+      ADMINER_AUTOLOGIN: 1
+  prod:
+    restart: always
+    image: treasurely/back/sae5-01-php_prod:latest
+    depends_on:
+      - database
+    environment:
+      - APP_DEBUG=${APP_DEBUG:-0}
+      - APP_ENV=${APP_ENV:-prod}
+      - TRUSTED_PROXIES=${TRUSTED_PROXIES:-10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}
+      - APP_SECRET=${APP_SECRET:?APP_SECRET requis}
+      - CORS_ALLOW_ORIGIN=${CORS_ALLOW_ORIGIN:?CORS requis}
+      - DATABASE_URL=${DATABASE_URL:?URL base de données requis}
+      - TRUSTED_HOSTS=${TRUSTED_HOSTS:?TRUSTED_HOSTS requis}
+  server_prod:
+    restart: always
+    image: treasurely/back/sae5-01-server_prod:latest
+    depends_on:
+      - prod
+    ports:
+      - 8080:80
+  mailer:
+    image: axllent/mailpit
+    ports:
+      - "1025"
+      - "8025"
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+###< doctrine/doctrine-bundle ###
+
+volumes:
+###> doctrine/doctrine-bundle ###
+  treasurely_database_data:
+###< doctrine/doctrine-bundle ###
