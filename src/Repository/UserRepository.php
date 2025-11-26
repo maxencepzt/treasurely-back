@@ -126,4 +126,20 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
         return (int) $result;
     }
+
+    /**
+     * Calculate the total time a user has spent on hunts by summing all time from their ParticipateHunt entities.
+     */
+    public function getTotalTime(User $user): int
+    {
+        $result = $this->createQueryBuilder('u')
+            ->select('COALESCE(SUM(ph.time), 0) as totalTime')
+            ->leftJoin('u.participateHunts', 'ph')
+            ->where('u = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int) $result;
+    }
 }
