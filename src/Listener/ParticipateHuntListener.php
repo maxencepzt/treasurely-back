@@ -3,6 +3,7 @@
 namespace App\Listener;
 
 use App\Entity\ParticipateHunt;
+use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
@@ -14,6 +15,9 @@ use Doctrine\ORM\Events;
 #[AsDoctrineListener(event: Events::postFlush)]
 class ParticipateHuntListener implements EventSubscriber
 {
+    /**
+     * @var array<int, User>
+     */
     private array $usersToUpdate = [];
     private bool $isUpdating = false;
 
@@ -72,7 +76,7 @@ class ParticipateHuntListener implements EventSubscriber
 
     public function postFlush(PostFlushEventArgs $event): void
     {
-        if (empty($this->usersToUpdate) || $this->isUpdating) {
+        if ($this->isUpdating || 0 === count($this->usersToUpdate)) {
             return;
         }
 
@@ -97,9 +101,8 @@ class ParticipateHuntListener implements EventSubscriber
             $entityManager->persist($user);
         }
 
-        if (!empty($usersToProcess)) {
-            $entityManager->flush();
-        }
+        // On flush, car on sait que des utilisateurs ont été modifiés
+        $entityManager->flush();
 
         $this->isUpdating = false;
     }
