@@ -50,15 +50,17 @@ export class MemberAutocomplete {
         });
 
         this.searchInput.addEventListener('focus', () => {
+            this.searchUsers(this.searchInput.value);
             if (this.autocompleteResults.children.length > 0) {
                 this.autocompleteResults.classList.remove('hidden');
             }
         });
 
         document.addEventListener('click', (event) => {
-            if (!this.searchInput.contains(event.target) && 
+            if (!this.searchInput.contains(event.target) &&
                 !this.autocompleteResults.contains(event.target)) {
                 this.autocompleteResults.classList.add('hidden');
+                this.autocompleteResults.innerHTML = '';
             }
         });
     }
