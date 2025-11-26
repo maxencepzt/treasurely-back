@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\DesignerTeam;
+use App\Entity\ParticipateHunt;
+use App\Entity\ParticipateRiddle;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -112,19 +114,73 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
-     * Calculate the total number of riddle a user has participated in.
+     * Calculate the total number of riddles a user has solved.
+     * This includes:
+     * - Riddles solved individually (ParticipateRiddle with finishTime)
+     * - All riddles from finished hunts (ParticipateHunt with finished = true).
      */
     public function getTotalRiddles(User $user): int
     {
-        $result = $this->createQueryBuilder('u')
-            ->select('COUNT(DISTINCT pr.riddle) as totalRiddles')
-            ->leftJoin('u.participateRiddles', 'pr')
-            ->where('u = :user')
+        $entityManager = $this->getEntityManager();
+
+        // Count riddles solved individually
+        $riddlesSolvedIndividually = $entityManager->createQueryBuilder()
+            ->select('COUNT(DISTINCT pr.riddle)')
+            ->from(ParticipateRiddle::class, 'pr')
+            ->where('pr.hunter = :user')
+            ->andWhere('pr.finishTime IS NOT NULL')
             ->setParameter('user', $user)
             ->getQuery()
             ->getSingleScalarResult();
 
-        return (int) $result;
+        // Count riddles from finished hunts
+        $riddlesFromFinishedHunts = $entityManager->createQueryBuilder()
+            ->select('COUNT(DISTINCT r.id)')
+            ->from(ParticipateHunt::class, 'ph')
+            ->join('ph.hunt', 'h')
+            ->join('h.riddles', 'r')
+            ->where('ph.hunter = :user')
+            ->andWhere('ph.finished = true')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Use UNION to avoid counting the same riddle twice
+        // (if a riddle was solved individually AND is part of a finished hunt)
+        $riddleIds = $entityManager->createQueryBuilder()
+            ->select('DISTINCT IDENTITY(pr.riddle) as riddleId')
+            ->from(ParticipateRiddle::class, 'pr')
+            ->where('pr.hunter = :user')
+            ->andWhere('pr.finishTime IS NOT NULL')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+
+        $riddleIdsFromHunts = $entityManager->createQueryBuilder()
+            ->select('DISTINCT r.id as riddleId')
+            ->from(ParticipateHunt::class, 'ph')
+            ->join('ph.hunt', 'h')
+            ->join('h.riddles', 'r')
+            ->where('ph.hunter = :user')
+            ->andWhere('ph.finished = true')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+
+        // Merge and get unique riddle IDs
+        $allRiddleIds = [];
+        foreach ($riddleIds as $row) {
+            if ($row['riddleId']) {
+                $allRiddleIds[$row['riddleId']] = true;
+            }
+        }
+        foreach ($riddleIdsFromHunts as $row) {
+            if ($row['riddleId']) {
+                $allRiddleIds[$row['riddleId']] = true;
+            }
+        }
+
+        return count($allRiddleIds);
     }
 
     /**
