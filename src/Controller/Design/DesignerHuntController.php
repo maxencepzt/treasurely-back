@@ -18,6 +18,10 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class DesignerHuntController extends AbstractController
 {
+    public function __construct(private readonly Security $security)
+    {
+    }
+
     #[Route('/designer/hunt', name: 'app_designer_hunt')]
     public function index(): Response
     {
@@ -55,14 +59,14 @@ final class DesignerHuntController extends AbstractController
     }
 
     #[Route('/designer/hunt/create', name: 'app_designer_hunt_create')]
-    public function create(Request $request, DesignerTeamRepository $designerTeamRepository, Security $security): Response
+    public function create(Request $request, DesignerTeamRepository $designerTeamRepository): Response
     {
         $designerTeamId = $request->query->get('designerTeamId');
 
         /**
          * @var User $currentUser
          */
-        $currentUser = $security->getUser();
+        $currentUser = $this->security->getUser();
 
         $designerTeams = $designerTeamRepository->findByMemberOrOwner($currentUser);
 
