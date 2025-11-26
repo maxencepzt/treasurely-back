@@ -16,8 +16,6 @@ class RiddleManager {
         const riddleItems = document.querySelectorAll('.riddle-item[data-riddle-data]');
 
         if (riddleItems.length > 0) {
-            console.log(`Chargement de ${riddleItems.length} énigmes existantes depuis le DOM`);
-
             riddleItems.forEach((item) => {
                 try {
                     const riddleDataStr = item.getAttribute('data-riddle-data');
@@ -29,8 +27,6 @@ class RiddleManager {
                     console.error('Erreur lors du parsing des données d\'énigme:', e);
                 }
             });
-
-            console.log('Énigmes chargées:', this.riddles);
         }
     }
 
@@ -340,30 +336,62 @@ class RiddleManager {
         }
     }
 
+    getColorsByType(type) {
+        const colorMap = {
+            text: {
+                bg: 'bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200',
+                bgNumber: 'bg-blue-600',
+                bgTag: 'bg-blue-100 text-blue-700',
+                btnEdit: 'text-blue-600 hover:text-blue-800 hover:bg-blue-100',
+            },
+            gps: {
+                bg: 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200',
+                bgNumber: 'bg-green-600',
+                bgTag: 'bg-green-100 text-green-700',
+                btnEdit: 'text-green-600 hover:text-green-800 hover:bg-green-100',
+            },
+            mcq: {
+                bg: 'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200',
+                bgNumber: 'bg-purple-600',
+                bgTag: 'bg-purple-100 text-purple-700',
+                btnEdit: 'text-purple-600 hover:text-purple-800 hover:bg-purple-100',
+            },
+            qr: {
+                bg: 'bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200',
+                bgNumber: 'bg-orange-600',
+                bgTag: 'bg-orange-100 text-orange-700',
+                btnEdit: 'text-orange-600 hover:text-orange-800 hover:bg-orange-100',
+            }
+        };
+
+        return colorMap[type] || colorMap.text;
+    }
+
     createRiddleCard(riddle, index) {
         const typeInfo = this.getRiddleTypeInfo(riddle.type);
         const difficultyFires = '🔥'.repeat(riddle.difficulty);
+        const colors = this.getColorsByType(riddle.type);
 
         return `
-            <div class="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 group hover:shadow-md transition" data-riddle-index="${index}">
+            <div class="p-4 ${colors.bg} rounded-xl border-2 group hover:shadow-md transition" data-riddle-index="${index}">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3 flex-1">
                         <div class="flex items-center space-x-2">
-                            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                            <div class="w-8 h-8 ${colors.bgNumber} rounded-lg flex items-center justify-center text-white font-bold text-sm">
                                 ${index + 1}
                             </div>
                         </div>
                         <div class="flex-1">
                             <h3 class="font-bold text-gray-800">${this.escapeHtml(riddle.title)}</h3>
                             <p class="text-xs text-gray-500 flex items-center space-x-2">
-                                <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">${typeInfo}</span>
+                                <span class="${colors.bgTag} px-2 py-0.5 rounded">${typeInfo}</span>
                                 <span>•</span>
                                 <span>${difficultyFires}</span>
                             </p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <button type="button" class="edit-riddle-btn text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-100 transition" title="Modifier">
+                        <button type="button" class="edit-riddle-btn ${colors.btnEdit} p-2 rounded-lg transition" title="Modifier">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                             </svg>
