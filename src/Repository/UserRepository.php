@@ -110,4 +110,20 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
         return (int) $result;
     }
+
+    /**
+     * Calculate the total number of riddle a user has participated in.
+     */
+    public function getTotalRiddles(User $user): int
+    {
+        $result = $this->createQueryBuilder('u')
+            ->select('COUNT(DISTINCT pr.riddle) as totalRiddles')
+            ->leftJoin('u.participateRiddles', 'pr')
+            ->where('u = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int) $result;
+    }
 }
