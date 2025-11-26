@@ -139,12 +139,12 @@ class TreasureHunt
     #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
     private string $status = self::STATE_DRAFT;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Gedmo\Timestampable(on: 'create')]
     #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
     private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeImmutable $updatedAt;
 
