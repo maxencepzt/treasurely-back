@@ -2,9 +2,14 @@
 
 namespace App\Controller\Design;
 
+use App\Entity\GPSRiddle;
+use App\Entity\MCQRiddle;
+use App\Entity\QRRiddle;
+use App\Entity\TextRiddle;
 use App\Entity\TreasureHunt;
 use App\Entity\User;
 use App\Repository\DesignerTeamRepository;
+use App\Repository\RiddleRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,10 +27,30 @@ final class DesignerHuntController extends AbstractController
     }
 
     #[Route('/designer/hunt/details/{id}', name: 'app_designer_hunt_details')]
-    public function details(TreasureHunt $treasureHunt): Response
+    public function details(TreasureHunt $treasureHunt, RiddleRepository $riddleRepository): Response
     {
+        $riddles = $riddleRepository->findByTreasureHunt($treasureHunt);
+        $realRiddles = [];
+
+        foreach ($riddles as $riddle) {
+            $realRiddles[] = [
+                'title' => $riddle->getTitle(),
+                'description' => $riddle->getDescription(),
+                'difficulty' => $riddle->getDifficulty(),
+                'orderNumber' => $riddle->getOrderNumber(),
+                'type' => match ($riddle::class) {
+                    TextRiddle::class => 'Textuelle',
+                    GPSRiddle::class => 'GPS',
+                    MCQRiddle::class => 'QCM',
+                    QRRiddle::class => 'QR Code',
+                    default => 'Unknown',
+                },
+            ];
+        }
+
         return $this->render('designer/hunt/details.html.twig', [
             'treasureHunt' => $treasureHunt,
+            'riddles' => $realRiddles,
         ]);
     }
 
