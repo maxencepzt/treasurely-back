@@ -42,7 +42,7 @@ final class DesignerHuntController extends AbstractController
         ]);
     }
 
-    #[Route('/designer/hunt/details/{id}', name: 'app_designer_hunt_details')]
+    #[Route('/designer/hunt/{id}/details', name: 'app_designer_hunt_details')]
     public function details(TreasureHunt $treasureHunt, RiddleRepository $riddleRepository): Response
     {
         $riddles = $riddleRepository->findByTreasureHunt($treasureHunt);
@@ -70,8 +70,8 @@ final class DesignerHuntController extends AbstractController
         ]);
     }
 
-    #[Route('/designer/hunt/create', name: 'app_designer_hunt_create')]
-    public function create(Request $request, DesignerTeamRepository $designerTeamRepository): Response
+    #[Route('/designer/hunt/create', name: 'app_designer_hunt_create_get', methods: ['GET'])]
+    public function create(Request $request, DesignerTeamRepository $designerTeamRepository, HuntTypeRepository $huntTypeRepository): Response
     {
         $designerTeamId = $request->query->get('designerTeamId');
 
