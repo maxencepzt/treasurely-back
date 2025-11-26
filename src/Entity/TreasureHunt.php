@@ -144,6 +144,10 @@ class TreasureHunt
     #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Gedmo\Timestampable(on: 'update')]
+    private \DateTimeImmutable $updatedAt;
+
     #[ORM\Column]
     #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
     private int $estimatedTime;
@@ -380,6 +384,18 @@ class TreasureHunt
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }
