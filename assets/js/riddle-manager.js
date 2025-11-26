@@ -2,7 +2,6 @@ class RiddleManager {
     constructor() {
         this.riddles = [];
         this.currentEditIndex = null;
-        this.riddleCounter = 0;
         this.init();
     }
 
@@ -407,10 +406,12 @@ class RiddleManager {
     getRiddlesData() {
         return this.riddles;
     }
+
+    loadRiddles(riddles) {
+        this.riddles = riddles || [];
+        this.updateRiddlesList();
+    }
 }
 
-// Initialiser le gestionnaire d'énigmes
-document.addEventListener('DOMContentLoaded', () => {
-    window.riddleManager = new RiddleManager();
-});
+export { RiddleManager };
 

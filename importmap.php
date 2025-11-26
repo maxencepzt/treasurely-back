@@ -40,6 +40,10 @@ return [
         'path' => './assets/js/file-drag-drop.js',
         'entrypoint' => true,
     ],
+    'hunt-form' => [
+        'path' => './assets/js/hunt-form.js',
+        'entrypoint' => true,
+    ],
     'riddle-manager' => [
         'path' => './assets/js/riddle-manager.js',
         'entrypoint' => true,
