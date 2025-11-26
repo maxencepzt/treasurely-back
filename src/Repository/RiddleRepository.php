@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Riddle;
+use App\Entity\TreasureHunt;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -30,5 +31,20 @@ class RiddleRepository extends ServiceEntityRepository
             ->setParameter('owner', $owner)
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    /**
+     * Find riddles by treasure hunts.
+     *
+     * @return array<int, array{title: string, description: string, difficulty: int, orderNumber: int}>
+     */
+    public function findByTreasureHunt(TreasureHunt $treasureHunt): array
+    {
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.hunt = :treasureHunt')
+            ->setParameter('treasureHunt', $treasureHunt)
+            ->orderBy('r.orderNumber', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 }
