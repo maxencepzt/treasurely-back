@@ -71,4 +71,19 @@ class TreasureHuntRepository extends ServiceEntityRepository
 
         return $statusCounts;
     }
+
+    /**
+     * @return TreasureHunt[]
+     */
+    public function findByOwner(User $user): array
+    {
+        return $this->createQueryBuilder('th')
+            ->addSelect('t, r')
+            ->innerJoin('th.designerTeam', 't')
+            ->innerJoin('th.riddles', 'r')
+            ->andWhere('th.owner = :owner')
+            ->setParameter('owner', $user)
+            ->getQuery()
+            ->getResult();
+    }
 }
