@@ -49,4 +49,26 @@ class TreasureHuntRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /**
+     * @return array<string, int> an associative array where keys are statuses and values are counts
+     */
+    public function countStatusByOwner(User $owner): array
+    {
+        $results = $this->createQueryBuilder('th')
+            ->select('th.status, COUNT(th.id) as count')
+            ->innerJoin('th.designerTeam', 't')
+            ->andWhere('t.owner = :owner')
+            ->setParameter('owner', $owner)
+            ->groupBy('th.status')
+            ->getQuery()
+            ->getResult();
+
+        $statusCounts = [];
+        foreach ($results as $result) {
+            $statusCounts[$result['status']] = (int) $result['count'];
+        }
+
+        return $statusCounts;
+    }
 }
