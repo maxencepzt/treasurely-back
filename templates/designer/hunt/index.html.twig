@@ -212,28 +212,29 @@
                             </div>
                         </div>
                     </a>
-                {% else %}
-                    <!-- Message si aucune chasse -->
-                    <div class="text-center py-16 bg-white rounded-2xl shadow-lg">
-                        <svg class="w-24 h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor"
-                             viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
-                        </svg>
-                        <h3 class="text-xl font-semibold text-gray-600 mb-2">Aucune chasse pour le moment</h3>
-                        <p class="text-gray-500 mb-6">Créez votre première chasse au trésor pour commencer l'aventure
-                            !</p>
-                        <a href="{{ path('app_designer_hunt_create') }}"
-                           class="inline-flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transform transition hover:scale-105 cursor-pointer">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M12 4v16m8-8H4"></path>
-                            </svg>
-                            <span>Créer ma première chasse</span>
-                        </a>
-                    </div>
                 {% endfor %}
             </div>
+
+            {% if treasureHunts|length == 0 %}
+            <!-- Message si aucune chasse -->
+            <div class="text-center py-16 bg-white rounded-2xl shadow-lg">
+                <svg class="w-24 h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor"
+                     viewBox="0 0 24 24">
+                    <path d="M21 12.4984L14 12.4984M3 12.4984L10 12.4984M7 4.5V19.4984M17 4.5V19.4984M6.2 19.5H17.8C18.9201 19.5 19.4802 19.5 19.908 19.282C20.2843 19.0903 20.5903 18.7843 20.782 18.408C21 17.9802 21 17.4201 21 16.3V10.9C21 8.65979 21 7.53968 20.564 6.68404C20.1805 5.93139 19.5686 5.31947 18.816 4.93597C17.9603 4.5 16.8402 4.5 14.6 4.5H9.4C7.15979 4.5 6.03968 4.5 5.18404 4.93597C4.43139 5.31947 3.81947 5.93139 3.43597 6.68404C3 7.53968 3 8.65979 3 10.9V16.3C3 17.4201 3 17.9802 3.21799 18.408C3.40973 18.7843 3.71569 19.0903 4.09202 19.282C4.51984 19.5 5.07989 19.5 6.2 19.5ZM10 10.4984H14V14.4984H10V10.4984Z" stroke-width="2" stroke-linejoin="round"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">Aucune chasse pour le moment</h3>
+                <p class="text-gray-500 mb-6">Créez votre première chasse au trésor pour commencer l'aventure
+                    !</p>
+                <a href="{{ path('app_designer_hunt_create') }}"
+                   class="inline-flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transform transition hover:scale-105 cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span>Créer ma première chasse</span>
+                </a>
+            </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
