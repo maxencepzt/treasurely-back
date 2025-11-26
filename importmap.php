@@ -44,6 +44,10 @@ return [
         'path' => './assets/js/hunt-form.js',
         'entrypoint' => true,
     ],
+    'hunt-details' => [
+        'path' => './assets/js/hunt-details.js',
+        'entrypoint' => true,
+    ],
     'riddle-manager' => [
         'path' => './assets/js/riddle-manager.js',
         'entrypoint' => true,
