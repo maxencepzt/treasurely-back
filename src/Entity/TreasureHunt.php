@@ -136,10 +136,12 @@ class TreasureHunt
     private string $location;
 
     #[ORM\Column(type: 'string', length: 10)]
+    #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
     private string $status = self::STATE_DRAFT;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     #[Gedmo\Timestampable(on: 'create')]
+    #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
     private \DateTimeImmutable $createdAt;
 
     #[ORM\Column]
