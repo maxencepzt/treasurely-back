@@ -46,7 +46,9 @@
     <!-- Liste des énigmes -->
     <div id="riddles_list" class="space-y-3 {% if riddles|length == 0 %}hidden{% endif %}">
         {% for riddle in riddles %}
-            <div class="riddle-item bg-gray-50 p-4 rounded-xl border border-gray-200" data-riddle-index="{{ loop.index0 }}">
+            <div class="riddle-item bg-gray-50 p-4 rounded-xl border border-gray-200"
+                 data-riddle-index="{{ loop.index0 }}"
+                 data-riddle-data="{{ riddle|json_encode|e('html_attr') }}">
                 <div class="flex items-start justify-between">
                     <div class="flex-1">
                         <h4 class="font-semibold text-gray-800">{{ riddle.title }}</h4>

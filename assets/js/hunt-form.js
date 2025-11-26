@@ -47,17 +47,6 @@ class HuntFormManager {
             });
         }
 
-        if (this.riddleManager) {
-
-            if (this.mode === 'edit') {
-                // Charger les énigmes existantes pour l'édition
-                const existingRiddlesData = this.huntForm.dataset.existingRiddles;
-                const existingRiddles = existingRiddlesData ? JSON.parse(existingRiddlesData) : [];
-
-                this.riddleManager.loadRiddles(existingRiddles);
-            }
-        }
-
         // Attacher les événements
         this.attachEventListeners();
     }

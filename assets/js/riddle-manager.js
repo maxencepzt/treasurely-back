@@ -7,7 +7,31 @@ class RiddleManager {
 
     init() {
         this.bindEvents();
+        this.loadExistingRiddles(); // Charger les énigmes existantes depuis le DOM
         this.updateRiddlesList();
+    }
+
+    loadExistingRiddles() {
+        // Charger les énigmes depuis les attributs data-riddle-data
+        const riddleItems = document.querySelectorAll('.riddle-item[data-riddle-data]');
+
+        if (riddleItems.length > 0) {
+            console.log(`Chargement de ${riddleItems.length} énigmes existantes depuis le DOM`);
+
+            riddleItems.forEach((item) => {
+                try {
+                    const riddleDataStr = item.getAttribute('data-riddle-data');
+                    if (riddleDataStr) {
+                        const riddleData = JSON.parse(riddleDataStr);
+                        this.riddles.push(riddleData);
+                    }
+                } catch (e) {
+                    console.error('Erreur lors du parsing des données d\'énigme:', e);
+                }
+            });
+
+            console.log('Énigmes chargées:', this.riddles);
+        }
     }
 
     bindEvents() {
@@ -405,11 +429,6 @@ class RiddleManager {
 
     getRiddlesData() {
         return this.riddles;
-    }
-
-    loadRiddles(riddles) {
-        this.riddles = riddles || [];
-        this.updateRiddlesList();
     }
 }
 
