@@ -14,7 +14,7 @@ class ParticipateHuntFixtures extends Fixture implements DependentFixtureInterfa
 {
     public function load(ObjectManager $manager): void
     {
-        ParticipateHuntFactory::createMany(10, function () {
+        ParticipateHuntFactory::createMany(50, function () {
             $playerTeam = PlayerTeamFactory::random();
             $hunt = TreasureHuntFactory::random();
             $currentRiddle = $hunt->getRiddles()->first();

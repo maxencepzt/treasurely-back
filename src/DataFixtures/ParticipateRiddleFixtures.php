@@ -12,7 +12,7 @@ class ParticipateRiddleFixtures extends Fixture implements DependentFixtureInter
 {
     public function load(ObjectManager $manager): void
     {
-        ParticipateRiddleFactory::createMany(10);
+        ParticipateRiddleFactory::createMany(50);
     }
 
     /**
