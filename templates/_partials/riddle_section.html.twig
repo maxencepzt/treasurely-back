@@ -46,6 +46,12 @@
     <!-- Liste des énigmes -->
     <div id="riddles_list" class="space-y-3 {% if riddles|length == 0 %}hidden{% endif %}">
         {% for riddle in riddles %}
+            {% set typeLabels = {
+                'text': 'Texte',
+                'gps': 'GPS',
+                'mcq': 'QCM',
+                'qr': 'QR Code'
+            } %}
             <div class="riddle-item bg-gray-50 p-4 rounded-xl border border-gray-200"
                  data-riddle-index="{{ loop.index0 }}"
                  data-riddle-data="{{ riddle|json_encode|e('html_attr') }}">
@@ -60,7 +66,7 @@
                                 </svg>
                                 Difficulté: {{ riddle.difficulty }}
                             </span>
-                            <span>Type: {{ riddle.type }}</span>
+                            <span>Type: {{ typeLabels[riddle.type]|default('Texte') }}</span>
                         </div>
                     </div>
                     {% if not readonly %}

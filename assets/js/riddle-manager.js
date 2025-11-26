@@ -356,7 +356,7 @@ class RiddleManager {
                         <div class="flex-1">
                             <h3 class="font-bold text-gray-800">${this.escapeHtml(riddle.title)}</h3>
                             <p class="text-xs text-gray-500 flex items-center space-x-2">
-                                <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">${typeInfo.icon} ${typeInfo.label}</span>
+                                <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">${typeInfo}</span>
                                 <span>•</span>
                                 <span>${difficultyStars}</span>
                             </p>
@@ -408,10 +408,10 @@ class RiddleManager {
 
     getRiddleTypeInfo(type) {
         const types = {
-            text: { icon: '✍️', label: 'Texte' },
-            gps: { icon: '📍', label: 'GPS' },
-            mcq: { icon: '☑️', label: 'QCM' },
-            qr: { icon: '📱', label: 'QR Code' }
+            text: 'Texte',
+            gps: 'GPS',
+            mcq: 'QCM',
+            qr: 'QR Code'
         };
         return types[type] || types.text;
     }
