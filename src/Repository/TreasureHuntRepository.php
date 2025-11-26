@@ -80,7 +80,7 @@ class TreasureHuntRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('th')
             ->addSelect('t, r')
             ->innerJoin('th.designerTeam', 't')
-            ->innerJoin('th.riddles', 'r')
+            ->leftJoin('th.riddles', 'r')
             ->andWhere('th.owner = :owner')
             ->setParameter('owner', $user)
             ->getQuery()
