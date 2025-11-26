@@ -94,4 +94,20 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
         return (int) $result;
     }
+
+    /**
+     * Calculate the total number of hunts a user has participated in.
+     */
+    public function getTotalHunt(User $user): int
+    {
+        $result = $this->createQueryBuilder('u')
+            ->select('COUNT(DISTINCT ph.hunt) as totalHunt')
+            ->leftJoin('u.participateHunts', 'ph')
+            ->where('u = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int) $result;
+    }
 }
