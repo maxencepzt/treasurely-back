@@ -9,6 +9,7 @@ use App\Entity\TextRiddle;
 use App\Entity\TreasureHunt;
 use App\Entity\User;
 use App\Repository\DesignerTeamRepository;
+use App\Repository\HuntTypeRepository;
 use App\Repository\RiddleRepository;
 use App\Repository\TreasureHuntRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -81,10 +82,12 @@ final class DesignerHuntController extends AbstractController
         $currentUser = $this->security->getUser();
 
         $designerTeams = $designerTeamRepository->findByMemberOrOwner($currentUser);
+        $huntTypes = $huntTypeRepository->findAll();
 
         return $this->render('designer/hunt/create.html.twig', [
             'designerTeamId' => $designerTeamId,
             'designerTeams' => $designerTeams,
+            'huntTypes' => $huntTypes,
         ]);
     }
 }
