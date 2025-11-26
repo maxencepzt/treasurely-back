@@ -31,7 +31,6 @@ final class TreasureHuntFactory extends PersistentProxyObjectFactory
         return [
             'title' => self::faker()->text(20),
             'description' => self::faker()->text(3000),
-            'public' => self::faker()->boolean(),
             'difficulty' => self::faker()->numberBetween(1, 3),
             'riddleCount' => self::faker()->numberBetween(3, 10),
             'designerTeam' => $team,
@@ -39,6 +38,7 @@ final class TreasureHuntFactory extends PersistentProxyObjectFactory
             'owner' => $owner,
             'location' => self::faker()->city(),
             'estimatedTime' => random_int(5, 120),
+            'status' => self::faker()->randomElement([TreasureHunt::STATE_DRAFT, TreasureHunt::STATE_OPENED, TreasureHunt::STATE_CLOSED]),
         ];
     }
 

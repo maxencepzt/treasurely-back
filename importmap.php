@@ -16,6 +16,30 @@ return [
         'path' => './assets/app.js',
         'entrypoint' => true,
     ],
+    'modal-manager' => [
+        'path' => './assets/js/modal-manager.js',
+        'entrypoint' => false,
+    ],
+    'team-details' => [
+        'path' => './assets/js/team-details.js',
+        'entrypoint' => true,
+    ],
+    'team-form' => [
+        'path' => './assets/js/team-form.js',
+        'entrypoint' => true,
+    ],
+    'member-autocomplete' => [
+        'path' => './assets/js/member-autocomplete.js',
+        'entrypoint' => true,
+    ],
+    'member-list-display' => [
+        'path' => './assets/js/member-list-display.js',
+        'entrypoint' => true,
+    ],
+    'file-drag-drop' => [
+        'path' => './assets/js/file-drag-drop.js',
+        'entrypoint' => true,
+    ],
     '@hotwired/stimulus' => [
         'version' => '3.2.2',
     ],

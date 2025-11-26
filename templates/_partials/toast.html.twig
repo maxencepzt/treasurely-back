@@ -1,0 +1,30 @@
+{#
+    Toast de notification global réutilisable
+
+    Paramètres:
+    - id: Identifiant unique du toast (par défaut: 'globalToast')
+    - position: Position du toast (par défaut: 'top-right')
+                Valeurs possibles: 'top-right', 'top-left', 'bottom-right', 'bottom-left', 'top-center', 'bottom-center'
+#}
+
+{% set toastId = id|default('globalToast') %}
+{% set position = position|default('top-right') %}
+
+{% set positionClasses = {
+    'top-right': 'top-4 right-4',
+    'top-left': 'top-4 left-4',
+    'bottom-right': 'bottom-4 right-4',
+    'bottom-left': 'bottom-4 left-4',
+    'top-center': 'top-4 left-1/2 -translate-x-1/2',
+    'bottom-center': 'bottom-4 left-1/2 -translate-x-1/2',
+} %}
+
+<!-- Toast Container -->
+<div id="{{ toastId }}" class="toast-container hidden fixed {{ positionClasses[position] }} z-50 transform transition-all duration-300" data-toast="{{ toastId }}">
+    <div class="bg-white rounded-xl shadow-2xl p-4 flex items-center space-x-3 min-w-[300px]">
+        <div class="toast-icon flex-shrink-0"></div>
+        <div class="flex-1">
+            <p class="toast-message font-semibold text-gray-900"></p>
+        </div>
+    </div>
+</div>

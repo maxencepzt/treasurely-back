@@ -13,10 +13,12 @@ use App\Controller\Team\GetTeamPictureController;
 use App\Repository\TeamRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Doctrine\ORM\Mapping\DiscriminatorMap;
 use Doctrine\ORM\Mapping\InheritanceType;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
@@ -149,6 +151,10 @@ class Team
     #[Groups(['team:members'])]
     private Collection $members;
 
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Gedmo\Timestampable(on: 'create')]
+    private \DateTimeImmutable $createdAt;
+
     public function __construct()
     {
         $this->members = new ArrayCollection();
@@ -237,6 +243,11 @@ class Team
         return $this;
     }
 
+    public function hasMember(User $user): bool
+    {
+        return $this->getMembers()->contains($user);
+    }
+
     /**
      * @return Collection<int, TreasureHunt>
      */
@@ -264,5 +275,17 @@ class Team
     public function __toString(): string
     {
         return $this->name;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
     }
 }

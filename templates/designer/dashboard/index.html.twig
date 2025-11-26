@@ -1,0 +1,137 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Treasurely - Dashboard{% endblock %}
+
+{% block body %}
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        {{ include('designer/_partials/header.html.twig', {
+            type: 'dashboard',
+            user: app.user,
+            homeUrl: path('app_home_index'),
+        }) }}
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Navigation Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Mes Équipes -->
+                <a href="{{ path('app_designer_team') }}" class="group cursor-pointer">
+                    <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transform transition hover:scale-105 p-8 border-2 border-transparent hover:border-blue-500">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-800 group-hover:text-blue-600 transition">Mes Équipes</h2>
+                                <p class="text-gray-500">Gérer mes équipes existantes</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600">Consultez et gérez toutes vos équipes, leurs membres et leurs participations.</p>
+                        <div class="mt-4 flex items-center text-blue-600 font-semibold group-hover:translate-x-2 transition">
+                            <span>Accéder</span>
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Créer une Équipe -->
+                <a href="{{ path('app_designer_team_create') }}" class="group cursor-pointer">
+                    <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transform transition hover:scale-105 p-8 border-2 border-transparent hover:border-purple-500">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="p-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-800 group-hover:text-purple-600 transition">Créer une Équipe</h2>
+                                <p class="text-gray-500">Former une nouvelle équipe</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600">Créez une nouvelle équipe et invitez des membres à vous rejoindre dans vos aventures.</p>
+                        <div class="mt-4 flex items-center text-purple-600 font-semibold group-hover:translate-x-2 transition">
+                            <span>Créer</span>
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Mes Chasses -->
+                <a href="{{ path('app_designer_hunt') }}" class="group cursor-pointer">
+                    <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transform transition hover:scale-105 p-8 border-2 border-transparent hover:border-green-500">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="p-4 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl text-white">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M21 12.4984L14 12.4984M3 12.4984L10 12.4984M7 4.5V19.4984M17 4.5V19.4984M6.2 19.5H17.8C18.9201 19.5 19.4802 19.5 19.908 19.282C20.2843 19.0903 20.5903 18.7843 20.782 18.408C21 17.9802 21 17.4201 21 16.3V10.9C21 8.65979 21 7.53968 20.564 6.68404C20.1805 5.93139 19.5686 5.31947 18.816 4.93597C17.9603 4.5 16.8402 4.5 14.6 4.5H9.4C7.15979 4.5 6.03968 4.5 5.18404 4.93597C4.43139 5.31947 3.81947 5.93139 3.43597 6.68404C3 7.53968 3 8.65979 3 10.9V16.3C3 17.4201 3 17.9802 3.21799 18.408C3.40973 18.7843 3.71569 19.0903 4.09202 19.282C4.51984 19.5 5.07989 19.5 6.2 19.5ZM10 10.4984H14V14.4984H10V10.4984Z" stroke-width="2" stroke-linejoin="round"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-800 group-hover:text-green-600 transition">Mes Chasses</h2>
+                                <p class="text-gray-500">Voir mes chasses au trésor</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600">Parcourez toutes vos chasses au trésor créées et suivez leur progression.</p>
+                        <div class="mt-4 flex items-center text-green-600 font-semibold group-hover:translate-x-2 transition">
+                            <span>Voir</span>
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Créer une Chasse -->
+                <a href="{{ path('app_designer_hunt_create') }}" class="group cursor-pointer">
+                    <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transform transition hover:scale-105 p-8 border-2 border-transparent hover:border-orange-500">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="p-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl text-white">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-800 group-hover:text-orange-600 transition">Créer une Chasse</h2>
+                                <p class="text-gray-500">Concevoir une nouvelle aventure</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600">Créez une nouvelle chasse au trésor avec des énigmes passionnantes pour vos joueurs.</p>
+                        <div class="mt-4 flex items-center text-orange-600 font-semibold group-hover:translate-x-2 transition">
+                            <span>Commencer</span>
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Statistiques rapides -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">Statistiques Rapides</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl" title="Nombre total d'équipes créées">
+                        <div class="text-3xl font-bold text-blue-600">{{ nb_teams }}</div>
+                        <div class="text-sm text-gray-600 mt-1">Équipes</div>
+                    </div>
+                    <div class="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl" title="Nombre total de membres dans les équipes possédées">
+                        <div class="text-3xl font-bold text-purple-600">{{ nb_members }}</div>
+                        <div class="text-sm text-gray-600 mt-1">Membres</div>
+                    </div>
+                    <div class="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl" title="Nombre total de chasses au trésor créées dans les équipes possédées">
+                        <div class="text-3xl font-bold text-green-600">{{ nb_treasure_hunts }}</div>
+                        <div class="text-sm text-gray-600 mt-1">Chasses</div>
+                    </div>
+                    <div class="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl" title="Nombre total d'énigmes créées dans les chasses au trésor des équipes possédées">
+                        <div class="text-3xl font-bold text-orange-600">{{ nb_riddles }}</div>
+                        <div class="text-sm text-gray-600 mt-1">Énigmes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

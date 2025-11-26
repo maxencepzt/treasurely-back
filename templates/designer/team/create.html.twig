@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer une équipe - Treasurely{% endblock %}
+
+{% block body %}
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        {{ include('designer/_partials/header.html.twig', {
+            type: 'simple',
+            title: 'Créer une équipe',
+            subtitle: 'Créez votre équipe de conception',
+            backUrl: path('app_designer_team'),
+            backTitle: 'Retour aux équipes',
+        }) }}
+
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {{ include('designer/team/_form.html.twig', {
+                mode: 'create',
+                designerTeam: null,
+                members: [],
+                submitButtonText: 'Créer l\'équipe',
+                cancelUrl: path('app_designer_team'),
+            }) }}
+        </div>
+    </div>
+
+    <!-- Toast global pour les notifications -->
+    {{ include('_partials/toast.html.twig', {id: 'globalToast'}) }}
+
+    {{ importmap('team-form') }}
+{% endblock %}

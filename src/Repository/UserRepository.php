@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\DesignerTeam;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -31,5 +32,50 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setPassword($newHashedPassword);
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+    }
+
+    /**
+     * Search users by a query string matching nickname, firstname or lastname.
+     *
+     * @param User[]|null $usersToFilter
+     *
+     * @return User[]
+     */
+    public function searchUsersByQuery(string $query, ?array $usersToFilter = null, ?string $searchType = 'exclude'): array
+    {
+        $query = $this->createQueryBuilder('u')
+            ->where('UPPER(u.nickname) LIKE UPPER(:query) OR UPPER(u.firstname) LIKE UPPER(:query) OR UPPER(u.lastname) LIKE UPPER(:query)')
+            ->andWhere('u.activated = true')
+            ->setParameter('query', '%'.$query.'%')
+            ->setMaxResults(10);
+
+        if ($usersToFilter) {
+            if ('exclude' === $searchType) {
+                $query->andWhere('u NOT IN (:excludedUsers)');
+            } else {
+                $query->andWhere('u IN (:excludedUsers)');
+            }
+
+            $query->setParameter('excludedUsers', $usersToFilter);
+        }
+
+        return $query
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return User[]
+     */
+    public function findByDesignerTeam(DesignerTeam $designerTeam): array
+    {
+        return $this->createQueryBuilder('u')
+            ->innerJoin('u.teams', 't')
+            ->andWhere('t = :team')
+            ->andWhere('u != t.owner')
+            ->setParameter('team', $designerTeam)
+            ->orderBy('u.id', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 }

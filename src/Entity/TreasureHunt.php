@@ -11,7 +11,9 @@ use App\Controller\TreasureHunt\GetTreasureHuntPictureController;
 use App\Repository\TreasureHuntRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -65,6 +67,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: TreasureHuntRepository::class)]
 class TreasureHunt
 {
+    public const string STATE_DRAFT = 'draft';
+    public const string STATE_OPENED = 'opened';
+    public const string STATE_CLOSED = 'closed';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -78,10 +84,6 @@ class TreasureHunt
     #[ORM\Column(length: 3000, nullable: true)]
     #[Groups(['treasureHunt:read'])]
     private ?string $description = null;
-
-    #[ORM\Column]
-    #[Groups(['treasureHunt:read'])]
-    private bool $public = true;
 
     #[ORM\Column]
     #[Assert\Choice(
@@ -133,6 +135,13 @@ class TreasureHunt
     #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
     private string $location;
 
+    #[ORM\Column(type: 'string', length: 10)]
+    private string $status = self::STATE_DRAFT;
+
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Gedmo\Timestampable(on: 'create')]
+    private \DateTimeImmutable $createdAt;
+
     #[ORM\Column]
     #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
     private int $estimatedTime;
@@ -169,18 +178,6 @@ class TreasureHunt
     public function setDescription(?string $description): static
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function isPublic(): ?bool
-    {
-        return $this->public;
-    }
-
-    public function setPublic(bool $public): static
-    {
-        $this->public = $public;
 
         return $this;
     }
@@ -290,6 +287,18 @@ class TreasureHunt
         return $this;
     }
 
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
     /**
      * @return Collection<int, ParticipateHunt>
      */
@@ -357,6 +366,18 @@ class TreasureHunt
     public function setEstimatedTime(int $estimatedTime): static
     {
         $this->estimatedTime = $estimatedTime;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }

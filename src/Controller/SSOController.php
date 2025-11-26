@@ -109,4 +109,10 @@ class SSOController extends AbstractController
     {
         return new Response('<script>window.location.href = "'.$this->frontendUrl.'/";</script>');
     }
+
+    #[Route('/sso/redirect/login', name: 'sso_redirect_login')]
+    public function ssoRedirectLogin(): Response
+    {
+        return new Response('<script>window.location.href = "'.$this->frontendUrl.'/login";</script>');
+    }
 }
