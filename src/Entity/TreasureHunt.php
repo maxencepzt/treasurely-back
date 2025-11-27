@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Controller\TreasureHunt\DeleteTreasureHuntPictureController;
 use App\Controller\TreasureHunt\GetTreasureHuntPictureController;
@@ -19,6 +20,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
+        new GetCollection(
+            openapi: new Operation(
+                summary: 'List of treasure hunts',
+                description: 'Retrieve all treasure hunt with their detailed informations '
+            ),
+            normalizationContext: ['groups' => ['treasureHunt:read']],
+            security: "is_granted('ROLE_USER')",
+        ),
         new Get(
             openapi: new Operation(
                 summary: 'Treasure hunt details',
