@@ -76,7 +76,7 @@ class Riddle
     /**
      * @var Collection<int, ParticipateHunt>
      */
-    #[ORM\OneToMany(targetEntity: ParticipateHunt::class, mappedBy: 'currentRiddle')]
+    #[ORM\OneToMany(targetEntity: ParticipateHunt::class, mappedBy: 'currentRiddle', cascade: ['remove'], orphanRemoval: true)]
     private Collection $participateHunts;
 
     public function __construct()

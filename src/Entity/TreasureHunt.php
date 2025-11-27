@@ -116,7 +116,7 @@ class TreasureHunt
     /**
      * @var Collection<int, Riddle>
      */
-    #[ORM\OneToMany(targetEntity: Riddle::class, mappedBy: 'hunt', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Riddle::class, mappedBy: 'hunt', cascade: ['remove'], orphanRemoval: true)]
     #[Groups(['treasureHunt:riddles'])]
     private Collection $riddles;
 
@@ -128,7 +128,7 @@ class TreasureHunt
     /**
      * @var Collection<int, ParticipateHunt>
      */
-    #[ORM\OneToMany(targetEntity: ParticipateHunt::class, mappedBy: 'hunt')]
+    #[ORM\OneToMany(targetEntity: ParticipateHunt::class, mappedBy: 'hunt', cascade: ['remove'], orphanRemoval: true)]
     private Collection $participateHunts;
 
     #[ORM\Column(length: 30)]
