@@ -32,8 +32,8 @@ final class MCQRiddleFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'answers' => ['réponse1', 'réponse2', 'réponse3'],
-            'choices' => ['réponse1', 'réponse3'],
+            'answers' => ['réponse1', 'réponse2'],
+            'choices' => ['réponse1', 'réponse2'],
             'description' => self::faker()->text(1000),
             'difficulty' => self::faker()->numberBetween(1, 3),
             'orderNumber' => self::faker()->randomNumber(),
