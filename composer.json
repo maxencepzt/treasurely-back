@@ -156,7 +156,8 @@
     ],
     "jwt:generate": [
       "php bin/console lexik:jwt:generate-keypair"
-    ]
+    ],
+    "openapi:generate": "bin/console api:openapi:export --spec-version=3.0.0 --yaml --output=openapi.yaml"
   },
   "scripts-descriptions": {
     "fix:csfixer": "Corrige le code PHP avec PHP CS Fixer",
