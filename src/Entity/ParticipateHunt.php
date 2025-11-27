@@ -11,6 +11,7 @@ use App\Repository\ParticipateHuntRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ParticipateHuntRepository::class)]
@@ -79,17 +80,21 @@ class ParticipateHunt
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'participateHunt:create', 'user:participations'])]
+    #[MaxDepth(1)]
     private User $hunter;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     #[ORM\JoinColumn(nullable: false)]
+    #[MaxDepth(1)]
     #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'participateHunt:create', 'user:participations'])]
     private TreasureHunt $hunt;
 
+    #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     #[Groups(['participateHunt:read', 'participateHunt:create', 'user:participations'])]
     private ?PlayerTeam $playerTeam = null;
 
+    #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['participateHunt:read', 'participateHunt:patch', 'user:participations'])]

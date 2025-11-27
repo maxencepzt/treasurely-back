@@ -91,7 +91,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 summary: 'All hunt participations for the user.',
                 description: 'Retrieves all treasure hunt participations for the specified user.'
             ),
-            normalizationContext: ['groups' => ['user:participations']],
+            normalizationContext: ['groups' => ['user:participations'], 'enable_max_depth' => true],
             security: "is_granted('ROLE_USER')",
         ),
         new Post(
