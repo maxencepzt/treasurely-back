@@ -85,6 +85,15 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: ['groups' => ['user:teams']],
             security: "is_granted('ROLE_USER')"
         ),
+        new Get(
+            uriTemplate: '/users/{id}/participate_hunts',
+            openapi: new Operation(
+                summary: 'All hunt participations for the user.',
+                description: 'Retrieves all treasure hunt participations for the specified user.'
+            ),
+            normalizationContext: ['groups' => ['user:participations']],
+            security: "is_granted('ROLE_USER')",
+        ),
         new Post(
             uriTemplate: '/users/{id}/picture',
             controller: UploadUserPictureController::class,
@@ -258,6 +267,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var Collection<int, ParticipateHunt>
      */
     #[ORM\OneToMany(targetEntity: ParticipateHunt::class, mappedBy: 'hunter')]
+    #[Groups(['user:participations'])]
     private Collection $participateHunts;
 
     #[ORM\Column]
