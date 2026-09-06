@@ -1,0 +1,159 @@
+{# Formulaire de chasse, création et modification. Variables :
+   - mode : 'create' ou 'edit'
+   - hunt : la chasse en édition, null en création
+   - designerTeams, huntTypes : listes de choix
+   - designerTeamId : équipe présélectionnée en création (optionnel)
+   - riddles : tableaux RiddleMapper::toArray() en édition
+   - submitUrl, cancelUrl, submitButtonText
+   hunt-form.js lit l'URL, le jeton CSRF et le mode sur la balise form. #}
+{% set hunt = hunt|default(null) %}
+
+<form class="space-y-8"
+      data-hunt-form
+      data-mode="{{ mode }}"
+      action="{{ submitUrl }}"
+      data-csrf-token="{{ csrf_token(constant('App\\Controller\\Design\\DesignerHuntController::CSRF_TOKEN_ID')) }}">
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>Informations de base</span>
+        </h2>
+
+        <div class="space-y-6">
+            <div>
+                <label for="hunt_name" class="block text-sm font-semibold text-gray-700 mb-2">Nom de la chasse <span class="text-red-500">*</span></label>
+                <input type="text" id="hunt_name" name="hunt_name" required maxlength="20" placeholder="Ex : Trésors de Reims"
+                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                       value="{{ hunt ? hunt.title : '' }}" />
+                <p class="mt-1 text-sm text-gray-500">20 caractères maximum</p>
+            </div>
+
+            <div>
+                <label for="hunt_description" class="block text-sm font-semibold text-gray-700 mb-2">Description <span class="text-red-500">*</span></label>
+                <textarea id="hunt_description" name="hunt_description" rows="3" required maxlength="3000" placeholder="Une courte description qui apparaîtra dans la liste des chasses..."
+                          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition resize-none">{{ hunt ? hunt.description : '' }}</textarea>
+                <p id="hunt_description_hint" class="mt-1 text-sm text-gray-500">3000 caractères maximum</p>
+            </div>
+
+            <div>
+                <span class="block text-sm font-semibold text-gray-700 mb-2">Image de couverture</span>
+                <div class="flex items-center space-x-4">
+                    <div id="hunt_image_preview" class="w-24 h-24 bg-gradient-to-br from-green-100 to-emerald-200 rounded-xl flex items-center justify-center overflow-hidden">
+                        {% if hunt %}
+                            <img src="{{ path('_api_/treasure_hunts/{id}/picture_get', {id: hunt.id}) }}" alt="" class="w-full h-full object-cover rounded-xl" />
+                        {% else %}
+                            <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                            </svg>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1">
+                        <label for="hunt_image" class="cursor-pointer">
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl px-6 py-4 hover:border-blue-500 transition">
+                                <p class="text-sm font-semibold text-gray-700">Cliquez ou glissez une image ici</p>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF ou WebP, 5 Mo maximum</p>
+                            </div>
+                            <input type="file" id="hunt_image" name="hunt_image" accept="image/png,image/jpeg,image/gif,image/webp" class="hidden" />
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span>Configuration</span>
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="hunt_team" class="block text-sm font-semibold text-gray-700 mb-2">Équipe <span class="text-red-500">*</span></label>
+                <select id="hunt_team" name="hunt_team" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition cursor-pointer">
+                    <option value="">Sélectionnez une équipe</option>
+                    {% set selectedTeamId = hunt ? hunt.designerTeam.id : designerTeamId|default(null) %}
+                    {% for team in designerTeams %}
+                        <option value="{{ team.id }}" {% if selectedTeamId == team.id %}selected{% endif %}>{{ team.name }}</option>
+                    {% endfor %}
+                </select>
+                <p class="mt-1 text-sm text-gray-500">L'équipe propriétaire de cette chasse</p>
+            </div>
+
+            <div>
+                <label for="hunt_difficulty" class="block text-sm font-semibold text-gray-700 mb-2">Difficulté <span class="text-red-500">*</span></label>
+                {% set currentDifficulty = hunt ? hunt.difficulty : 2 %}
+                <select id="hunt_difficulty" name="hunt_difficulty" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition cursor-pointer">
+                    {% for level, label in {1: 'Facile', 2: 'Moyen', 3: 'Difficile'} %}
+                        <option value="{{ level }}" {% if currentDifficulty == level %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <span class="block text-sm font-semibold text-gray-700 mb-2">Type de chasse <span class="text-red-500">*</span></span>
+                <div class="space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-xl p-4">
+                    {% for huntType in huntTypes %}
+                        <label class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                            <input type="checkbox" name="hunt_type[]" value="{{ huntType.id }}"
+                                   class="hunt-type-checkbox w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
+                                   {% if hunt and huntType in hunt.huntType %}checked{% endif %} />
+                            <span class="text-sm font-medium text-gray-700">{{ huntType.title }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+                <p class="mt-2 text-sm text-gray-500">Un ou plusieurs types</p>
+            </div>
+
+            <div>
+                <label for="hunt_duration" class="block text-sm font-semibold text-gray-700 mb-2">Durée estimée <span class="text-red-500">*</span></label>
+                <div class="flex items-center space-x-2">
+                    <input type="number" id="hunt_duration" name="hunt_duration" required min="15" step="15" placeholder="120"
+                           class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                           value="{{ hunt ? hunt.estimatedTime : '' }}" />
+                    <span class="text-sm text-gray-600 font-semibold">minutes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ include('_partials/riddle_section.html.twig', {riddles: riddles|default([]), readonly: false}) }}
+
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
+            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span>Localisation</span>
+        </h2>
+        <label for="hunt_city" class="block text-sm font-semibold text-gray-700 mb-2">Ville <span class="text-red-500">*</span></label>
+        <input type="text" id="hunt_city" name="hunt_city" required maxlength="30" placeholder="Reims, Lyon, Paris..."
+               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+               value="{{ hunt ? hunt.location : '' }}" />
+    </div>
+
+    <div class="flex items-center justify-between bg-white rounded-2xl shadow-lg p-6">
+        <a href="{{ cancelUrl }}" class="text-gray-600 hover:text-gray-800 font-semibold px-6 py-3 rounded-xl hover:bg-gray-100 transition">Annuler</a>
+        <div class="flex items-center space-x-3">
+            {% if not hunt or hunt.status == constant('App\\Entity\\TreasureHunt::STATE_DRAFT') %}
+                <button type="submit" name="action" value="draft" class="bg-white border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold px-8 py-3 rounded-xl shadow-lg transform transition hover:scale-105 hover:bg-gray-100">
+                    Enregistrer le brouillon
+                </button>
+            {% endif %}
+            <button type="submit" name="action" value="{{ hunt and hunt.status != constant('App\\Entity\\TreasureHunt::STATE_DRAFT') ? 'draft' : 'publish' }}" class="bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transform transition hover:scale-105 flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>{{ submitButtonText }}</span>
+            </button>
+        </div>
+    </div>
+</form>
+
+{{ include('_partials/riddle_modal.html.twig') }}

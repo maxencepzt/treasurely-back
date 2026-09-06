@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier une chasse - Treasurely{% endblock %}
+
+{% block body %}
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        {{ include('designer/_partials/header.html.twig', {
+            type: 'simple',
+            title: 'Modifier « ' ~ hunt.title ~ ' »',
+            subtitle: 'Les énigmes déjà jouées conservent la progression des joueurs',
+            backUrl: path('app_designer_hunt_details', {id: hunt.id}),
+            backTitle: 'Retour à la chasse',
+        }) }}
+
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {{ include('designer/hunt/_form.html.twig', {
+                mode: 'edit',
+                hunt: hunt,
+                designerTeams: designerTeams,
+                huntTypes: huntTypes,
+                riddles: riddles,
+                submitUrl: path('api_designer_hunt_update', {id: hunt.id}),
+                submitButtonText: hunt.status == constant('App\\Entity\\TreasureHunt::STATE_DRAFT') ? 'Enregistrer et publier' : 'Enregistrer les modifications',
+                cancelUrl: path('app_designer_hunt_details', {id: hunt.id}),
+            }) }}
+        </div>
+    </div>
+
+    {{ include('_partials/toast.html.twig', {id: 'globalToast'}) }}
+    {{ importmap('hunt-form') }}
+{% endblock %}

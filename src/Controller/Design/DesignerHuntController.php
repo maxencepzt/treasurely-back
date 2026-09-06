@@ -2,48 +2,171 @@
 
 namespace App\Controller\Design;
 
+use App\Dto\Designer\HuntInput;
 use App\Entity\TreasureHunt;
 use App\Entity\User;
 use App\Repository\DesignerTeamRepository;
+use App\Repository\HuntTypeRepository;
+use App\Repository\RiddleRepository;
+use App\Repository\TreasureHuntRepository;
+use App\Security\TreasureHuntVoter;
+use App\Service\Designer\Exception\HuntConflictException;
+use App\Service\Designer\Exception\HuntValidationException;
+use App\Service\Designer\HuntEditor;
+use App\Service\Designer\RiddleMapper;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Workflow\WorkflowInterface;
 
+/**
+ * Façade de conception des chasses. Les pages sont rendues en Twig ; les mutations
+ * reçoivent le FormData de hunt-form.js et répondent en JSON.
+ */
+#[Route('/designer/hunt')]
 final class DesignerHuntController extends AbstractController
 {
-    #[Route('/designer/hunt', name: 'app_designer_hunt')]
-    public function index(): Response
+    public const string CSRF_TOKEN_ID = 'designer_hunt';
+
+    #[Route('', name: 'app_designer_hunt', methods: ['GET'])]
+    public function index(#[CurrentUser] User $user, TreasureHuntRepository $treasureHuntRepository): Response
     {
+        $countByStatus = $treasureHuntRepository->countByStatusForOwner($user);
+
         return $this->render('designer/hunt/index.html.twig', [
-            'controller_name' => 'DesignerHuntController',
+            'treasureHunts' => $treasureHuntRepository->findByOwner($user),
+            'nbDrafts' => $countByStatus[TreasureHunt::STATE_DRAFT] ?? 0,
+            'nbOpened' => $countByStatus[TreasureHunt::STATE_OPENED] ?? 0,
+            'nbClosed' => $countByStatus[TreasureHunt::STATE_CLOSED] ?? 0,
         ]);
     }
 
-    #[Route('/designer/hunt/details/{id}', name: 'app_designer_hunt_details')]
-    public function details(TreasureHunt $treasureHunt): Response
+    #[Route('/{id}/details', name: 'app_designer_hunt_details', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[IsGranted(TreasureHuntVoter::VIEW, 'treasureHunt')]
+    public function details(TreasureHunt $treasureHunt, RiddleRepository $riddleRepository, RiddleMapper $riddleMapper, WorkflowInterface $treasureHuntWorkflow): Response
     {
         return $this->render('designer/hunt/details.html.twig', [
             'treasureHunt' => $treasureHunt,
+            'riddles' => array_map($riddleMapper->toArray(...), $riddleRepository->findByTreasureHunt($treasureHunt)),
+            'transitions' => array_map(
+                static fn ($transition): string => $transition->getName(),
+                $treasureHuntWorkflow->getEnabledTransitions($treasureHunt),
+            ),
+            'canEdit' => $this->isGranted(TreasureHuntVoter::EDIT, $treasureHunt),
         ]);
     }
 
-    #[Route('/designer/hunt/create', name: 'app_designer_hunt_create')]
-    public function create(Request $request, DesignerTeamRepository $designerTeamRepository, Security $security): Response
-    {
-        $designerTeamId = $request->query->get('designerTeamId');
-
-        /**
-         * @var User $currentUser
-         */
-        $currentUser = $security->getUser();
-
-        $designerTeams = $designerTeamRepository->findByMemberOrOwner($currentUser);
-
+    #[Route('/create', name: 'app_designer_hunt_create', methods: ['GET'])]
+    public function create(
+        Request $request,
+        #[CurrentUser] User $user,
+        DesignerTeamRepository $designerTeamRepository,
+        HuntTypeRepository $huntTypeRepository,
+    ): Response {
         return $this->render('designer/hunt/create.html.twig', [
-            'designerTeamId' => $designerTeamId,
-            'designerTeams' => $designerTeams,
+            'designerTeamId' => $request->query->getInt('designerTeamId') ?: null,
+            'designerTeams' => $designerTeamRepository->findByMemberOrOwner($user),
+            'huntTypes' => $huntTypeRepository->findAll(),
         ]);
+    }
+
+    #[Route('/{id}/edit', name: 'app_designer_hunt_edit', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[IsGranted(TreasureHuntVoter::EDIT, 'treasureHunt')]
+    public function edit(
+        TreasureHunt $treasureHunt,
+        #[CurrentUser] User $user,
+        DesignerTeamRepository $designerTeamRepository,
+        HuntTypeRepository $huntTypeRepository,
+        RiddleRepository $riddleRepository,
+        RiddleMapper $riddleMapper,
+    ): Response {
+        return $this->render('designer/hunt/edit.html.twig', [
+            'hunt' => $treasureHunt,
+            'designerTeams' => $designerTeamRepository->findByMemberOrOwner($user),
+            'huntTypes' => $huntTypeRepository->findAll(),
+            'riddles' => array_map($riddleMapper->toArray(...), $riddleRepository->findByTreasureHunt($treasureHunt)),
+        ]);
+    }
+
+    #[Route('/create', name: 'api_designer_hunt_create', methods: ['POST'])]
+    public function store(Request $request, #[CurrentUser] User $user, HuntEditor $huntEditor): JsonResponse
+    {
+        $this->assertCsrfToken($request);
+
+        try {
+            $hunt = $huntEditor->create(HuntInput::fromRequest($request), $user);
+        } catch (HuntValidationException|HuntConflictException $e) {
+            return $this->failure($e);
+        }
+
+        return $this->json([
+            'message' => 'Chasse créée avec succès.',
+            'hunt' => ['id' => $hunt->getId(), 'title' => $hunt->getTitle()],
+            'url' => $this->generateUrl('app_designer_hunt_details', ['id' => $hunt->getId()]),
+        ], Response::HTTP_CREATED);
+    }
+
+    #[Route('/{id}/edit', name: 'api_designer_hunt_update', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[IsGranted(TreasureHuntVoter::EDIT, 'treasureHunt')]
+    public function update(TreasureHunt $treasureHunt, Request $request, #[CurrentUser] User $user, HuntEditor $huntEditor): JsonResponse
+    {
+        $this->assertCsrfToken($request);
+
+        try {
+            $huntEditor->update($treasureHunt, HuntInput::fromRequest($request), $user);
+        } catch (HuntValidationException|HuntConflictException $e) {
+            return $this->failure($e);
+        }
+
+        return $this->json([
+            'message' => 'Chasse modifiée avec succès.',
+            'hunt' => ['id' => $treasureHunt->getId(), 'title' => $treasureHunt->getTitle()],
+            'url' => $this->generateUrl('app_designer_hunt_details', ['id' => $treasureHunt->getId()]),
+        ]);
+    }
+
+    /**
+     * Fermer ou republier une chasse : les seules transitions que le workflow autorise
+     * depuis la page de détails. La publication initiale passe par le formulaire.
+     */
+    #[Route('/{id}/transition/{transition}', name: 'api_designer_hunt_transition', requirements: ['id' => '\d+', 'transition' => 'close|republish'], methods: ['POST'])]
+    #[IsGranted(TreasureHuntVoter::EDIT, 'treasureHunt')]
+    public function transition(TreasureHunt $treasureHunt, string $transition, Request $request, WorkflowInterface $treasureHuntWorkflow, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $this->assertCsrfToken($request);
+
+        if (!$treasureHuntWorkflow->can($treasureHunt, $transition)) {
+            return $this->json(['error' => 'Cette action n\'est pas possible dans l\'état actuel de la chasse.'], Response::HTTP_CONFLICT);
+        }
+
+        $treasureHuntWorkflow->apply($treasureHunt, $transition);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'Statut mis à jour.', 'status' => $treasureHunt->getStatus()]);
+    }
+
+    private function assertCsrfToken(Request $request): void
+    {
+        $token = $request->request->get('_token');
+        if (!is_string($token) || !$this->isCsrfTokenValid(self::CSRF_TOKEN_ID, $token)) {
+            throw $this->createAccessDeniedException('Jeton CSRF invalide.');
+        }
+    }
+
+    private function failure(HuntValidationException|HuntConflictException $e): JsonResponse
+    {
+        if ($e instanceof HuntConflictException) {
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_CONFLICT);
+        }
+
+        return $this->json([
+            'error' => implode(' ', $e->getMessages()),
+            'violations' => $e->getMessages(),
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 }
