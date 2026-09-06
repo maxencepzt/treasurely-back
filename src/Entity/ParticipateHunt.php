@@ -78,13 +78,13 @@ class ParticipateHunt
     private \DateTimeImmutable $lastParticipate;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'participateHunt:create', 'user:participations'])]
     #[MaxDepth(1)]
     private User $hunter;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[MaxDepth(1)]
     #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'participateHunt:create', 'user:participations'])]
     private TreasureHunt $hunt;
@@ -96,7 +96,7 @@ class ParticipateHunt
 
     #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Groups(['participateHunt:read', 'participateHunt:patch', 'user:participations'])]
     private Riddle $currentRiddle;
 

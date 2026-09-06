@@ -131,7 +131,11 @@ use Symfony\Component\Validator\Constraints as Assert;
                 summary: 'Delete user',
                 description: 'Delete a specific user by their ID. Users can only delete their own account. Requires ROLE_USER permission.'
             ),
-            security: "is_granted('ROLE_USER') and object == user"
+            security: "is_granted('ROLE_USER')
+                and object == user
+                and object.getTreasureHunts().isEmpty()
+                and object.getOwnedTeams().isEmpty()",
+            securityMessage: 'Vous devez transférer la propriété de vos chasses et de vos équipes avant de supprimer votre compte.'
         ),
         new Delete(
             uriTemplate: '/users/{id}/picture',
@@ -266,7 +270,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, ParticipateHunt>
      */
-    #[ORM\OneToMany(targetEntity: ParticipateHunt::class, mappedBy: 'hunter')]
+    #[ORM\OneToMany(targetEntity: ParticipateHunt::class, mappedBy: 'hunter', cascade: ['remove'], orphanRemoval: true)]
     #[Groups(['user:participations'])]
     private Collection $participateHunts;
 
