@@ -49,4 +49,41 @@ class TreasureHuntRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /**
+     * @return TreasureHunt[]
+     */
+    public function findByOwner(User $owner): array
+    {
+        return $this->createQueryBuilder('th')
+            ->addSelect('t', 'r')
+            ->innerJoin('th.designerTeam', 't')
+            ->leftJoin('th.riddles', 'r')
+            ->andWhere('th.owner = :owner')
+            ->setParameter('owner', $owner)
+            ->orderBy('th.updatedAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return array<string, int> statut => nombre de chasses, mêmes chasses que findByOwner()
+     */
+    public function countByStatusForOwner(User $owner): array
+    {
+        $rows = $this->createQueryBuilder('th')
+            ->select('th.status AS status, COUNT(th.id) AS total')
+            ->andWhere('th.owner = :owner')
+            ->setParameter('owner', $owner)
+            ->groupBy('th.status')
+            ->getQuery()
+            ->getArrayResult();
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[(string) $row['status']] = (int) $row['total'];
+        }
+
+        return $counts;
+    }
 }
