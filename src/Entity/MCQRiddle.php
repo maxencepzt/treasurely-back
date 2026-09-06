@@ -9,6 +9,11 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: MCQRiddleRepository::class)]
 class MCQRiddle extends Riddle
 {
+    public function getType(): string
+    {
+        return 'mcq';
+    }
+
     /**
      * @var string[]
      */

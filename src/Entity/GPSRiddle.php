@@ -14,6 +14,11 @@ class GPSRiddle extends Riddle
     #[ORM\Column]
     private float $longitude;
 
+    public function getType(): string
+    {
+        return 'gps';
+    }
+
     public function getLatitude(): ?float
     {
         return $this->latitude;

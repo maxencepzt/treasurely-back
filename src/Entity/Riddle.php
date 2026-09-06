@@ -36,7 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
     ]
 )]
-class Riddle
+abstract class Riddle
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -215,6 +215,14 @@ class Riddle
 
         return $this;
     }
+
+    /**
+     * Discriminant explicite du sous-type. La réponse JSON-LD annonce `@var: "Riddle"`
+     * pour les quatre sous-types : sans ce champ, le client ne peut pas savoir quel
+     * formulaire présenter une fois les solutions retirées de `riddle:read`.
+     */
+    #[Groups(['treasureHunt:riddles', 'riddle:read'])]
+    abstract public function getType(): string;
 
     #[Groups(['riddle:read'])]
     public function getCode(): ?string

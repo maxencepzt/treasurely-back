@@ -8,6 +8,11 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: TextRiddleRepository::class)]
 class TextRiddle extends Riddle
 {
+    public function getType(): string
+    {
+        return 'text';
+    }
+
     #[ORM\Column(length: 100)]
     private string $answer;
 
