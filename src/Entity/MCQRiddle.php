@@ -12,13 +12,13 @@ class MCQRiddle extends Riddle
     /**
      * @var string[]
      */
-    #[ORM\Column(type: Types::ARRAY)]
+    #[ORM\Column(type: Types::JSON)]
     private array $choices = [];
 
     /**
      * @var string[]
      */
-    #[ORM\Column(type: Types::ARRAY)]
+    #[ORM\Column(type: Types::JSON)]
     private array $answers = [];
 
     /**

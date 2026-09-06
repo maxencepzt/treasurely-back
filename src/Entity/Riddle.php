@@ -65,6 +65,7 @@ class Riddle
 
     #[ORM\ManyToOne(inversedBy: 'riddles')]
     #[ORM\JoinColumn(nullable: true)]
+    #[Groups('riddle:read')]
     private ?TreasureHunt $hunt = null;
 
     /**
