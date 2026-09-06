@@ -31,8 +31,7 @@ final class DesignerHuntCest
     private function huntWithTwoRiddles(string $status = TreasureHunt::STATE_OPENED): array
     {
         $owner = UserFactory::createOne()->_real();
-        $team = DesignerTeamFactory::createOne(['owner' => $owner])->_real();
-        $team->addMember($owner);
+        $team = DesignerTeamFactory::createOne(['owner' => $owner])->_real(); // le propriétaire en devient membre
         HuntTypeFactory::createOne(); // la factory de chasse en tire un au hasard
         $hunt = TreasureHuntFactory::createOne([
             'owner' => $owner,
@@ -113,6 +112,21 @@ final class DesignerHuntCest
         }
 
         return $data;
+    }
+
+    /**
+     * Ajoute un membre et l'écrit tout de suite. Les factories Foundry rafraîchissent
+     * leurs proxies depuis la base avant chaque appel (TreasureHuntFactory::defaults()
+     * lit les membres d'une équipe tirée au hasard) : une adhésion encore en attente
+     * de flush serait silencieusement perdue.
+     */
+    private function join(ApiTester $I, TreasureHunt $hunt): User
+    {
+        $member = UserFactory::createOne()->_real();
+        $hunt->getDesignerTeam()?->addMember($member);
+        $I->flushToDatabase();
+
+        return $member;
     }
 
     /**
@@ -339,6 +353,135 @@ final class DesignerHuntCest
 
         $I->sendFormPost('/designer/hunt/'.$hunt->getId().'/transition/republish', ['_token' => $token]);
         $I->seeResponseCodeIs(HttpCode::CONFLICT);
+    }
+
+    public function reattachingTheHuntToAForeignTeamIsRefused(ApiTester $I): void
+    {
+        // 1. 'Arrange' : l'équipe étrangère est créée avant le propriétaire de la chasse,
+        // sinon la factory, qui recrute des membres parmi les utilisateurs existants, pourrait l'y inclure
+        $foreignTeam = DesignerTeamFactory::createOne(['owner' => UserFactory::createOne()])->_real();
+        ['owner' => $owner, 'hunt' => $hunt, 'riddles' => $riddles] = $this->huntWithTwoRiddles();
+        $originalTeamId = $hunt->getDesignerTeam()?->getId();
+        $I->assertFalse($foreignTeam->hasMember($owner), 'Le montage du test est faux : le propriétaire est membre de l\'équipe étrangère.');
+
+        // 2. 'Act' : jeton valide, seule l'équipe est en cause
+        $I->amLoggedInAs($owner, 'main');
+        $I->sendFormPost('/designer/hunt/'.$hunt->getId().'/edit', $this->payload($I, $hunt, $riddles, ['designer_team_id' => $foreignTeam->getId()]));
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+        $I->seeInRepository(TreasureHunt::class, ['id' => $hunt->getId(), 'designerTeam' => $originalTeamId]);
+    }
+
+    public function anUnknownTeamIsAValidationError(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        ['owner' => $owner, 'hunt' => $hunt, 'riddles' => $riddles] = $this->huntWithTwoRiddles();
+
+        // 2. 'Act'
+        $I->amLoggedInAs($owner, 'main');
+        $I->sendFormPost('/designer/hunt/'.$hunt->getId().'/edit', $this->payload($I, $hunt, $riddles, ['designer_team_id' => 999999]));
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseContainsJson(['violations' => ['L\'équipe choisie n\'existe pas.']]);
+    }
+
+    public function aFileThatIsNotAnImageIsRefused(ApiTester $I): void
+    {
+        // 1. 'Arrange' : un fichier texte présenté comme image
+        ['owner' => $owner, 'hunt' => $hunt, 'riddles' => $riddles] = $this->huntWithTwoRiddles();
+        $notAnImage = tempnam(sys_get_temp_dir(), 'treasurely-');
+        file_put_contents($notAnImage, 'ceci n\'est pas une image');
+
+        // 2. 'Act'
+        $I->amLoggedInAs($owner, 'main');
+        $I->sendFormPost('/designer/hunt/'.$hunt->getId().'/edit', $this->payload($I, $hunt, $riddles, ['name' => 'Avec image']), ['image' => $notAnImage]);
+        unlink($notAnImage);
+
+        // 3. 'Assert' : refus motivé, et rien d'autre n'a été enregistré
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->assertStringContainsString('Le type de fichier n\'est pas autorisé', (string) $I->grabDataFromResponseByJsonPath('$.error')[0]);
+        $I->seeInRepository(TreasureHunt::class, ['id' => $hunt->getId(), 'title' => 'Vieux Reims']);
+    }
+
+    public function huntTypesFollowTheSubmittedSelection(ApiTester $I): void
+    {
+        // 1. 'Arrange' : la chasse porte le type A, le formulaire ne coche que le type B
+        ['owner' => $owner, 'hunt' => $hunt, 'riddles' => $riddles] = $this->huntWithTwoRiddles();
+        $typeA = HuntTypeFactory::createOne(['title' => 'Parcours nocturne'])->_real();
+        $typeB = HuntTypeFactory::createOne(['title' => 'Parcours urbain'])->_real();
+        foreach ($hunt->getHuntType() as $current) {
+            $hunt->removeHuntType($current);
+        }
+        $hunt->addHuntType($typeA);
+        $I->flushToDatabase();
+
+        // 2. 'Act'
+        $I->amLoggedInAs($owner, 'main');
+        $I->sendFormPost('/designer/hunt/'.$hunt->getId().'/edit', $this->payload($I, $hunt, $riddles, ['hunt_types' => json_encode([$typeB->getId()])]));
+
+        // 3. 'Assert' : la page de détails reflète la sélection
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->sendGet('/designer/hunt/'.$hunt->getId().'/details');
+        $I->seeResponseContains('Parcours urbain');
+        $I->dontSeeResponseContains('Parcours nocturne');
+    }
+
+    public function aTeamMemberSeesOpenedHuntsButNotDrafts(ApiTester $I): void
+    {
+        // 1. 'Arrange' : un membre de l'équipe qui n'est ni propriétaire de la chasse ni de l'équipe
+        ['owner' => $owner, 'hunt' => $opened] = $this->huntWithTwoRiddles();
+        $member = $this->join($I, $opened);
+        $draft = TreasureHuntFactory::createOne(['owner' => $owner, 'designerTeam' => $opened->getDesignerTeam(), 'status' => TreasureHunt::STATE_DRAFT])->_real();
+
+        // 2. 'Act' / 3. 'Assert'
+        $I->amLoggedInAs($member, 'main');
+        $I->sendGet('/designer/hunt/'.$opened->getId().'/details');
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->dontSeeResponseContains('/designer/hunt/'.$opened->getId().'/edit'); // voir, pas modifier
+
+        $I->sendGet('/designer/hunt/'.$draft->getId().'/details');
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function transitionsRequireTheTokenAndTheEditRight(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        ['owner' => $owner, 'hunt' => $hunt] = $this->huntWithTwoRiddles();
+        $member = $this->join($I, $hunt);
+
+        // 2. 'Act' / 3. 'Assert' : propriétaire sans jeton
+        $I->amLoggedInAs($owner, 'main');
+        $I->sendFormPost('/designer/hunt/'.$hunt->getId().'/transition/close', []);
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+
+        // membre avec un jeton valide, mais sans droit d'édition : il voit la chasse,
+        // ce qui prouve qu'il est bien membre et non un inconnu, mais ne la ferme pas
+        $I->amLoggedInAs($member, 'main');
+        $I->sendGet('/designer/hunt/'.$hunt->getId().'/details');
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->sendFormPost('/designer/hunt/'.$hunt->getId().'/transition/close', ['_token' => $this->csrfToken($I)]);
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+
+        $I->seeInRepository(TreasureHunt::class, ['id' => $hunt->getId(), 'status' => TreasureHunt::STATE_OPENED]);
+    }
+
+    public function aMalformedPayloadIsRejectedBeforeAnythingIsBuilt(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        ['owner' => $owner, 'hunt' => $hunt, 'riddles' => $riddles] = $this->huntWithTwoRiddles();
+
+        // 2. 'Act' : nom vide et type d'énigme inconnu dans la même charge utile
+        $I->amLoggedInAs($owner, 'main');
+        $unknown = ['type' => 'video', 'title' => 'Clip', 'description' => 'Énoncé', 'difficulty' => 1, 'maxScoringAttempts' => 3];
+        $I->sendFormPost('/designer/hunt/'.$hunt->getId().'/edit', $this->payload($I, $hunt, [...$riddles, $unknown], ['name' => '   ']));
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseContains('Le nom de la chasse est requis.');
+        $I->seeInRepository(TreasureHunt::class, ['id' => $hunt->getId(), 'title' => 'Vieux Reims']);
+        $I->dontSeeInRepository(Riddle::class, ['title' => 'Clip']);
     }
 
     public function aRequestWithoutCsrfTokenIsRefused(ApiTester $I): void
