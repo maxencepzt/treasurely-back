@@ -15,7 +15,7 @@ final class MeGetCest
     /**
      * @return array<string, string>
      */
-    protected static function expectedProperties(): array
+    private static function expectedProperties(): array
     {
         return [
             'id' => 'integer',
