@@ -249,6 +249,16 @@ abstract class Riddle
     #[Groups(['treasureHunt:riddles', 'riddle:read'])]
     abstract public function getType(): string;
 
+    /**
+     * Nombre de bonnes réponses attendues, pour les seuls QCM dont le concepteur a
+     * choisi de le révéler. `null` signifie « non communiqué », jamais « aucune ».
+     */
+    #[Groups(['riddle:read'])]
+    public function getExpectedAnswerCount(): ?int
+    {
+        return null;
+    }
+
     #[Groups(['riddle:read'])]
     public function getCode(): ?string
     {
