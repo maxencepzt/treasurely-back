@@ -20,7 +20,7 @@ final class PictureStory extends Story
         $finder = new Finder();
         $finder->files()
             ->in($path)
-            ->name('/\.(jpg|jpeg)$/i');
+            ->name('/\.png$/i');
 
         flush_after(function () use ($finder) {
             foreach ($finder as $file) {
