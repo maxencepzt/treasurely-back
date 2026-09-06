@@ -88,10 +88,13 @@ class TreasureHunt
 
     #[ORM\Column(length: 20)]
     #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 20)]
     private string $title;
 
     #[ORM\Column(length: 3000, nullable: true)]
     #[Groups(['treasureHunt:read'])]
+    #[Assert\Length(max: 3000)]
     private ?string $description = null;
 
     #[ORM\Column]
@@ -142,13 +145,15 @@ class TreasureHunt
 
     #[ORM\Column(length: 30)]
     #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 30)]
     private string $location;
 
     #[ORM\Column(type: 'string', length: 10)]
     #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
     private string $status = self::STATE_DRAFT;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Gedmo\Timestampable(on: 'create')]
     #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
     private \DateTimeImmutable $createdAt;
