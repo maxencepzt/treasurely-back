@@ -15,9 +15,9 @@ use Symfony\Component\Routing\Annotation\Route;
             uriTemplate: '/token/refresh',
             openapi: new Model\Operation(
                 responses: [
-                    '200' => [
-                        'description' => 'Token rafraîchi avec succès',
-                        'content' => [
+                    '200' => new Model\Response(
+                        description: 'Token rafraîchi avec succès',
+                        content: new \ArrayObject([
                             'application/json' => [
                                 'schema' => [
                                     'type' => 'object',
@@ -27,8 +27,8 @@ use Symfony\Component\Routing\Annotation\Route;
                                     ],
                                 ],
                             ],
-                        ],
-                    ],
+                        ]),
+                    ),
                 ],
                 summary: 'Rafraîchir le token JWT',
                 description: 'Permet de générer un nouveau token JWT à partir d\'un refresh token valide',
