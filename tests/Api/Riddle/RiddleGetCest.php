@@ -7,6 +7,7 @@ namespace App\Tests\Api\Riddle;
 use App\Entity\GPSRiddle;
 use App\Entity\MCQRiddle;
 use App\Entity\Riddle;
+use App\Entity\TextRiddle;
 use App\Factory\GPSRiddleFactory;
 use App\Factory\MCQRiddleFactory;
 use App\Factory\QRRiddleFactory;
@@ -167,6 +168,28 @@ final class RiddleGetCest
         // 3. 'Assert'
         $I->assertCount(1, $violations);
         $I->assertSame('maxScoringAttempts', $violations[0]->getPropertyPath());
+    }
+
+    public function textFieldsAreBoundedToTheirColumnLength(ApiTester $I): void
+    {
+        // 1. 'Arrange' : titre de 21 caractères pour une colonne de 20, réponse vide
+        $riddle = (new TextRiddle())
+            ->setTitle(str_repeat('a', 21))
+            ->setDescription('Énoncé')
+            ->setDifficulty(1)
+            ->setOrderNumber(1)
+            ->setAnswer('');
+
+        // 2. 'Act'
+        $violations = $I->grabService(ValidatorInterface::class)->validate($riddle);
+
+        // 3. 'Assert'
+        $paths = [];
+        foreach ($violations as $violation) {
+            $paths[] = $violation->getPropertyPath();
+        }
+        sort($paths);
+        $I->assertSame(['answer', 'title'], $paths);
     }
 
     public function gpsCoordinatesMustBeOnEarth(ApiTester $I): void

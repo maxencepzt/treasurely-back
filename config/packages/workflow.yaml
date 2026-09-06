@@ -1,7 +1,9 @@
 framework:
     workflows:
       treasure_hunt_workflow:
-        type: 'workflow'
+        # Une chasse n'est jamais dans deux états à la fois : machine à états, marquage
+        # stocké tel quel dans la chaîne TreasureHunt::$status.
+        type: 'state_machine'
         audit_trail:
           enabled: true
         marking_store:

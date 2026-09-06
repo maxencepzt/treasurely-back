@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Riddle;
+use App\Entity\TreasureHunt;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -30,5 +31,18 @@ class RiddleRepository extends ServiceEntityRepository
             ->setParameter('owner', $owner)
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    /**
+     * @return Riddle[] dans l'ordre du parcours
+     */
+    public function findByTreasureHunt(TreasureHunt $treasureHunt): array
+    {
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.hunt = :hunt')
+            ->setParameter('hunt', $treasureHunt)
+            ->orderBy('r.orderNumber', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 }

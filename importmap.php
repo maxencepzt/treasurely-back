@@ -40,6 +40,17 @@ return [
         'path' => './assets/js/file-drag-drop.js',
         'entrypoint' => true,
     ],
+    'hunt-form' => [
+        'path' => './assets/js/hunt-form.js',
+        'entrypoint' => true,
+    ],
+    'hunt-details' => [
+        'path' => './assets/js/hunt-details.js',
+        'entrypoint' => true,
+    ],
+    'riddle-manager' => [
+        'path' => './assets/js/riddle-manager.js',
+    ],
     '@hotwired/stimulus' => [
         'version' => '3.2.2',
     ],

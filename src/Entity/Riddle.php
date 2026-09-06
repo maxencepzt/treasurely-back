@@ -49,10 +49,14 @@ abstract class Riddle
     private ?int $id = null;
 
     #[ORM\Column(length: 20)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 20)]
     #[Groups(['treasureHunt:riddles', 'riddle:read'])]
     private string $title;
 
     #[ORM\Column(length: 1000)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 1000)]
     #[Groups(['treasureHunt:riddles', 'riddle:read'])]
     private string $description;
 

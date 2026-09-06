@@ -7,7 +7,7 @@
         <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 space-y-8 relative">
             {% if is_granted('ROLE_ADMIN') %}
                 <!-- Bouton API Documentation -->
-                <a href="/api/docs" target="_blank" class="absolute top-4 right-4 p-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-lg shadow-md transform transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-purple-400 cursor-pointer" title="Documentation API (Swagger)">
+                <a href="{{ path('api_doc') }}" target="_blank" class="absolute top-4 right-4 p-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-lg shadow-md transform transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-purple-400 cursor-pointer" title="Documentation API (Swagger)">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>

@@ -48,6 +48,20 @@ class ApiPlatform extends REST
     }
 
     /**
+     * POST de formulaire classique (application/x-www-form-urlencoded), pour la façade
+     * Twig du concepteur qui lit $request->request et non un corps JSON.
+     *
+     * @param array<string, mixed> $params
+     * @param array<string, mixed> $files
+     */
+    public function sendFormPost(string $url, array $params = [], array $files = []): ?string
+    {
+        $this->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        return parent::sendPost($url, $params, $files);
+    }
+
+    /**
      * {@inheritDoc}
      * Override to send HTTP headers.
      */

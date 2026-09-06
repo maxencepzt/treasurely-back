@@ -73,7 +73,7 @@ class ParticipateHunt
     #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'participateHunt:patch', 'user:participations'])]
     private bool $finished = false;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'participateHunt:patch', 'participateHunt:create', 'user:participations'])]
     private \DateTimeImmutable $lastParticipate;
 

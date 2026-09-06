@@ -110,6 +110,9 @@
             "src/Entity/RefreshToken.php"
         ]
     },
+    "knplabs/knp-time-bundle": {
+        "version": "2.5.0"
+    },
     "lexik/jwt-authentication-bundle": {
         "version": "3.1",
         "recipe": {
