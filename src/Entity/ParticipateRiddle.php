@@ -74,6 +74,15 @@ class ParticipateRiddle
     #[Groups(['participateRiddle:read', 'participateRiddle:create', 'participateRiddle:patch'])]
     private \DateTime $lastParticipate;
 
+    /**
+     * Soumissions déjà faites sur cette énigme, correctes ou non. Comparé à
+     * {@see Riddle::getMaxScoringAttempts()} pour décider si la réussite rapporte des points.
+     */
+    #[ORM\Column(options: ['default' => 0])]
+    #[Assert\PositiveOrZero]
+    #[Groups(['participateRiddle:read'])]
+    private int $attempts = 0;
+
     #[ORM\ManyToOne(inversedBy: 'participateRiddles')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     #[Groups(['participateRiddle:read', 'participateRiddle:create'])]
@@ -168,5 +177,24 @@ class ParticipateRiddle
             $this->id,
             $this->riddle ? $this->riddle->getTitle() : 'Aucune énigme'
         );
+    }
+
+    public function getAttempts(): int
+    {
+        return $this->attempts;
+    }
+
+    public function setAttempts(int $attempts): static
+    {
+        $this->attempts = $attempts;
+
+        return $this;
+    }
+
+    public function incrementAttempts(): static
+    {
+        ++$this->attempts;
+
+        return $this;
     }
 }

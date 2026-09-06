@@ -38,6 +38,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 abstract class Riddle
 {
+    public const int MIN_SCORING_ATTEMPTS = 1;
+    public const int MAX_SCORING_ATTEMPTS = 20;
+    public const int DEFAULT_MAX_SCORING_ATTEMPTS = 3;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -62,6 +66,15 @@ abstract class Riddle
     #[Groups(['treasureHunt:riddles', 'riddle:read'])]
     #[ORM\Column]
     private int $orderNumber;
+
+    /**
+     * Nombre de soumissions pouvant rapporter des points. Au-delà, l'énigme reste
+     * soumissible pour ne pas bloquer la progression, mais ne rapporte plus rien.
+     */
+    #[ORM\Column(options: ['default' => self::DEFAULT_MAX_SCORING_ATTEMPTS])]
+    #[Assert\Range(min: self::MIN_SCORING_ATTEMPTS, max: self::MAX_SCORING_ATTEMPTS)]
+    #[Groups(['treasureHunt:riddles', 'riddle:read'])]
+    private int $maxScoringAttempts = self::DEFAULT_MAX_SCORING_ATTEMPTS;
 
     #[ORM\ManyToOne(inversedBy: 'riddles')]
     #[ORM\JoinColumn(nullable: true)]
@@ -212,6 +225,18 @@ abstract class Riddle
                 $participateHunt->setCurrentRiddle(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getMaxScoringAttempts(): int
+    {
+        return $this->maxScoringAttempts;
+    }
+
+    public function setMaxScoringAttempts(int $maxScoringAttempts): static
+    {
+        $this->maxScoringAttempts = $maxScoringAttempts;
 
         return $this;
     }
