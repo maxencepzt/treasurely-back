@@ -12,25 +12,6 @@ use Codeception\Util\HttpCode;
 
 final class UserPostCest
 {
-    /**
-     * @return array<string, string>
-     */
-    protected static function expectedProperties(): array
-    {
-        return [
-            'id' => 'integer',
-            'nickname' => 'string',
-            'creationDate' => 'string:date',
-            'public' => 'boolean',
-            'gender' => 'string',
-            'totalTime' => 'integer',
-            'totalHunt' => 'integer',
-            'totalScore' => 'integer',
-            'totalRiddles' => 'integer',
-            'description' => 'string',
-        ];
-    }
-
     public function canRegisterNewUser(ApiTester $I): void
     {
         // 1. 'Arrange'
@@ -263,7 +244,6 @@ final class UserPostCest
 
         // fetch the user from the test database and assert roles contain ROLE_USER
         $user = $I->grabEntityFromRepository(User::class, ['nickname' => 'roleuser']);
-        $I->assertNotNull($user, 'Registered user should exist in the database.');
         $I->assertContains('ROLE_USER', $user->getRoles(), 'Default role must include ROLE_USER.');
     }
 }

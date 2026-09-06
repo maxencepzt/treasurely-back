@@ -202,6 +202,6 @@
     "symfony/stopwatch": "7.3.*",
     "symfony/web-profiler-bundle": "7.3.*",
     "vincentlanglet/twig-cs-fixer": "^3.10",
-    "zenstruck/foundry": "^2.7"
+    "zenstruck/foundry": "2.8.2"
   }
 }

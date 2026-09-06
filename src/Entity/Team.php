@@ -145,7 +145,7 @@ class Team
     private ?Picture $image = null;
 
     /**
-     * @var Collection<int, User>&iterable<User>
+     * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'teams', cascade: ['persist'])]
     #[Groups(['team:members'])]

@@ -27,6 +27,17 @@ Ce projet utilise Symfony. Pour l'installation :
 composer install
 ```
 
+#### Configurer les secrets locaux
+
+Le `.env` versionné ne contient que des valeurs de développement sans portée. Créez un
+`.env.local`, ignoré par git, avec vos propres secrets :
+
+```bash
+printf 'APP_SECRET=%s\nJWT_PASSPHRASE=%s\n' "$(openssl rand -hex 16)" "$(openssl rand -hex 32)" > .env.local
+```
+
+`JWT_PASSPHRASE` doit être défini **avant** de générer les clés JWT.
+
 #### Pour réinitialiser la base de données.
 
 ```bash
