@@ -46,7 +46,7 @@ RUN set -eux; \
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 ENV PATH="${PATH}:/root/.composer/vendor/bin"
 RUN ln -s $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini
-COPY docker/php/conf.d/config.ini $PHP_INI_DIR/conf.d/config.ini
+COPY docker/php/conf.d/dev.ini $PHP_INI_DIR/conf.d/config.ini
 ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN set -eux; \
 composer global config --no-plugins allow-plugins.symfony/flex true; \
@@ -64,6 +64,8 @@ WORKDIR /sae5-01-back/public
 
 FROM treasurely_php AS treasurely_php_prod
 ENV APP_ENV=prod
+RUN ln -sf $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini
+COPY docker/php/conf.d/config.ini $PHP_INI_DIR/conf.d/config.ini
 COPY ./composer.json ./composer.json
 COPY ./composer.lock ./composer.lock
 COPY ./symfony.lock ./symfony.lock
