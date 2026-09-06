@@ -36,8 +36,12 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
     ]
 )]
-class Riddle
+abstract class Riddle
 {
+    public const int MIN_SCORING_ATTEMPTS = 1;
+    public const int MAX_SCORING_ATTEMPTS = 20;
+    public const int DEFAULT_MAX_SCORING_ATTEMPTS = 3;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -62,6 +66,15 @@ class Riddle
     #[Groups(['treasureHunt:riddles', 'riddle:read'])]
     #[ORM\Column]
     private int $orderNumber;
+
+    /**
+     * Nombre de soumissions pouvant rapporter des points. Au-delà, l'énigme reste
+     * soumissible pour ne pas bloquer la progression, mais ne rapporte plus rien.
+     */
+    #[ORM\Column(options: ['default' => self::DEFAULT_MAX_SCORING_ATTEMPTS])]
+    #[Assert\Range(min: self::MIN_SCORING_ATTEMPTS, max: self::MAX_SCORING_ATTEMPTS)]
+    #[Groups(['treasureHunt:riddles', 'riddle:read'])]
+    private int $maxScoringAttempts = self::DEFAULT_MAX_SCORING_ATTEMPTS;
 
     #[ORM\ManyToOne(inversedBy: 'riddles')]
     #[ORM\JoinColumn(nullable: true)]
@@ -214,6 +227,36 @@ class Riddle
         }
 
         return $this;
+    }
+
+    public function getMaxScoringAttempts(): int
+    {
+        return $this->maxScoringAttempts;
+    }
+
+    public function setMaxScoringAttempts(int $maxScoringAttempts): static
+    {
+        $this->maxScoringAttempts = $maxScoringAttempts;
+
+        return $this;
+    }
+
+    /**
+     * Discriminant explicite du sous-type. La réponse JSON-LD annonce `@var: "Riddle"`
+     * pour les quatre sous-types : sans ce champ, le client ne peut pas savoir quel
+     * formulaire présenter une fois les solutions retirées de `riddle:read`.
+     */
+    #[Groups(['treasureHunt:riddles', 'riddle:read'])]
+    abstract public function getType(): string;
+
+    /**
+     * Nombre de bonnes réponses attendues, pour les seuls QCM dont le concepteur a
+     * choisi de le révéler. `null` signifie « non communiqué », jamais « aucune ».
+     */
+    #[Groups(['riddle:read'])]
+    public function getExpectedAnswerCount(): ?int
+    {
+        return null;
     }
 
     #[Groups(['riddle:read'])]
