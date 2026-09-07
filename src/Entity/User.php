@@ -161,7 +161,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['user:me', 'user:write', 'team:members', 'user:read'])]
+    #[Groups(['user:me', 'user:write', 'team:members', 'user:read', 'participateHunt:scoreboard'])]
     private string $nickname;
 
     /**
