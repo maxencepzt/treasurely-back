@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Repository\ParticipateHuntRepository;
+use App\State\JoinHuntProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -18,14 +19,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     operations: [
         new Post(
-            uriTemplate: 'participate_hunts/new',
             openapi: new Operation(
-                summary: 'Hunt participation creation',
-                description: 'Create a new participation record for a treasure hunt.'
+                summary: 'Join a treasure hunt',
+                description: 'Start playing an opened treasure hunt, alone or for one of your player teams. The server sets the hunter and the first riddle. Designers cannot join their own hunt.'
             ),
             normalizationContext: ['groups' => ['participateHunt:read', 'participateHunt:id']],
             denormalizationContext: ['groups' => ['participateHunt:create']],
             security: 'is_granted("ROLE_USER")',
+            processor: JoinHuntProcessor::class,
         ),
         new Get(
             openapi: new Operation(
@@ -37,8 +38,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Patch(
             openapi: new Operation(
-                summary: 'Update hunt participation',
-                description: 'Update a specific hunt participation by their ID.'
+                summary: 'Rate a hunt participation',
+                description: 'The rate is the only field a player writes: progression, score and time are computed by the server.'
             ),
             normalizationContext: ['groups' => ['participateHunt:read', 'participateHunt:id']],
             denormalizationContext: ['groups' => ['participateHunt:patch']],
@@ -59,33 +60,35 @@ class ParticipateHunt
     #[Groups(['participateHunt:read', 'participateHunt:patch', 'playerTeam:treasureHunts', 'user:participations'])]
     private ?int $rate = null;
 
+    /** Temps de résolution cumulé, en secondes, recalculé par le serveur à chaque énigme résolue. */
     #[ORM\Column]
     #[Assert\PositiveOrZero]
-    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'participateHunt:patch', 'user:participations'])]
+    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'user:participations'])]
     private int $time = 0;
 
     #[ORM\Column]
     #[Assert\PositiveOrZero]
-    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'participateHunt:patch', 'user:participations'])]
+    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'user:participations'])]
     private int $score = 0;
 
     #[ORM\Column]
-    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'participateHunt:patch', 'user:participations'])]
+    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'user:participations'])]
     private bool $finished = false;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'participateHunt:patch', 'participateHunt:create', 'user:participations'])]
+    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'user:participations'])]
     private \DateTimeImmutable $lastParticipate;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'participateHunt:create', 'user:participations'])]
+    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'user:participations'])]
     #[MaxDepth(1)]
     private User $hunter;
 
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[MaxDepth(1)]
+    #[Assert\NotNull(message: 'La chasse est obligatoire.')]
     #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'participateHunt:create', 'user:participations'])]
     private TreasureHunt $hunt;
 
@@ -97,7 +100,7 @@ class ParticipateHunt
     #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    #[Groups(['participateHunt:read', 'participateHunt:patch', 'user:participations'])]
+    #[Groups(['participateHunt:read', 'user:participations'])]
     private Riddle $currentRiddle;
 
     public function getId(): ?int
@@ -204,6 +207,15 @@ class ParticipateHunt
     public function getCurrentRiddle(): Riddle
     {
         return $this->currentRiddle;
+    }
+
+    /**
+     * Progression affichable sans lire l'énigme en cours, dont la lecture démarre le chronomètre.
+     */
+    #[Groups(['participateHunt:read', 'playerTeam:treasureHunts', 'user:participations'])]
+    public function getRiddlesSolved(): int
+    {
+        return $this->finished ? ($this->hunt->getRiddleCount() ?? 0) : $this->currentRiddle->getOrderNumber() - 1;
     }
 
     public function setCurrentRiddle(?Riddle $currentRiddle): static
