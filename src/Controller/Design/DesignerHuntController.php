@@ -82,7 +82,7 @@ final class DesignerHuntController extends AbstractController
     public function qrCode(
         TreasureHunt $treasureHunt,
         #[MapEntity(id: 'riddle')] Riddle $riddle,
-        #[Autowire(env: 'APP_FRONT_URL')] string $frontUrl,
+        #[Autowire(env: 'FRONTEND_URL')] string $frontUrl,
     ): Response {
         if (!$riddle instanceof QRRiddle || $riddle->getHunt() !== $treasureHunt) {
             throw $this->createNotFoundException("Cette chasse n'a pas cette énigme QR.");
