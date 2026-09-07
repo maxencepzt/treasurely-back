@@ -32,7 +32,7 @@ final class ParticipateHuntFactory extends PersistentProxyObjectFactory
         $hunt = TreasureHuntFactory::random();
 
         $lastParticipate = \DateTimeImmutable::createFromMutable(
-            self::faker()->dateTimeBetween('today +20 days', 'today +30 days')
+            self::faker()->dateTimeBetween('-30 days', '-1 hour')
         );
 
         $finished = self::faker()->boolean(70);
