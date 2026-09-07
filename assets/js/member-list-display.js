@@ -91,36 +91,39 @@ export class MemberListDisplay {
 
     createEmptyStateHTML() {
         return `
-            <div class="p-6 text-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                <svg class="w-12 h-12 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                </svg>
-                <p class="text-gray-500 text-sm">${this.emptyMessage}</p>
-                <p class="text-gray-400 text-xs mt-1">${this.emptySubMessage}</p>
+            <div class="p-6 text-center bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                <div class="mx-auto mb-2 w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-400 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </div>
+                <p class="text-slate-500 text-sm">${this.emptyMessage}</p>
+                <p class="text-slate-400 text-xs mt-1">${this.emptySubMessage}</p>
             </div>
         `;
     }
 
     createMemberElement(user, index) {
         const colorClass = this.getColorClass(index);
-        const bgColorClass = this.getBgColorClass(index);
         const memberElement = document.createElement('div');
 
-        memberElement.className = `flex items-center justify-between p-4 ${bgColorClass} rounded-xl border border-opacity-50`;
+        // Même ligne que celles rendues par le serveur dans team/_form.html.twig ; la couleur par
+        // index sert de fond à l'avatar en attendant l'image.
+        memberElement.className = 'flex items-center justify-between gap-4 p-3 rounded-xl border border-slate-200 bg-white transition-all';
         memberElement.innerHTML = `
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-gradient-to-br ${colorClass} rounded-full flex items-center justify-center text-white font-bold text-sm overflow-hidden">
-                    <img src="/api/users/${user.id}/picture/" alt="${user.nickname}" />
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 bg-gradient-to-br ${colorClass} rounded-xl flex items-center justify-center text-white font-bold text-sm overflow-hidden shrink-0">
+                    <img src="/api/users/${user.id}/picture/" alt="" class="w-full h-full object-cover" />
                 </div>
-                <div>
-                    <p class="font-semibold text-gray-800">${user.fullName}</p>
-                    <p class="text-sm text-gray-500">@${user.nickname}</p>
+                <div class="min-w-0">
+                    <p class="font-semibold text-slate-800 truncate">${user.fullName}</p>
+                    <p class="text-sm text-slate-500 truncate">@${user.nickname}</p>
                 </div>
             </div>
             ${this.showRemoveButton ? `
-                <button type="button" class="remove-member text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition cursor-pointer" title="Retirer" data-user-id="${user.id}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                <button type="button" class="remove-member w-10 h-10 rounded-xl flex items-center justify-center text-red-600 hover:bg-red-50 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500" title="Retirer" aria-label="Retirer ${user.nickname}" data-user-id="${user.id}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             ` : ''}

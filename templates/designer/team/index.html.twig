@@ -1,143 +1,106 @@
 {% extends 'base.html.twig' %}
+{% import 'designer/_partials/macros.html.twig' as ui %}
+{% import 'designer/_partials/icons.html.twig' as icons %}
 
-{% block title %}Mes Équipes - Treasurely{% endblock %}
+{% block title %}Mes équipes - Treasurely{% endblock %}
+
+{# Carte d'équipe, propriétaire ou membre : même recette que les cartes de chasse. #}
+{% macro team_card(team, role) %}
+    {# Les imports du gabarit ne sont pas visibles dans une macro : on les refait ici. #}
+    {% import 'designer/_partials/macros.html.twig' as ui %}
+    {% import 'designer/_partials/icons.html.twig' as icons %}
+    {% set styles = {
+        owner: {chip: 'bg-green-50 text-green-700 border-green-100', hover: 'group-hover:border-green-300', label: 'Propriétaire'},
+        member: {chip: 'bg-blue-50 text-blue-700 border-blue-100', hover: 'group-hover:border-blue-300', label: 'Membre'},
+    } %}
+    {% set style = styles[role] %}
+    {% set nbHunts = team.hunts|filter(h => h.status != 'draft')|length %}
+    <a href="{{ path('app_designer_team_details', {id: team.id}) }}" class="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2" aria-label="Voir l'équipe {{ team.name }}">
+        <article class="{{ ui.card('p-5 h-full flex flex-col transition-all group-hover:shadow-md') }} {{ style.hover }}">
+            <div class="flex items-start justify-between gap-3 mb-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <img src="{{ path('_api_/teams/{id}/picture_get', {id: team.id}) }}" alt="" loading="lazy" class="w-12 h-12 rounded-xl object-cover bg-slate-100 shrink-0" />
+                    <div class="min-w-0">
+                        <h3 class="text-lg font-bold text-slate-800 truncate">{{ team.name }}</h3>
+                        <p class="text-xs text-slate-500 truncate">
+                            {% if role == 'owner' %}Créée le {{ team.createdAt|date('d/m/Y') }}{% else %}Propriétaire : {{ team.owner.firstname }} {{ team.owner.lastname }}{% endif %}
+                        </p>
+                    </div>
+                </div>
+                <span class="shrink-0 border text-xs font-semibold px-2.5 py-1 rounded-full {{ style.chip }}">{{ style.label }}</span>
+            </div>
+            <p class="text-slate-600 text-sm mb-4 line-clamp-2">{{ team.description ?: 'Aucune description' }}</p>
+            <ul class="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-600 pt-4 border-t border-slate-100">
+                <li class="inline-flex items-center gap-1.5">
+                    {{ ui.icon(icons.path('team'), 'w-4 h-4 text-slate-400') }}
+                    <span class="tabular-nums">{{ team.members|length }} membre{{ team.members|length > 1 ? 's' }}</span>
+                </li>
+                <li class="inline-flex items-center gap-1.5">
+                    {{ ui.icon(icons.path('chest'), 'w-4 h-4 text-slate-400') }}
+                    <span class="tabular-nums">{{ nbHunts }} chasse{{ nbHunts > 1 ? 's' }}</span>
+                </li>
+            </ul>
+        </article>
+    </a>
+{% endmacro %}
 
 {% block body %}
     <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
         {{ include('designer/_partials/header.html.twig', {
             type: 'with_action',
-            title: 'Mes Équipes',
-            icon: '<svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>',
+            title: 'Mes équipes',
+            icon: 'players',
+            iconTint: 'bg-blue-100 text-blue-600',
             backUrl: path('app_designer_dashboard'),
             actionUrl: path('app_designer_team_create'),
             actionText: 'Créer une équipe',
             actionColor: 'blue',
         }) }}
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <!-- Section : Équipes que je possède -->
-            <div class="mb-12">
-                <div class="flex items-center space-x-3 mb-6">
-                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
-                    </svg>
-                    <h2 class="text-2xl font-bold text-gray-800">Mes équipes (Propriétaire)</h2>
-                    <span class="bg-emerald-100 text-emerald-800 text-sm font-semibold px-3 py-1 rounded-full">{{ ownedTeams|length }}</span>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+            <section>
+                <div class="flex items-center gap-3 mb-5">
+                    {{ ui.badge(icons.path('sparkles'), 'bg-green-100 text-green-600') }}
+                    <h2 class="text-xl font-bold text-slate-800">Mes équipes</h2>
+                    <span class="bg-green-50 text-green-700 border border-green-100 text-sm font-semibold px-2.5 py-0.5 rounded-full tabular-nums">{{ ownedTeams|length }}</span>
                 </div>
-
                 {% if ownedTeams|length > 0 %}
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {% for team in ownedTeams %}
-                    <!-- Carte Équipe -->
-                    <a href="{{ path('app_designer_team_details', {id: team.id}) }}" class="group cursor-pointer">
-                        <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transform transition hover:scale-105 p-6 border-2 border-transparent hover:border-emerald-500">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center overflow-hidden">
-                                        <img src="{{ path('_api_/teams/{id}/picture_get', {id: team.id}) }}" alt="{{ team.name }}" class="w-full h-full object-cover"/>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-lg font-bold text-gray-800 group-hover:text-emerald-600 transition">{{ team.name }}</h3>
-                                        <p class="text-xs text-gray-500">Créée le {{ 'now'|date('d/m/Y') }}</p>
-                                    </div>
-                                </div>
-                                <span class="bg-emerald-100 text-emerald-700 text-xs font-semibold px-2 py-1 rounded-lg">Propriétaire</span>
-                            </div>
-                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ team.description ?: 'Aucune description' }}</p>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                    <div class="flex items-center space-x-1">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                                        </svg>
-                                        <span>{{ team.members|length }} membre{{ team.members|length > 1 ? 's' : '' }}</span>
-                                    </div>
-                                    <div class="flex items-center space-x-1">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path d="M21 12.4984L14 12.4984M3 12.4984L10 12.4984M7 4.5V19.4984M17 4.5V19.4984M6.2 19.5H17.8C18.9201 19.5 19.4802 19.5 19.908 19.282C20.2843 19.0903 20.5903 18.7843 20.782 18.408C21 17.9802 21 17.4201 21 16.3V10.9C21 8.65979 21 7.53968 20.564 6.68404C20.1805 5.93139 19.5686 5.31947 18.816 4.93597C17.9603 4.5 16.8402 4.5 14.6 4.5H9.4C7.15979 4.5 6.03968 4.5 5.18404 4.93597C4.43139 5.31947 3.81947 5.93139 3.43597 6.68404C3 7.53968 3 8.65979 3 10.9V16.3C3 17.4201 3 17.9802 3.21799 18.408C3.40973 18.7843 3.71569 19.0903 4.09202 19.282C4.51984 19.5 5.07989 19.5 6.2 19.5ZM10 10.4984H14V14.4984H10V10.4984Z" stroke-width="2" stroke-linejoin="round"></path>
-                                        </svg>
-                                        <span>{{ team.hunts|filter(h => h.status != 'draft')|length }} chasse{{ team.hunts|filter(h => h.status != 'draft')|length > 1 ? 's' : '' }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                    {% endfor %}
-                </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for team in ownedTeams %}
+                            {{ _self.team_card(team, 'owner') }}
+                        {% endfor %}
+                    </div>
                 {% else %}
-                <div class="text-center py-12 bg-white rounded-2xl shadow-lg">
-                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                    </svg>
-                    <p class="text-gray-500 mb-4">Vous n'avez pas encore créé d'équipe</p>
-                    <a href="{{ path('app_designer_team_create') }}" class="inline-flex items-center space-x-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transform transition hover:scale-105 cursor-pointer">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                        <span>Créer ma première équipe</span>
-                    </a>
-                </div>
+                    <div class="text-center py-12 px-6 bg-white rounded-2xl border-2 border-dashed border-slate-200">
+                        <div class="mx-auto mb-4 w-12 h-12 rounded-xl bg-green-100 text-green-600 flex items-center justify-center">{{ ui.icon(icons.path('players'), 'w-6 h-6') }}</div>
+                        <p class="text-slate-500 mb-5">Vous n'avez pas encore créé d'équipe.</p>
+                        <a href="{{ path('app_designer_team_create') }}" class="{{ ui.btn('primary') }}">
+                            {{ ui.icon(icons.path('plus')) }}
+                            <span>Créer ma première équipe</span>
+                        </a>
+                    </div>
                 {% endif %}
-            </div>
+            </section>
 
-            <!-- Section : Équipes dont je suis membre -->
-            <div>
-                <div class="flex items-center space-x-3 mb-6">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                    </svg>
-                    <h2 class="text-2xl font-bold text-gray-800">Équipes dont je suis membre</h2>
-                    <span class="bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full">{{ memberTeams|length }}</span>
+            <section>
+                <div class="flex items-center gap-3 mb-5">
+                    {{ ui.badge(icons.path('players'), 'bg-blue-100 text-blue-600') }}
+                    <h2 class="text-xl font-bold text-slate-800">Équipes dont je suis membre</h2>
+                    <span class="bg-blue-50 text-blue-700 border border-blue-100 text-sm font-semibold px-2.5 py-0.5 rounded-full tabular-nums">{{ memberTeams|length }}</span>
                 </div>
-
                 {% if memberTeams|length > 0 %}
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {% for team in memberTeams %}
-                    <!-- Carte Équipe Membre -->
-                    <a href="{{ path('app_designer_team_details', {id: team.id}) }}" class="group cursor-pointer">
-                        <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transform transition hover:scale-105 p-6 border-2 border-transparent hover:border-blue-500">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl overflow-hidden">
-                                        <img src="{{ path('_api_/teams/{id}/picture_get', {id: team.id}) }}" alt="{{ team.name }}" class="w-full h-full object-cover"/>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition">{{ team.name }}</h3>
-                                        <p class="text-xs text-gray-500">Propriétaire: {{ team.owner.firstName ~ ' ' ~ team.owner.lastName }}</p>
-                                    </div>
-                                </div>
-                                <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-1 rounded-lg">Membre</span>
-                            </div>
-                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ team.description ?: 'Aucune description' }}</p>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                    <div class="flex items-center space-x-1">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                                        </svg>
-                                        <span>{{ team.members|length }} membre{{ team.members|length > 1 ? 's' : '' }}</span>
-                                    </div>
-                                    <div class="flex items-center space-x-1">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path d="M21 12.4984L14 12.4984M3 12.4984L10 12.4984M7 4.5V19.4984M17 4.5V19.4984M6.2 19.5H17.8C18.9201 19.5 19.4802 19.5 19.908 19.282C20.2843 19.0903 20.5903 18.7843 20.782 18.408C21 17.9802 21 17.4201 21 16.3V10.9C21 8.65979 21 7.53968 20.564 6.68404C20.1805 5.93139 19.5686 5.31947 18.816 4.93597C17.9603 4.5 16.8402 4.5 14.6 4.5H9.4C7.15979 4.5 6.03968 4.5 5.18404 4.93597C4.43139 5.31947 3.81947 5.93139 3.43597 6.68404C3 7.53968 3 8.65979 3 10.9V16.3C3 17.4201 3 17.9802 3.21799 18.408C3.40973 18.7843 3.71569 19.0903 4.09202 19.282C4.51984 19.5 5.07989 19.5 6.2 19.5ZM10 10.4984H14V14.4984H10V10.4984Z" stroke-width="2" stroke-linejoin="round"></path>
-                                        </svg>
-                                        <span>{{ team.hunts|filter(h => h.status != 'draft')|length }} chasse{{ team.hunts|filter(h => h.status != 'draft')|length > 1 ? 's' : '' }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                    {% endfor %}
-                </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for team in memberTeams %}
+                            {{ _self.team_card(team, 'member') }}
+                        {% endfor %}
+                    </div>
                 {% else %}
-                <div class="text-center py-12 bg-white rounded-2xl shadow-lg">
-                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                    </svg>
-                    <p class="text-gray-500">Vous n'êtes membre d'aucune équipe pour le moment</p>
-                </div>
+                    <div class="text-center py-12 px-6 bg-white rounded-2xl border-2 border-dashed border-slate-200">
+                        <div class="mx-auto mb-4 w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">{{ ui.icon(icons.path('players'), 'w-6 h-6') }}</div>
+                        <p class="text-slate-500">Vous n'êtes membre d'aucune équipe pour le moment.</p>
+                    </div>
                 {% endif %}
-            </div>
+            </section>
         </div>
     </div>
 {% endblock %}

@@ -1,307 +1,169 @@
 {% extends 'base.html.twig' %}
+{% import 'designer/_partials/macros.html.twig' as ui %}
+{% import 'designer/_partials/icons.html.twig' as icons %}
 
-{% block title %}Treasurely - Détails de l'équipe{% endblock %}
+{% block title %}{{ designerTeam.name }} - Treasurely{% endblock %}
 
 {% block body %}
     <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
         {% set titleHtml %}
-            <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center overflow-hidden">
-                    <img src="{{ path('_api_/teams/{id}/picture_get', {id: designerTeam.id}) }}" alt="{{ designerTeam.name }}" class="w-full h-full object-cover"/>
-                </div>
+            <div class="flex items-center gap-3">
+                <img src="{{ path('_api_/teams/{id}/picture_get', {id: designerTeam.id}) }}" alt="" class="w-12 h-12 rounded-xl object-cover bg-slate-100" />
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-800">{{ designerTeam.name }}</h1>
-                    <p class="text-sm text-gray-500">Créée le {{ designerTeam.createdAt|date('d/m/Y') }}</p>
+                    <h1 class="text-2xl font-bold text-slate-800">{{ designerTeam.name }}</h1>
+                    <p class="text-sm text-slate-500">Créée le {{ designerTeam.createdAt|date('d/m/Y') }}</p>
                 </div>
             </div>
         {% endset %}
-
-        {% if canEdit %}
-            {% set actionsHtml %}
-                <div class="flex items-center space-x-3">
-                    <a href="{{ path('app_designer_team_edit', {id: designerTeam.id}) }}" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transform transition hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 flex items-center space-x-2 cursor-pointer">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                        </svg>
-                        <span>Modifier</span>
-                    </a>
-                </div>
-            {% endset %}
-        {% endif %}
+        {% set actionsHtml %}
+            {% if canEdit %}
+                <a href="{{ path('app_designer_team_edit', {id: designerTeam.id}) }}" class="{{ ui.btn('blue') }}">
+                    {{ ui.icon(icons.path('edit')) }}
+                    <span>Modifier</span>
+                </a>
+            {% endif %}
+        {% endset %}
 
         {{ include('designer/_partials/header.html.twig', {
             type: 'simple',
             title: titleHtml,
             backUrl: path('app_designer_team'),
             backTitle: 'Retour aux équipes',
-            actions: actionsHtml|default(''),
+            actions: actionsHtml,
         }) }}
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <!-- Statistiques rapides -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <!-- Concepteurs -->
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-500 text-sm font-semibold uppercase">Concepteurs</p>
-                            <p class="text-3xl font-bold text-gray-800 mt-1">{{ designerTeam.members.count }}</p>
-                        </div>
-                        <div class="p-3 bg-blue-100 rounded-lg">
-                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
+        {% set hunts = treasureHunts|filter(h => h.status != 'draft') %}
+        {% set statusBadges = {
+            opened: {label: 'Ouverte', class: 'bg-green-600'},
+            closed: {label: 'Fermée', class: 'bg-slate-600'},
+        } %}
 
-                <!-- Chasses créées -->
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-500 text-sm font-semibold uppercase">Chasses créées</p>
-                            <p class="text-3xl font-bold text-gray-800 mt-1">{{ treasureHunts|length }}</p>
-                        </div>
-                        <div class="p-3 bg-green-100 rounded-lg">
-                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path d="M21 12.4984L14 12.4984M3 12.4984L10 12.4984M7 4.5V19.4984M17 4.5V19.4984M6.2 19.5H17.8C18.9201 19.5 19.4802 19.5 19.908 19.282C20.2843 19.0903 20.5903 18.7843 20.782 18.408C21 17.9802 21 17.4201 21 16.3V10.9C21 8.65979 21 7.53968 20.564 6.68404C20.1805 5.93139 19.5686 5.31947 18.816 4.93597C17.9603 4.5 16.8402 4.5 14.6 4.5H9.4C7.15979 4.5 6.03968 4.5 5.18404 4.93597C4.43139 5.31947 3.81947 5.93139 3.43597 6.68404C3 7.53968 3 8.65979 3 10.9V16.3C3 17.4201 3 17.9802 3.21799 18.408C3.40973 18.7843 3.71569 19.0903 4.09202 19.282C4.51984 19.5 5.07989 19.5 6.2 19.5ZM10 10.4984H14V14.4984H10V10.4984Z" stroke-width="2" stroke-linejoin="round"></path>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                {{ ui.stat('Concepteurs', designerTeam.members.count, 'dans l\'équipe', icons.path('team'), 'bg-blue-100 text-blue-600') }}
+                {{ ui.stat('Chasses publiées', hunts|length, (treasureHunts|length - hunts|length) ~ ' en brouillon', icons.path('chest'), 'bg-green-100 text-green-600') }}
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Colonne principale (2/3) -->
                 <div class="lg:col-span-2 space-y-8">
-                    <!-- Description -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
-                            <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span>Description</span>
-                        </h2>
-                        {% if designerTeam.description is null %}
-                        <div class="p-6 text-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                            <svg class="w-12 h-12 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                            <p class="text-gray-500 text-sm">Aucune description</p>
-                        </div>
+                    <div class="{{ ui.card('p-6') }}">
+                        <div class="mb-4">{{ ui.card_title('Description', icons.path('text'), 'bg-green-100 text-green-600') }}</div>
+                        {% if designerTeam.description is empty %}
+                            <p class="text-slate-500 text-sm bg-slate-50 border border-dashed border-slate-200 rounded-xl p-6 text-center">Aucune description.</p>
                         {% else %}
-                        <p class="text-gray-600 leading-relaxed">
-                            {{ designerTeam.description }}
-                        </p>
+                            <p class="text-slate-600 leading-relaxed whitespace-pre-line">{{ designerTeam.description }}</p>
                         {% endif %}
                     </div>
 
-                    <!-- Concepteurs de l'équipe -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <div class="flex items-center justify-between mb-6">
-                            <h2 class="text-xl font-bold text-gray-800 flex items-center space-x-2">
-                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                                </svg>
-                                <span>Concepteurs ({{ designerTeam.members.count }})</span>
-                            </h2>
+                    <div class="{{ ui.card('p-6') }}">
+                        <div class="flex items-center justify-between gap-4 mb-5">
+                            {{ ui.card_title('Concepteurs (' ~ designerTeam.members.count ~ ')', icons.path('team'), 'bg-blue-100 text-blue-600') }}
                             {% if canEdit %}
-                            <!-- Bouton ajouter concepteur visible uniquement pour le propriétaire -->
-                            <button data-team-id="{{ designerTeam.id }}" id="addMemberBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow transform transition hover:scale-105 flex items-center space-x-2 cursor-pointer">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                </svg>
-                                <span>Ajouter un concepteur</span>
-                            </button>
-                            {% endif %}
-                        </div>
-
-                        <div class="space-y-3">
-                            <!-- Concepteur (Propriétaire) -->
-                            <div class="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200">
-                                <div class="flex items-center space-x-4">
-                                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center overflow-hidden">
-                                        <img src="{{ path('_api_/users/{id}/picture_get', {id: designerTeam.owner.id}) }}" alt="{{ designerTeam.owner.nickname }}" class="w-full h-full object-cover"/>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-gray-800">{{ designerTeam.owner.firstname }} {{ designerTeam.owner.lastname }}</p>
-                                        <p class="text-sm text-gray-500">@{{ designerTeam.owner.nickname }}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <span class="bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">Propriétaire</span>
-                                </div>
-                            </div>
-
-                            <!-- Concepteurs -->
-                            {% for member in designerTeam.members %}
-                            {% if member.id != designerTeam.owner.id %}
-                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
-                                <div class="flex items-center space-x-4">
-                                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center overflow-hidden">
-                                        <img src="{{ path('_api_/users/{id}/picture_get', {id: member.id}) }}" alt="{{ member.nickname }}" class="w-full h-full object-cover"/>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-gray-800">{{ member.firstname }} {{ member.lastname }}</p>
-                                        <p class="text-sm text-gray-500">@{{ member.nickname }}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-gray-500 text-sm">Compte créé le {{ member.creationDate|date('d/m/Y') }}</span>
-                                    {% if canDelete %}
-                                        <!-- Bouton supprimer visible uniquement pour le propriétaire -->
-                                        <button data-nickname="{{ member.nickname }}" data-user-id="{{ member.id }}" data-team-id="{{ designerTeam.id }}"
-                                                class="removeMemberBtn text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition cursor-pointer"
-                                                title="Retirer de l'équipe"
-                                        >
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                            </svg>
-                                        </button>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% endif %}
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Chasses au trésor créées -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
-                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path d="M21 12.4984L14 12.4984M3 12.4984L10 12.4984M7 4.5V19.4984M17 4.5V19.4984M6.2 19.5H17.8C18.9201 19.5 19.4802 19.5 19.908 19.282C20.2843 19.0903 20.5903 18.7843 20.782 18.408C21 17.9802 21 17.4201 21 16.3V10.9C21 8.65979 21 7.53968 20.564 6.68404C20.1805 5.93139 19.5686 5.31947 18.816 4.93597C17.9603 4.5 16.8402 4.5 14.6 4.5H9.4C7.15979 4.5 6.03968 4.5 5.18404 4.93597C4.43139 5.31947 3.81947 5.93139 3.43597 6.68404C3 7.53968 3 8.65979 3 10.9V16.3C3 17.4201 3 17.9802 3.21799 18.408C3.40973 18.7843 3.71569 19.0903 4.09202 19.282C4.51984 19.5 5.07989 19.5 6.2 19.5ZM10 10.4984H14V14.4984H10V10.4984Z" stroke-width="2" stroke-linejoin="round"></path>
-                            </svg>
-                            <span>Chasses créées par l'équipe ({{ treasureHunts|length }})</span>
-                        </h2>
-
-                        <div class="space-y-3">
-                            {% for hunt in treasureHunts %}
-                                {% if hunt.status != 'draft' %}
-                                    <a class="block" href="{{ path('app_designer_hunt_details', {id: hunt.id}) }}">
-                                        <div class="p-4 bg-gradient-to-r
-                                    {{ hunt.status == 'closed' ? 'from-gray-50 to-slate-50 border-gray-200' : 'from-emerald-50 to-emerald-100 border-emerald-200' }}
-                                    rounded-xl border-2 hover:shadow-md transition cursor-pointer"
-                                        >
-                                            <div class="flex items-center justify-between mb-2">
-                                                <h3 class="font-bold text-gray-800">{{ hunt.title }}</h3>
-                                                {% if hunt.status == 'closed' %}
-                                                    <span class="bg-gray-600 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center space-x-1">
-                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
-                                                    </svg>
-                                                    <span>Fermée</span>
-                                                </span>
-                                                {% elseif hunt.status == 'opened' %}
-                                                    <span class="bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center space-x-1">
-                                                    <svg class="w-3 h-3 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
-                                                    </svg>
-                                                    <span>Ouverte</span>
-                                                </span>
-                                                {% endif %}
-                                            </div>
-                                            <div class="flex items-center justify-between text-sm text-gray-600">
-                                                <div class="flex items-center space-x-2">
-                                                    <div class="w-6 h-6 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center overflow-hidden">
-                                                        <img src="{{ path('_api_/users/{id}/picture_get', {id: hunt.owner.id}) }}" alt="{{ hunt.owner.nickname }}" class="w-full h-full object-cover"/>
-                                                    </div>
-                                                    <span>{{ hunt.owner.firstname }} {{ hunt.owner.lastname }}</span>
-                                                </div>
-                                                <span>Créée le {{ hunt.createdAt|date('d/m/Y') }}</span>
-                                            </div>
-                                        </div>
-                                    </a>
-                                {% endif %}
-                            {% else %}
-                                <div class="p-6 text-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                                    <svg class="w-12 h-12 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path d="M21 12.4984L14 12.4984M3 12.4984L10 12.4984M7 4.5V19.4984M17 4.5V19.4984M6.2 19.5H17.8C18.9201 19.5 19.4802 19.5 19.908 19.282C20.2843 19.0903 20.5903 18.7843 20.782 18.408C21 17.9802 21 17.4201 21 16.3V10.9C21 8.65979 21 7.53968 20.564 6.68404C20.1805 5.93139 19.5686 5.31947 18.816 4.93597C17.9603 4.5 16.8402 4.5 14.6 4.5H9.4C7.15979 4.5 6.03968 4.5 5.18404 4.93597C4.43139 5.31947 3.81947 5.93139 3.43597 6.68404C3 7.53968 3 8.65979 3 10.9V16.3C3 17.4201 3 17.9802 3.21799 18.408C3.40973 18.7843 3.71569 19.0903 4.09202 19.282C4.51984 19.5 5.07989 19.5 6.2 19.5ZM10 10.4984H14V14.4984H10V10.4984Z" stroke-width="2" stroke-linejoin="round"></path>
-                                    </svg>
-                                    <p class="text-gray-500 text-sm">Aucune chasse</p>
-                                </div>
-                            {% endfor %}
-
-                            {% if treasureHunts|length != 0 %}
-                                <!-- TODO : Lien vers la liste complète des chasses de l'équipe -->
-                                <!-- Voir plus -->
-                                <button class="w-full py-3 text-center text-blue-600 hover:text-blue-800 font-semibold hover:bg-blue-50 rounded-xl transition cursor-pointer">
-                                    Voir toutes les chasses →
+                                <button type="button" id="addMemberBtn" data-team-id="{{ designerTeam.id }}" class="{{ ui.btn('blue', 'sm') }} shrink-0">
+                                    {{ ui.icon(icons.path('plus'), 'w-4 h-4') }}
+                                    <span>Ajouter</span>
                                 </button>
                             {% endif %}
                         </div>
+                        <ul class="space-y-2">
+                            <li class="flex items-center justify-between gap-4 p-3 rounded-xl border border-blue-100 bg-blue-50/60">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <img src="{{ path('_api_/users/{id}/picture_get', {id: designerTeam.owner.id}) }}" alt="" class="w-11 h-11 rounded-xl object-cover bg-slate-100 shrink-0" />
+                                    <div class="min-w-0">
+                                        <p class="font-semibold text-slate-800 truncate">{{ designerTeam.owner.firstname }} {{ designerTeam.owner.lastname }}</p>
+                                        <p class="text-sm text-slate-500 truncate">@{{ designerTeam.owner.nickname }}</p>
+                                    </div>
+                                </div>
+                                <span class="shrink-0 bg-blue-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full">Propriétaire</span>
+                            </li>
+                            {% for member in designerTeam.members|filter(m => m.id != designerTeam.owner.id) %}
+                                <li class="flex items-center justify-between gap-4 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <img src="{{ path('_api_/users/{id}/picture_get', {id: member.id}) }}" alt="" loading="lazy" class="w-11 h-11 rounded-xl object-cover bg-slate-100 shrink-0" />
+                                        <div class="min-w-0">
+                                            <p class="font-semibold text-slate-800 truncate">{{ member.firstname }} {{ member.lastname }}</p>
+                                            <p class="text-sm text-slate-500 truncate">@{{ member.nickname }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3 shrink-0">
+                                        <span class="hidden sm:inline text-sm text-slate-500">Inscrit le {{ member.creationDate|date('d/m/Y') }}</span>
+                                        {% if canDelete %}
+                                            <button type="button" data-nickname="{{ member.nickname }}" data-user-id="{{ member.id }}" data-team-id="{{ designerTeam.id }}"
+                                                    class="removeMemberBtn w-10 h-10 rounded-xl flex items-center justify-center text-red-600 hover:bg-red-50 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                                                    title="Retirer de l'équipe" aria-label="Retirer {{ member.nickname }} de l'équipe">
+                                                {{ ui.icon(icons.path('close')) }}
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="{{ ui.card('p-6') }}">
+                        <div class="mb-5">{{ ui.card_title('Chasses de l\'équipe (' ~ hunts|length ~ ')', icons.path('chest'), 'bg-green-100 text-green-600') }}</div>
+                        {% if hunts is empty %}
+                            <p class="text-slate-500 text-sm bg-slate-50 border border-dashed border-slate-200 rounded-xl p-6 text-center">Aucune chasse publiée.</p>
+                        {% else %}
+                            <ul class="space-y-2">
+                                {% for hunt in hunts %}
+                                    {% set badge = statusBadges[hunt.status]|default({label: hunt.status, class: 'bg-slate-600'}) %}
+                                    <li>
+                                        <a href="{{ path('app_designer_hunt_details', {id: hunt.id}) }}" class="flex items-center justify-between gap-4 p-3 rounded-xl border border-slate-200 hover:border-green-300 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
+                                            <div class="flex items-center gap-3 min-w-0">
+                                                <img src="{{ path('_api_/treasure_hunts/{id}/picture_get', {id: hunt.id}) }}" alt="" loading="lazy" class="w-14 h-10 rounded-lg object-cover bg-slate-100 shrink-0" />
+                                                <div class="min-w-0">
+                                                    <p class="font-semibold text-slate-800 truncate">{{ hunt.title }}</p>
+                                                    <p class="text-sm text-slate-500 truncate">{{ hunt.owner.firstname }} {{ hunt.owner.lastname }} · créée le {{ hunt.createdAt|date('d/m/Y') }}</p>
+                                                </div>
+                                            </div>
+                                            <span class="shrink-0 {{ badge.class }} text-white text-xs font-semibold px-2.5 py-1 rounded-full">{{ badge.label }}</span>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
                     </div>
                 </div>
 
-                <!-- Colonne secondaire (1/3) -->
                 <div class="space-y-6">
-                    <!-- Informations de l'équipe -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
-                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span>Informations</span>
-                        </h2>
-                        <div class="space-y-3">
-                            <div class="flex items-center space-x-3 text-sm">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                                <div>
-                                    <p class="text-gray-500">Créée le</p>
-                                    <p class="font-semibold text-gray-800">
-                                        {{ designerTeam.createdAt|format_datetime(pattern: 'd MMMM yyyy', locale: 'fr') }}
-                                    </p>
-                                </div>
+                    <div class="{{ ui.card('p-6') }}">
+                        <div class="mb-3">{{ ui.card_title('Informations', icons.path('info'), 'bg-slate-100 text-slate-600') }}</div>
+                        <dl class="divide-y divide-slate-100 text-sm">
+                            <div class="flex items-start justify-between gap-4 py-3">
+                                <dt class="text-slate-500">Créée le</dt>
+                                <dd class="font-semibold text-slate-800 text-right">{{ designerTeam.createdAt|format_datetime(pattern: 'd MMMM yyyy', locale: 'fr') }}</dd>
                             </div>
-                            <div class="flex items-center space-x-3 text-sm">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                </svg>
-                                <div>
-                                    <p class="text-gray-500">Propriétaire</p>
-                                    <p class="font-semibold text-gray-800">{{ designerTeam.owner.firstname }} {{ designerTeam.owner.lastname }}</p>
-                                </div>
+                            <div class="flex items-start justify-between gap-4 py-3">
+                                <dt class="text-slate-500">Propriétaire</dt>
+                                <dd class="font-semibold text-slate-800 text-right">{{ designerTeam.owner.firstname }} {{ designerTeam.owner.lastname }}</dd>
                             </div>
-                        </div>
+                        </dl>
                     </div>
 
-                    <!-- Actions rapides -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
-                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                            <span>Actions</span>
-                        </h2>
+                    <div class="{{ ui.card('p-6') }}">
+                        <div class="mb-3">{{ ui.card_title('Actions', icons.path('bolt'), 'bg-orange-100 text-orange-600') }}</div>
+                        {% set action = 'w-full text-left px-4 py-3 font-semibold rounded-xl transition-colors cursor-pointer flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2' %}
                         <div class="space-y-2">
-                            <a href="{{ path('app_designer_hunt_create', {designerTeamId: designerTeam.id}) }}" class="w-full text-left px-4 py-3 bg-green-50 hover:bg-green-100 text-green-700 font-semibold rounded-xl transition flex items-center space-x-3 cursor-pointer">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                </svg>
+                            <a href="{{ path('app_designer_hunt_create', {designerTeamId: designerTeam.id}) }}" class="{{ action }} bg-green-50 hover:bg-green-100 text-green-700 focus-visible:ring-green-500">
+                                {{ ui.icon(icons.path('plus')) }}
                                 <span>Créer une nouvelle chasse</span>
                             </a>
                             {% if isOwner or is_granted('ROLE_ADMIN') %}
-                                <button id="transferOwnershipBtn" data-team-name="{{ designerTeam.name }}" data-team-id="{{ designerTeam.id }}" class="w-full text-left px-4 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-xl transition flex items-center space-x-3 cursor-pointer">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>                                    </svg>
-                                    <span>Transférer la propriété de l'équipe</span>
+                                <button type="button" id="transferOwnershipBtn" data-team-name="{{ designerTeam.name }}" data-team-id="{{ designerTeam.id }}" class="{{ action }} bg-blue-50 hover:bg-blue-100 text-blue-700 focus-visible:ring-blue-500">
+                                    {{ ui.icon(icons.path('key')) }}
+                                    <span>Transférer la propriété</span>
                                 </button>
                             {% endif %}
                             {% if not isOwner and isMember %}
-                                <button id="leaveTeamBtn" data-team-name="{{ designerTeam.name }}" data-team-id="{{ designerTeam.id }}" class="w-full text-left px-4 py-3 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 font-semibold rounded-xl transition flex items-center space-x-3 cursor-pointer">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                                    </svg>
+                                <button type="button" id="leaveTeamBtn" data-team-name="{{ designerTeam.name }}" data-team-id="{{ designerTeam.id }}" class="{{ action }} bg-amber-50 hover:bg-amber-100 text-amber-700 focus-visible:ring-amber-500">
+                                    {{ ui.icon(icons.path('logout')) }}
                                     <span>Quitter l'équipe</span>
                                 </button>
                             {% endif %}
                             {% if canDelete %}
-                                <button id="deleteTeamBtn" data-team-name="{{ designerTeam.name }}" data-team-id="{{ designerTeam.id }}" class="w-full text-left px-4 py-3 bg-red-50 hover:bg-red-100 text-red-700 font-semibold rounded-xl transition flex items-center space-x-3 cursor-pointer">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                    </svg>
+                                <button type="button" id="deleteTeamBtn" data-team-name="{{ designerTeam.name }}" data-team-id="{{ designerTeam.id }}" class="{{ action }} bg-red-50 hover:bg-red-100 text-red-700 focus-visible:ring-red-500">
+                                    {{ ui.icon(icons.path('trash')) }}
                                     <span>Supprimer l'équipe</span>
                                 </button>
                             {% endif %}
@@ -312,10 +174,7 @@
         </div>
     </div>
 
-    <!-- Modals et Toast globaux réutilisables -->
     {{ include('_partials/modal.html.twig', {id: 'globalModal'}) }}
     {{ include('_partials/toast.html.twig', {id: 'globalToast'}) }}
-
-    <!-- Charger le module JavaScript via AssetMapper -->
     {{ importmap('team-details') }}
 {% endblock %}
