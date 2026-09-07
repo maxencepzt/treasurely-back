@@ -120,7 +120,7 @@ class HuntFormManager {
         }
 
         try {
-            const response = await fetch(this.form.action, {
+            const response = await fetch(this.form.getAttribute('action'), {
                 method: 'POST',
                 body: this.buildFormData(action),
                 headers: { Accept: 'application/json' },
