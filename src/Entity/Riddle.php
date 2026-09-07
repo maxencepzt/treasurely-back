@@ -72,10 +72,14 @@ abstract class Riddle
     #[Groups(['treasureHunt:riddles', 'riddle:read'])]
     private string $title;
 
+    /**
+     * Absent de la liste des énigmes d'une chasse : l'énoncé ne se lit que sur l'énigme
+     * elle-même, dont la lecture démarre le chronomètre.
+     */
     #[ORM\Column(length: 1000)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 1000)]
-    #[Groups(['treasureHunt:riddles', 'riddle:read'])]
+    #[Groups(['riddle:read'])]
     private string $description;
 
     #[ORM\Column]
@@ -288,7 +292,12 @@ abstract class Riddle
         return null;
     }
 
-    #[Groups(['riddle:read'])]
+    /*
+     * Les accesseurs suivants portent les solutions. Le groupe `riddle:solution` n'est monté
+     * sur aucune opération : rien ne les publie, le serveur seul les compare.
+     */
+
+    #[Groups(['riddle:solution'])]
     public function getCode(): ?string
     {
         return null;
@@ -306,25 +315,25 @@ abstract class Riddle
     /**
      * @return string[]|null
      */
-    #[Groups(['riddle:read'])]
+    #[Groups(['riddle:solution'])]
     public function getAnswers(): ?array
     {
         return null;
     }
 
-    #[Groups(['riddle:read'])]
+    #[Groups(['riddle:solution'])]
     public function getAnswer(): ?string
     {
         return null;
     }
 
-    #[Groups(['riddle:read'])]
+    #[Groups(['riddle:solution'])]
     public function getLatitude(): ?float
     {
         return null;
     }
 
-    #[Groups(['riddle:read'])]
+    #[Groups(['riddle:solution'])]
     public function getLongitude(): ?float
     {
         return null;
