@@ -56,4 +56,9 @@ class DesignerTeam extends Team
     {
         return null;
     }
+
+    public function getType(): string
+    {
+        return 'designer';
+    }
 }

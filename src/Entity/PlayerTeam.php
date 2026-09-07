@@ -32,6 +32,11 @@ class PlayerTeam extends Team
         return $this->code;
     }
 
+    public function getType(): string
+    {
+        return 'player';
+    }
+
     public function setCode(string $code): static
     {
         $this->code = $code;

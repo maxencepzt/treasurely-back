@@ -119,7 +119,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     'playerTeam' => PlayerTeam::class,
     'designerTeam' => DesignerTeam::class,
 ])]
-class Team
+abstract class Team
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -128,7 +128,7 @@ class Team
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups(['team:read', 'team:write'])]
+    #[Groups(['team:read', 'team:write', 'user:teams'])]
     private string $name;
 
     #[ORM\Column(length: 500, nullable: true)]
@@ -271,6 +271,13 @@ class Team
     {
         return null;
     }
+
+    /**
+     * Discriminant explicite du sous-type, `@var` valant "Team" pour les deux : une équipe
+     * de joueurs rejoint des chasses, une équipe de concepteurs en écrit.
+     */
+    #[Groups(['team:read', 'user:teams'])]
+    abstract public function getType(): string;
 
     public function __toString(): string
     {
