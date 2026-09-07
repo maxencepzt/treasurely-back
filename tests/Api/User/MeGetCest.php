@@ -33,6 +33,7 @@ final class MeGetCest
             'totalScore' => 'integer',
             'totalRiddles' => 'integer',
             'description' => 'string',
+            'roles' => 'array',
         ];
     }
 
@@ -83,9 +84,24 @@ final class MeGetCest
             'gender' => Gender::MAN->value,
             'totalTime' => 3600,
             'totalHunt' => 15,
+            'roles' => ['ROLE_USER'],
         ];
 
         $I->seeResponseIsAnItem(self::expectedProperties(), $expectedData);
+    }
+
+    public function meRouteExposesTheRolesOfAnAdmin(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $admin = UserFactory::createOne(['roles' => ['ROLE_ADMIN']])->_real();
+
+        // 2. 'Act'
+        $I->amLoggedInAs($admin);
+        $I->sendGet('/api/me');
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeResponseContainsJson(['roles' => ['ROLE_ADMIN', 'ROLE_USER']]);
     }
 
     public function cannotAccessMeRouteAsGuest(ApiTester $I): void
