@@ -4,8 +4,6 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Repository\ParticipateRiddleRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -14,18 +12,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ParticipateRiddleRepository::class)]
+/**
+ * Progression d'un joueur sur une énigme. Créée à la lecture de l'énigme, écrite par le seul
+ * serveur au fil des soumissions à POST /riddles/{id}/attempt : le client la lit, jamais ne l'écrit.
+ */
 #[ApiResource(
     operations: [
-        new Post(
-            uriTemplate: 'participate_riddles/new',
-            openapi: new Operation(
-                summary: 'Riddle participation creation',
-                description: 'Create a new participation record for a treasure riddle.'
-            ),
-            normalizationContext: ['groups' => ['participateRiddle:read', 'participateRiddle:id']],
-            denormalizationContext: ['groups' => ['participateRiddle:create']],
-            security: 'is_granted("ROLE_USER")',
-        ),
         new Get(
             openapi: new Operation(
                 summary: 'Riddle participation details',
@@ -33,15 +25,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             normalizationContext: ['groups' => ['participateRiddle:read']],
             security: "(is_granted('ROLE_USER') and object.getHunter() == user) or is_granted('ROLE_ADMIN')",
-        ),
-        new Patch(
-            openapi: new Operation(
-                summary: 'Update riddle participation',
-                description: 'Update a specific riddle participation by their ID.'
-            ),
-            normalizationContext: ['groups' => ['participateRiddle:read', 'participateRiddle:id']],
-            denormalizationContext: ['groups' => ['participateRiddle:patch']],
-            security: "(is_granted('ROLE_USER') and object.getHunter() == user) or is_granted('ROLE_ADMIN')"
         ),
     ]
 )]
@@ -54,24 +37,21 @@ class ParticipateRiddle
     private ?int $id = null;
 
     #[ORM\Column]
-    #[Assert\GreaterThanOrEqual('today')]
     #[Gedmo\Timestampable(on: 'create')]
     #[Groups(['participateRiddle:read'])]
     private \DateTimeImmutable $startTime;
 
     #[ORM\Column(nullable: true)]
-    #[Assert\GreaterThanOrEqual('today')]
-    #[Groups(['participateRiddle:read', 'participateRiddle:patch'])]
+    #[Groups(['participateRiddle:read'])]
     private ?\DateTimeImmutable $finishTime = null;
 
     #[ORM\Column]
     #[Assert\PositiveOrZero]
-    #[Groups(['participateRiddle:read', 'participateRiddle:create', 'participateRiddle:patch'])]
+    #[Groups(['participateRiddle:read'])]
     private int $score = 0;
 
     #[ORM\Column]
-    #[Assert\GreaterThanOrEqual('today')]
-    #[Groups(['participateRiddle:read', 'participateRiddle:create', 'participateRiddle:patch'])]
+    #[Groups(['participateRiddle:read'])]
     private \DateTime $lastParticipate;
 
     /**
@@ -85,12 +65,12 @@ class ParticipateRiddle
 
     #[ORM\ManyToOne(inversedBy: 'participateRiddles')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
-    #[Groups(['participateRiddle:read', 'participateRiddle:create'])]
+    #[Groups(['participateRiddle:read'])]
     private ?User $hunter = null;
 
     #[ORM\ManyToOne(inversedBy: 'participateRiddles')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
-    #[Groups(['participateRiddle:read', 'participateRiddle:create'])]
+    #[Groups(['participateRiddle:read'])]
     private ?Riddle $riddle = null;
 
     public function getId(): int
