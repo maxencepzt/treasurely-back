@@ -9,15 +9,21 @@ use ApiPlatform\State\ProviderInterface;
 use App\Entity\ParticipateRiddle;
 use App\Entity\Riddle;
 use App\Entity\User;
+use App\Repository\ParticipateHuntRepository;
 use App\Repository\ParticipateRiddleRepository;
 use App\Service\ScoreCalculator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
- * Lire une énigme démarre son chronomètre. Le départ est daté par le serveur, à l'instant
- * où l'énoncé est remis au joueur : le client ne peut ni l'avancer ni le retarder.
+ * Un joueur ne lit une énigme qu'après avoir rejoint la chasse, et jamais au-delà de celle
+ * en cours : une chasse est une séquence dont la résolution conditionne la progression.
+ * Lire l'énigme en cours démarre son chronomètre, daté par le serveur à l'instant où
+ * l'énoncé est remis : le client ne peut ni l'avancer ni le retarder.
+ *
+ * Ceux qui ont conçu la chasse, et les administrateurs, lisent tout sans chronomètre.
  *
  * @implements ProviderInterface<Riddle>
  */
@@ -31,7 +37,8 @@ final class RiddleProvider implements ProviderInterface
         private readonly ProviderInterface $itemProvider,
         private readonly Security $security,
         private readonly ScoreCalculator $scoreCalculator,
-        private readonly ParticipateRiddleRepository $participations,
+        private readonly ParticipateHuntRepository $huntParticipations,
+        private readonly ParticipateRiddleRepository $riddleParticipations,
         private readonly EntityManagerInterface $entityManager,
     ) {
     }
@@ -40,12 +47,23 @@ final class RiddleProvider implements ProviderInterface
     {
         $riddle = $this->itemProvider->provide($operation, $uriVariables, $context);
         $user = $this->security->getUser();
+        $hunt = $riddle instanceof Riddle ? $riddle->getHunt() : null;
 
-        if ($riddle instanceof Riddle
-            && $user instanceof User
-            && $riddle->getHunt()?->isOpened()
-            && $this->scoreCalculator->canUserParticipate($user, $riddle)
-            && null === $this->participations->findOneBy(['hunter' => $user, 'riddle' => $riddle])
+        if (null === $hunt || !$user instanceof User || $this->security->isGranted('ROLE_ADMIN') || !$this->scoreCalculator->canUserPlay($user, $hunt)) {
+            return $riddle;
+        }
+
+        $progress = $this->huntParticipations->findOneBy(['hunter' => $user, 'hunt' => $hunt])
+            ?? throw new AccessDeniedHttpException('Rejoignez la chasse pour lire ses énigmes.');
+        $current = $progress->getCurrentRiddle();
+        if ($riddle->getOrderNumber() > $current->getOrderNumber()) {
+            throw new AccessDeniedHttpException("Cette énigme n'est pas encore accessible.");
+        }
+
+        if ($current === $riddle
+            && !$progress->isFinished()
+            && $hunt->isOpened()
+            && null === $this->riddleParticipations->findOneBy(['hunter' => $user, 'riddle' => $riddle])
         ) {
             $participation = (new ParticipateRiddle())
                 ->setHunter($user)

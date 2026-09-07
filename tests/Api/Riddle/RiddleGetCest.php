@@ -43,6 +43,7 @@ final class RiddleGetCest
             'maxScoringAttempts' => Riddle::DEFAULT_MAX_SCORING_ATTEMPTS,
             'choices' => ['Paris', 'Lyon', 'Reims', 'Nantes'],
         ]);
+        $I->dontSeeResponseJsonMatchesJsonPath('$.answers');
     }
 
     public function expectedAnswerCountIsWithheldWhenTheDesignerSaysSo(ApiTester $I): void
@@ -94,6 +95,10 @@ final class RiddleGetCest
             'maxScoringAttempts' => Riddle::DEFAULT_MAX_SCORING_ATTEMPTS,
         ]);
         $I->dontSeeResponseJsonMatchesJsonPath('$.expectedAnswerCount');
+        // Les solutions ne sont jamais publiées, quel que soit le type.
+        foreach (['answer', 'code', 'latitude', 'longitude'] as $solution) {
+            $I->dontSeeResponseJsonMatchesJsonPath('$.'.$solution);
+        }
     }
 
     public function cannotReadRiddleAsGuest(ApiTester $I): void

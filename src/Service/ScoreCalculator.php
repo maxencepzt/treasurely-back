@@ -28,10 +28,14 @@ class ScoreCalculator
     {
         $hunt = $riddle->getHunt();
 
-        if (!$hunt) {
-            return false;
-        }
+        return null !== $hunt && $this->canUserPlay($user, $hunt);
+    }
 
+    /**
+     * Ceux qui ont conçu la chasse ne peuvent pas la jouer.
+     */
+    public function canUserPlay(User $user, TreasureHunt $hunt): bool
+    {
         $owner = $hunt->getOwner();
 
         // Le propriétaire de la chasse ne peut pas participer
