@@ -20,11 +20,9 @@
 } %}
 
 <!-- Toast Container -->
-<div id="{{ toastId }}" class="toast-container hidden fixed {{ positionClasses[position] }} z-50 transform transition-all duration-300" data-toast="{{ toastId }}">
-    <div class="bg-white rounded-xl shadow-2xl p-4 flex items-center space-x-3 min-w-[300px]">
-        <div class="toast-icon flex-shrink-0"></div>
-        <div class="flex-1">
-            <p class="toast-message font-semibold text-gray-900"></p>
-        </div>
+<div id="{{ toastId }}" class="toast-container hidden fixed {{ positionClasses[position] }} z-50 transform transition-all duration-300" data-toast="{{ toastId }}" role="status" aria-live="polite">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-lg p-4 flex items-center gap-3 min-w-[300px] max-w-sm">
+        <div class="toast-icon shrink-0"></div>
+        <p class="toast-message flex-1 font-semibold text-slate-800"></p>
     </div>
 </div>
