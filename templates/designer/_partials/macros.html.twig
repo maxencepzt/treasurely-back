@@ -1,10 +1,78 @@
-{# Macros de la façade de conception. #}
+{# Macros de la façade de conception : une seule recette visuelle pour toutes les pages.
+   Cartes à bord fin et ombre discrète, badges d'icône, tuiles de statistiques, boutons. #}
+
+{# Icône Heroicons (contour, 24×24) à partir de son tracé. Décorative par défaut. #}
+{% macro icon(path, class = 'w-5 h-5') %}
+    <svg class="{{ class }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ path }}"></path></svg>
+{% endmacro %}
+
+{# Classes d'une carte ; le rembourrage reste au choix de l'appelant. #}
+{% macro card(extra = '') -%}
+    bg-white rounded-2xl border border-slate-200 shadow-sm {{ extra }}
+{%- endmacro %}
+
+{# Badge carré teinté qui ouvre une carte ou une tuile. tint : 'bg-green-100 text-green-600'. #}
+{% macro badge(path, tint, size = 'w-9 h-9', iconClass = 'w-5 h-5') %}
+    <div class="{{ size }} rounded-xl flex items-center justify-center shrink-0 {{ tint }}">
+        {{ _self.icon(path, iconClass) }}
+    </div>
+{% endmacro %}
+
+{# En-tête de carte : badge d'icône et titre. #}
+{% macro card_title(title, path, tint, tag = 'h2') %}
+    <div class="flex items-center gap-3">
+        {{ _self.badge(path, tint) }}
+        <{{ tag }} class="text-lg font-bold text-slate-800">{{ title }}</{{ tag }}>
+    </div>
+{% endmacro %}
+
+{# Tuile de statistique : libellé en capitales, chiffre tabulaire, précision. #}
+{% macro stat(label, value, hint, path, tint, attr = null) %}
+    <div class="{{ _self.card('p-5') }} flex items-start gap-4">
+        {{ _self.badge(path, tint) }}
+        <div class="min-w-0">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ label }}</p>
+            <p class="text-3xl font-bold text-slate-900 tabular-nums mt-1"{% if attr %} data-stat="{{ attr }}"{% endif %}>{{ value }}</p>
+            {% if hint %}<p class="text-sm text-slate-500 mt-1">{{ hint }}</p>{% endif %}
+        </div>
+    </div>
+{% endmacro %}
+
+{# Classes d'un bouton ou d'un lien-bouton. variant : primary | blue | purple | secondary | ghost | danger. #}
+{% macro btn(variant = 'primary', size = 'md') -%}
+    {%- set base = 'inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed' -%}
+    {%- set sizes = {sm: 'px-3 py-2 text-sm', md: 'px-5 py-2.5', lg: 'px-6 py-3 text-lg'} -%}
+    {%- set variants = {
+        primary: 'bg-green-600 hover:bg-green-700 text-white shadow-sm focus-visible:ring-green-500',
+        blue: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm focus-visible:ring-blue-500',
+        purple: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm focus-visible:ring-purple-500',
+        secondary: 'bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 focus-visible:ring-slate-400',
+        ghost: 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus-visible:ring-slate-400',
+        danger: 'bg-red-600 hover:bg-red-700 text-white shadow-sm focus-visible:ring-red-500',
+    } -%}
+    {{ base }} {{ sizes[size]|default(sizes.md) }} {{ variants[variant]|default(variants.primary) }}
+{%- endmacro %}
+
+{# Classes d'un champ de saisie. Hauteur de 44 px, cible tactile confortable. #}
+{% macro input(extra = '') -%}
+    w-full h-11 px-4 border border-slate-300 rounded-xl bg-white text-slate-900 placeholder:text-slate-400 transition focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ extra }}
+{%- endmacro %}
+
+{# Classes d'une zone de texte. #}
+{% macro textarea(extra = '') -%}
+    w-full px-4 py-3 border border-slate-300 rounded-xl bg-white text-slate-900 placeholder:text-slate-400 transition focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none {{ extra }}
+{%- endmacro %}
+
+{# Étiquette de champ ; required ajoute l'astérisque. #}
+{% macro label(for, text, required = false) %}
+    <label for="{{ for }}" class="block text-sm font-semibold text-slate-700 mb-2">{{ text }}{% if required %} <span class="text-red-500" aria-hidden="true">*</span>{% endif %}</label>
+{% endmacro %}
 
 {# Niveau de difficulté rendu en flammes, de 1 à 3. #}
 {% macro flames(level, size = 'w-4 h-4') %}
     <span class="inline-flex items-center space-x-0.5" title="Difficulté {{ level }} sur 3" aria-label="Difficulté {{ level }} sur 3">
         {% for i in 1..3 %}
-            <svg class="{{ size }} {{ i <= level ? 'text-orange-500' : 'text-gray-300' }}" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <svg class="{{ size }} {{ i <= level ? 'text-orange-500' : 'text-slate-300' }}" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                 <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.878A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"></path>
             </svg>
         {% endfor %}

@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 {% import 'designer/_partials/macros.html.twig' as ui %}
+{% import 'designer/_partials/icons.html.twig' as icons %}
 
 {% block title %}Mes chasses - Treasurely{% endblock %}
 
@@ -14,7 +15,7 @@
         {{ include('designer/_partials/header.html.twig', {
             type: 'with_action',
             title: 'Mes chasses',
-            icon: '<svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 12.4984L14 12.4984M3 12.4984L10 12.4984M7 4.5V19.4984M17 4.5V19.4984M6.2 19.5H17.8C18.9201 19.5 19.4802 19.5 19.908 19.282C20.2843 19.0903 20.5903 18.7843 20.782 18.408C21 17.9802 21 17.4201 21 16.3V10.9C21 8.65979 21 7.53968 20.564 6.68404C20.1805 5.93139 19.5686 5.31947 18.816 4.93597C17.9603 4.5 16.8402 4.5 14.6 4.5H9.4C7.15979 4.5 6.03968 4.5 5.18404 4.93597C4.43139 5.31947 3.81947 5.93139 3.43597 6.68404C3 7.53968 3 8.65979 3 10.9V16.3C3 17.4201 3 17.9802 3.21799 18.408C3.40973 18.7843 3.71569 19.0903 4.09202 19.282C4.51984 19.5 5.07989 19.5 6.2 19.5ZM10 10.4984H14V14.4984H10V10.4984Z" stroke-width="2" stroke-linejoin="round"></path></svg>',
+            icon: 'chest',
             backUrl: path('app_designer_dashboard'),
             actionUrl: path('app_designer_hunt_create'),
             actionText: 'Créer une chasse',
@@ -24,35 +25,16 @@
         {# Même recette de carte que la page de détails : bord fin, ombre discrète, badge d'icône. #}
         {% set card = 'bg-white rounded-2xl border border-slate-200 shadow-sm' %}
         {% set iconBadge = 'w-9 h-9 rounded-xl flex items-center justify-center shrink-0' %}
-        {% set icons = {
-            map: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7',
-            check: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
-            lock: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
-            pencil: 'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z',
-            riddle: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-            players: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
-            team: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
-            plus: 'M12 4v16m8-8H4',
-        } %}
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                 {% for stat in [
-                    {label: 'Total', value: treasureHunts|length, hint: 'chasse' ~ (treasureHunts|length > 1 ? 's') ~ ' créée' ~ (treasureHunts|length > 1 ? 's'), icon: icons.map, tint: 'bg-green-100 text-green-600'},
-                    {label: 'Ouvertes', value: nbOpened, hint: 'jouables maintenant', icon: icons.check, tint: 'bg-blue-100 text-blue-600'},
-                    {label: 'Fermées', value: nbClosed, hint: 'plus de nouveaux joueurs', icon: icons.lock, tint: 'bg-slate-100 text-slate-600'},
-                    {label: 'Brouillons', value: nbDrafts, hint: 'à publier', icon: icons.pencil, tint: 'bg-orange-100 text-orange-600'},
+                    {label: 'Total', value: treasureHunts|length, hint: 'chasse' ~ (treasureHunts|length > 1 ? 's') ~ ' créée' ~ (treasureHunts|length > 1 ? 's'), icon: icons.path('map'), tint: 'bg-green-100 text-green-600'},
+                    {label: 'Ouvertes', value: nbOpened, hint: 'jouables maintenant', icon: icons.path('check'), tint: 'bg-blue-100 text-blue-600'},
+                    {label: 'Fermées', value: nbClosed, hint: 'plus de nouveaux joueurs', icon: icons.path('lock'), tint: 'bg-slate-100 text-slate-600'},
+                    {label: 'Brouillons', value: nbDrafts, hint: 'à publier', icon: icons.path('pencil'), tint: 'bg-orange-100 text-orange-600'},
                 ] %}
-                    <div class="{{ card }} p-5 flex items-start gap-4">
-                        <div class="{{ iconBadge }} {{ stat.tint }}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ stat.icon }}"></path></svg>
-                        </div>
-                        <div class="min-w-0">
-                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ stat.label }}</p>
-                            <p class="text-3xl font-bold text-slate-900 tabular-nums mt-1">{{ stat.value }}</p>
-                            <p class="text-sm text-slate-500 mt-1">{{ stat.hint }}</p>
-                        </div>
-                    </div>
+                    {{ ui.stat(stat.label, stat.value, stat.hint, stat.icon, stat.tint) }}
                 {% endfor %}
             </div>
 
@@ -75,16 +57,16 @@
                                 <p class="text-slate-600 text-sm mb-4">{{ ui.excerpt(hunt.description, 150) }}</p>
                                 <ul class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-600 mb-4">
                                     <li class="inline-flex items-center gap-1.5">
-                                        <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ icons.riddle }}"></path></svg>
+                                        <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ icons.path('riddle') }}"></path></svg>
                                         <span class="tabular-nums">{{ nbRiddles }} énigme{{ nbRiddles > 1 ? 's' }}</span>
                                     </li>
                                     <li class="inline-flex items-center gap-1.5">
-                                        <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ icons.players }}"></path></svg>
+                                        <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ icons.path('players') }}"></path></svg>
                                         <span class="tabular-nums">{{ nbParticipations }} participation{{ nbParticipations > 1 ? 's' }}</span>
                                     </li>
                                     <li class="inline-flex items-center gap-1.5">{{ ui.flames(hunt.difficulty) }}</li>
                                     <li class="inline-flex items-center gap-1.5">
-                                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ icons.team }}"></path></svg>
+                                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ icons.path('team') }}"></path></svg>
                                         <span>{{ hunt.designerTeam.name }}</span>
                                     </li>
                                 </ul>
@@ -98,12 +80,12 @@
                 {% else %}
                     <div class="lg:col-span-2 text-center py-16 px-6 bg-white rounded-2xl border-2 border-dashed border-slate-200">
                         <div class="{{ iconBadge }} bg-green-100 text-green-600 mx-auto mb-4 w-12 h-12">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ icons.map }}"></path></svg>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ icons.path('map') }}"></path></svg>
                         </div>
                         <h3 class="text-xl font-semibold text-slate-700 mb-2">Aucune chasse pour le moment</h3>
                         <p class="text-slate-500 mb-6">Créez votre première chasse au trésor pour commencer l'aventure.</p>
                         <a href="{{ path('app_designer_hunt_create') }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ icons.plus }}"></path></svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ icons.path('plus') }}"></path></svg>
                             <span>Créer ma première chasse</span>
                         </a>
                     </div>
