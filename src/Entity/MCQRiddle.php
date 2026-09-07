@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Dto\RiddleAttempt;
 use App\Repository\MCQRiddleRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -94,6 +95,21 @@ class MCQRiddle extends Riddle
         $this->revealAnswerCount = $revealAnswerCount;
 
         return $this;
+    }
+
+    /**
+     * Tout ou rien : l'ensemble coché doit être exactement l'ensemble attendu, quel que
+     * soit l'ordre. Une réponse partielle ne résout pas l'énigme.
+     */
+    public function accepts(RiddleAttempt $attempt): bool
+    {
+        if (null === $attempt->choices) {
+            throw new \InvalidArgumentException('Une liste de choix est attendue.');
+        }
+
+        $chosen = array_unique($attempt->choices);
+
+        return [] === array_diff($chosen, $this->answers) && [] === array_diff($this->answers, $chosen);
     }
 
     /**

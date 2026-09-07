@@ -65,9 +65,9 @@ class ParticipateRiddle
     private ?\DateTimeImmutable $finishTime = null;
 
     #[ORM\Column]
-    #[Assert\Positive]
+    #[Assert\PositiveOrZero]
     #[Groups(['participateRiddle:read', 'participateRiddle:create', 'participateRiddle:patch'])]
-    private int $score;
+    private int $score = 0;
 
     #[ORM\Column]
     #[Assert\GreaterThanOrEqual('today')]
@@ -196,5 +196,20 @@ class ParticipateRiddle
         ++$this->attempts;
 
         return $this;
+    }
+
+    #[Groups(['participateRiddle:read'])]
+    public function isSolved(): bool
+    {
+        return null !== $this->finishTime;
+    }
+
+    /**
+     * Essais pouvant encore rapporter des points, annoncés au joueur après chaque réponse.
+     */
+    #[Groups(['participateRiddle:read'])]
+    public function getAttemptsRemaining(): int
+    {
+        return max(0, $this->getRiddle()->getMaxScoringAttempts() - $this->attempts);
     }
 }

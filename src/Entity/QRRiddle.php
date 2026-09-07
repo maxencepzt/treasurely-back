@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Dto\RiddleAttempt;
 use App\Repository\QRRiddleRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -29,5 +30,17 @@ class QRRiddle extends Riddle
         $this->code = $code;
 
         return $this;
+    }
+
+    /**
+     * Le code n'étant jamais publié, le connaître vaut preuve de scan.
+     */
+    public function accepts(RiddleAttempt $attempt): bool
+    {
+        if (null === $attempt->proposal) {
+            throw new \InvalidArgumentException('Le contenu du QR code est attendu.');
+        }
+
+        return trim($attempt->proposal) === $this->code;
     }
 }
