@@ -23,6 +23,16 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
+    # Sessions de la façade concepteur et de l'administration en base : en production le
+    # conteneur tourne en plusieurs instances, et un fichier de session n'existe que sur celle
+    # qui l'a écrit. Le gestionnaire partage la connexion PDO de Doctrine, d'où le verrou
+    # consultatif : le verrou transactionnel (défaut) ouvrirait une transaction que les flush
+    # de Doctrine ne pourraient plus imbriquer.
+    Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler:
+        arguments:
+            - '@=service("doctrine.dbal.default_connection").getNativeConnection()'
+            - { lock_mode: !php/const Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler::LOCK_ADVISORY }
+
     App\ApiPlatform\InheritedResourceMetadataFactory:
         decorates: api_platform.metadata.resource.metadata_collection_factory
         # Sous le décorateur de cache (-10) : la réponse héritée est celle, déjà mise en cache, du parent.
