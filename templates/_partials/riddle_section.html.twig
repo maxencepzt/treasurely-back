@@ -1,6 +1,7 @@
 {# Liste des énigmes d'une chasse.
    - riddles : tableaux produits par RiddleMapper::toArray(), identifiant compris
    - readonly : true pour la page de détails, false dans le formulaire
+   - huntId : identifiant de la chasse, pour le QR à imprimer des énigmes QR (page de détails)
    En mode formulaire, riddle-manager.js relit data-riddle-data et redessine la liste. #}
 {% import 'designer/_partials/macros.html.twig' as ui %}
 {% set riddles = riddles|default([]) %}
@@ -48,6 +49,16 @@
                                 {{ ui.flames(riddle.difficulty) }}
                                 <span>{{ riddle.maxScoringAttempts }} essai{{ riddle.maxScoringAttempts > 1 ? 's' }} noté{{ riddle.maxScoringAttempts > 1 ? 's' }}</span>
                             </div>
+                            {% if readonly and riddle.type == 'qr' and huntId is defined %}
+                                {% set qrPath = path('app_designer_riddle_qr', {id: huntId, riddle: riddle.id}) %}
+                                <div class="mt-3 flex items-center gap-4">
+                                    <img src="{{ qrPath }}" alt="QR code de l'énigme {{ riddle.title }}" class="w-24 h-24 rounded-lg border border-gray-200 bg-white" />
+                                    <div class="text-sm">
+                                        <p class="font-mono text-gray-800">{{ riddle.code }}</p>
+                                        <a href="{{ qrPath }}" target="_blank" class="text-purple-700 hover:underline">Ouvrir le QR pour l'imprimer</a>
+                                    </div>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

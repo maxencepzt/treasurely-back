@@ -23,7 +23,7 @@ final class RiddleMapper
             'text' => new TextRiddle(),
             'gps' => new GPSRiddle(),
             'mcq' => new MCQRiddle(),
-            'qr' => new QRRiddle(),
+            'qr' => (new QRRiddle())->setCode(QRRiddle::generateCode()),
             default => throw new \InvalidArgumentException(sprintf('Type d\'énigme inconnu : "%s".', $input->type)),
         };
         $riddle->setHunt($hunt);
@@ -74,7 +74,7 @@ final class RiddleMapper
 
         match (true) {
             $riddle instanceof TextRiddle => $riddle->setAnswer((string) $input->answer),
-            $riddle instanceof QRRiddle => $riddle->setCode((string) $input->code),
+            $riddle instanceof QRRiddle => null, // le code, imprimé sur le terrain, ne change plus après la création
             $riddle instanceof GPSRiddle => $riddle
                 ->setLatitude($input->latitude ?? 0.0)
                 ->setLongitude($input->longitude ?? 0.0),
