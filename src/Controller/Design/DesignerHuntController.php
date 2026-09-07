@@ -3,6 +3,8 @@
 namespace App\Controller\Design;
 
 use App\Dto\Designer\HuntInput;
+use App\Entity\QRRiddle;
+use App\Entity\Riddle;
 use App\Entity\TreasureHunt;
 use App\Entity\User;
 use App\Repository\DesignerTeamRepository;
@@ -15,7 +17,11 @@ use App\Service\Designer\Exception\HuntValidationException;
 use App\Service\Designer\HuntEditor;
 use App\Service\Designer\RiddleMapper;
 use Doctrine\ORM\EntityManagerInterface;
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Writer\SvgWriter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -58,6 +64,30 @@ final class DesignerHuntController extends AbstractController
                 $treasureHuntWorkflow->getEnabledTransitions($treasureHunt),
             ),
             'canEdit' => $this->isGranted(TreasureHuntVoter::EDIT, $treasureHunt),
+        ]);
+    }
+
+    /**
+     * Le QR code à imprimer et à placer sur le terrain. Il encode l'adresse de l'énigme dans
+     * l'application des joueurs, code compris : l'appareil photo du téléphone y mène directement,
+     * et le scanner intégré comme la saisie manuelle acceptent le même code.
+     */
+    #[Route('/{id}/riddle/{riddle}/qr.svg', name: 'app_designer_riddle_qr', requirements: ['id' => '\d+', 'riddle' => '\d+'], methods: ['GET'])]
+    #[IsGranted(TreasureHuntVoter::VIEW, 'treasureHunt')]
+    public function qrCode(
+        TreasureHunt $treasureHunt,
+        #[MapEntity(id: 'riddle')] Riddle $riddle,
+        #[Autowire(env: 'APP_FRONT_URL')] string $frontUrl,
+    ): Response {
+        if (!$riddle instanceof QRRiddle || $riddle->getHunt() !== $treasureHunt) {
+            throw $this->createNotFoundException("Cette chasse n'a pas cette énigme QR.");
+        }
+        $target = rtrim($frontUrl, '/').'/riddle/'.$riddle->getId().'?code='.$riddle->getCode();
+        $svg = (new Builder(writer: new SvgWriter(), data: $target, size: 320, margin: 12))->build()->getString();
+
+        return new Response($svg, Response::HTTP_OK, [
+            'Content-Type' => 'image/svg+xml',
+            'Content-Disposition' => sprintf('inline; filename="%s.svg"', $riddle->getCode()),
         ]);
     }
 

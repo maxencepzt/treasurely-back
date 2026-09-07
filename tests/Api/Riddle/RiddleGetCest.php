@@ -6,6 +6,7 @@ namespace App\Tests\Api\Riddle;
 
 use App\Entity\GPSRiddle;
 use App\Entity\MCQRiddle;
+use App\Entity\QRRiddle;
 use App\Entity\Riddle;
 use App\Entity\TextRiddle;
 use App\Factory\GPSRiddleFactory;
@@ -195,6 +196,31 @@ final class RiddleGetCest
         }
         sort($paths);
         $I->assertSame(['answer', 'title'], $paths);
+    }
+
+    /**
+     * @param Example<int, mixed> $example
+     */
+    #[Examples('CODE1', 1)]
+    #[Examples('treasurely_12345678', 1)]
+    #[Examples('treasurely_1234567890', 1)]
+    #[Examples('treasurely_123456789', 0)]
+    public function qrCodesFollowTheImposedFormat(ApiTester $I, Example $example): void
+    {
+        // 1. 'Arrange'
+        $riddle = (new QRRiddle())
+            ->setTitle('Scan')
+            ->setDescription('Trouvez le QR.')
+            ->setDifficulty(1)
+            ->setOrderNumber(1)
+            ->setCode($example[0]);
+
+        // 2. 'Act'
+        $violations = $I->grabService(ValidatorInterface::class)->validate($riddle);
+
+        // 3. 'Assert'
+        $I->assertCount($example[1], $violations);
+        $I->assertMatchesRegularExpression(QRRiddle::CODE_PATTERN, QRRiddle::generateCode());
     }
 
     public function gpsCoordinatesMustBeOnEarth(ApiTester $I): void

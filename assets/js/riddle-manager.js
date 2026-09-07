@@ -106,7 +106,7 @@ class RiddleManager {
                 document.getElementById('mcq_reveal_count').checked = riddle.revealAnswerCount !== false;
                 break;
             case 'qr':
-                document.getElementById('qr_code').value = riddle.code || '';
+                document.getElementById('qr_code_display').textContent = riddle.code || 'Attribué à l\'enregistrement';
                 break;
         }
     }
@@ -229,13 +229,6 @@ class RiddleManager {
                 riddle.revealAnswerCount = document.getElementById('mcq_reveal_count').checked;
                 break;
             }
-            case 'qr': {
-                riddle.code = document.getElementById('qr_code').value.trim();
-                if (!riddle.code) {
-                    return this.reject('Veuillez saisir le code QR.', 'qr_code');
-                }
-                break;
-            }
         }
 
         return riddle;
@@ -259,6 +252,10 @@ class RiddleManager {
             const existing = this.riddles[this.currentEditIndex];
             if (existing.id !== undefined) {
                 riddle.id = existing.id;
+            }
+            // Le code QR est attribué par le serveur à la création et imprimé : il ne change plus.
+            if (existing.code !== undefined) {
+                riddle.code = existing.code;
             }
             this.riddles[this.currentEditIndex] = riddle;
         } else {
@@ -317,6 +314,7 @@ class RiddleManager {
                                 <span class="${colors.tag} px-2 py-0.5 rounded">${this.getRiddleTypeInfo(riddle.type)}</span>
                                 <span>${flames}</span>
                                 <span>${riddle.maxScoringAttempts ?? 3} essai(s) noté(s)</span>
+                                ${riddle.type === 'qr' && riddle.code ? `<span class="font-mono">${this.escapeHtml(riddle.code)}</span>` : ''}
                             </p>
                         </div>
                     </div>

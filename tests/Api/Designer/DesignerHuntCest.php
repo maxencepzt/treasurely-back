@@ -6,6 +6,7 @@ namespace App\Tests\Api\Designer;
 
 use App\Entity\MCQRiddle;
 use App\Entity\ParticipateRiddle;
+use App\Entity\QRRiddle;
 use App\Entity\Riddle;
 use App\Entity\TextRiddle;
 use App\Entity\TreasureHunt;
@@ -13,6 +14,7 @@ use App\Entity\User;
 use App\Factory\DesignerTeamFactory;
 use App\Factory\HuntTypeFactory;
 use App\Factory\MCQRiddleFactory;
+use App\Factory\QRRiddleFactory;
 use App\Factory\TextRiddleFactory;
 use App\Factory\TreasureHuntFactory;
 use App\Factory\UserFactory;
@@ -213,7 +215,6 @@ final class DesignerHuntCest
         $this->play($I, $riddles[0]);
         $retyped = $this->describe($riddles[0]);
         $retyped['type'] = 'qr';
-        $retyped['code'] = 'CODE1';
 
         // 2. 'Act'
         $I->amLoggedInAs($owner, 'main');
@@ -509,5 +510,85 @@ final class DesignerHuntCest
 
         // 3. 'Assert'
         $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function aQrRiddleReceivesACodeThatNoOneChooses(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        ['owner' => $owner, 'hunt' => $hunt] = $this->huntWithTwoRiddles();
+        $chosen = ['type' => 'qr', 'title' => 'Scan', 'description' => 'Trouvez le QR.', 'difficulty' => 1, 'maxScoringAttempts' => 3, 'code' => 'CHOISI'];
+
+        // 2. 'Act'
+        $I->amLoggedInAs($owner, 'main');
+        $I->sendFormPost('/designer/hunt/create', $this->payload($I, $hunt, [$chosen]));
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::CREATED);
+        $riddle = $I->grabEntityFromRepository(QRRiddle::class, ['title' => 'Scan']);
+        $I->assertMatchesRegularExpression(QRRiddle::CODE_PATTERN, $riddle->getCode());
+        $I->assertNotSame('CHOISI', $riddle->getCode());
+    }
+
+    public function theQrCodeSurvivesAnEdit(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        ['owner' => $owner, 'hunt' => $hunt, 'riddles' => $riddles] = $this->huntWithTwoRiddles();
+        $qr = QRRiddleFactory::createOne(['hunt' => $hunt, 'orderNumber' => 3, 'title' => 'Scan', 'code' => 'treasurely_000000001'])->_real();
+        $edited = $this->describe($qr) + ['code' => 'treasurely_999999999'];
+        $edited['title'] = 'Scan modifié';
+
+        // 2. 'Act'
+        $I->amLoggedInAs($owner, 'main');
+        $I->sendFormPost('/designer/hunt/'.$hunt->getId().'/edit', $this->payload($I, $hunt, [$riddles[0], $riddles[1], $edited]));
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeInRepository(QRRiddle::class, ['id' => $qr->getId(), 'title' => 'Scan modifié', 'code' => 'treasurely_000000001']);
+    }
+
+    public function theQrImageIsServedToTheDesigner(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        ['owner' => $owner, 'hunt' => $hunt] = $this->huntWithTwoRiddles();
+        $qr = QRRiddleFactory::createOne(['hunt' => $hunt, 'orderNumber' => 3, 'code' => 'treasurely_000000001'])->_real();
+
+        // 2. 'Act'
+        $I->amLoggedInAs($owner, 'main');
+        $I->sendGet('/designer/hunt/'.$hunt->getId().'/riddle/'.$qr->getId().'/qr.svg');
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeHttpHeader('Content-Type', 'image/svg+xml');
+        $I->seeResponseContains('<svg');
+    }
+
+    public function theQrImageIsNotServedToStrangers(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        ['hunt' => $hunt] = $this->huntWithTwoRiddles();
+        $qr = QRRiddleFactory::createOne(['hunt' => $hunt, 'orderNumber' => 3])->_real();
+
+        // 2. 'Act'
+        $I->amLoggedInAs(UserFactory::createOne()->_real(), 'main');
+        $I->sendGet('/designer/hunt/'.$hunt->getId().'/riddle/'.$qr->getId().'/qr.svg');
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::FORBIDDEN);
+    }
+
+    public function theQrImageOfAnotherHuntIsNotFound(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        ['owner' => $owner, 'hunt' => $hunt, 'riddles' => $riddles] = $this->huntWithTwoRiddles();
+        $elsewhere = QRRiddleFactory::createOne(['orderNumber' => 1])->_real();
+
+        // 2. 'Act'
+        $I->amLoggedInAs($owner, 'main');
+        $I->sendGet('/designer/hunt/'.$hunt->getId().'/riddle/'.$elsewhere->getId().'/qr.svg');
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
+        // Une énigme de la chasse qui n'est pas un QR n'a pas d'image non plus
+        $I->assertNotInstanceOf(QRRiddle::class, $riddles[0]);
     }
 }
