@@ -3,6 +3,13 @@ framework:
     secret: '%env(APP_SECRET)%'
     csrf_protection: true
 
+    # Derrière le proxy de l'hébergeur (Vercel en production) : sans cela Symfony voit la requête
+    # en http, construit ses URL absolues en http et rejette les formulaires, le contrôle
+    # d'origine du CSRF sans état comparant « https » du navigateur à « http » de la requête.
+    # REMOTE_ADDR désigne le proxy qui nous parle, seul à pouvoir joindre l'application.
+    trusted_proxies: '127.0.0.1,REMOTE_ADDR'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port']
+
     # Note that the session will be started ONLY if you read or write from it.
     # Sessions en base : voir la définition de PdoSessionHandler dans services.yaml.
     session:
