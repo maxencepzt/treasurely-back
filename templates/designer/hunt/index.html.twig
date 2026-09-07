@@ -21,17 +21,37 @@
             actionColor: 'green',
         }) }}
 
+        {# Même recette de carte que la page de détails : bord fin, ombre discrète, badge d'icône. #}
+        {% set card = 'bg-white rounded-2xl border border-slate-200 shadow-sm' %}
+        {% set iconBadge = 'w-9 h-9 rounded-xl flex items-center justify-center shrink-0' %}
+        {% set icons = {
+            map: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7',
+            check: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+            lock: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
+            pencil: 'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z',
+            riddle: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+            players: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
+            team: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
+            plus: 'M12 4v16m8-8H4',
+        } %}
+
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                 {% for stat in [
-                    {label: 'Total', value: treasureHunts|length, color: 'green'},
-                    {label: 'Ouvertes', value: nbOpened, color: 'blue'},
-                    {label: 'Fermées', value: nbClosed, color: 'gray'},
-                    {label: 'Brouillons', value: nbDrafts, color: 'orange'},
+                    {label: 'Total', value: treasureHunts|length, hint: 'chasse' ~ (treasureHunts|length > 1 ? 's') ~ ' créée' ~ (treasureHunts|length > 1 ? 's'), icon: icons.map, tint: 'bg-green-100 text-green-600'},
+                    {label: 'Ouvertes', value: nbOpened, hint: 'jouables maintenant', icon: icons.check, tint: 'bg-blue-100 text-blue-600'},
+                    {label: 'Fermées', value: nbClosed, hint: 'plus de nouveaux joueurs', icon: icons.lock, tint: 'bg-slate-100 text-slate-600'},
+                    {label: 'Brouillons', value: nbDrafts, hint: 'à publier', icon: icons.pencil, tint: 'bg-orange-100 text-orange-600'},
                 ] %}
-                    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-{{ stat.color }}-500">
-                        <p class="text-gray-500 text-sm font-semibold uppercase">{{ stat.label }}</p>
-                        <p class="text-3xl font-bold text-gray-800 mt-1">{{ stat.value }}</p>
+                    <div class="{{ card }} p-5 flex items-start gap-4">
+                        <div class="{{ iconBadge }} {{ stat.tint }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ stat.icon }}"></path></svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ stat.label }}</p>
+                            <p class="text-3xl font-bold text-slate-900 tabular-nums mt-1">{{ stat.value }}</p>
+                            <p class="text-sm text-slate-500 mt-1">{{ stat.hint }}</p>
+                        </div>
                     </div>
                 {% endfor %}
             </div>
@@ -39,34 +59,51 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {% for hunt in treasureHunts %}
                     {% set badge = statusBadges[hunt.status]|default({label: hunt.status, class: 'bg-gray-600'}) %}
-                    <a href="{{ path('app_designer_hunt_details', {id: hunt.id}) }}" class="group">
-                        <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transform transition hover:scale-105 overflow-hidden">
-                            <div class="h-48 bg-gradient-to-br from-blue-50 to-cyan-50 relative">
-                                <img src="{{ path('_api_/treasure_hunts/{id}/picture_get', {id: hunt.id}) }}" alt="" class="absolute inset-0 w-full h-full object-cover opacity-75" />
+                    {% set nbRiddles = hunt.riddles|length %}
+                    {% set nbParticipations = participations[hunt.id]|default(0) %}
+                    <a href="{{ path('app_designer_hunt_details', {id: hunt.id}) }}"
+                       class="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                       aria-label="Voir la chasse {{ hunt.title }}">
+                        <article class="{{ card }} overflow-hidden h-full flex flex-col transition-all group-hover:shadow-md group-hover:border-green-300">
+                            <div class="aspect-video bg-gradient-to-br from-blue-50 to-cyan-50 relative overflow-hidden">
+                                <img src="{{ path('_api_/treasure_hunts/{id}/picture_get', {id: hunt.id}) }}" alt="" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/10 to-transparent" aria-hidden="true"></div>
                                 <span class="absolute top-4 right-4 {{ badge.class }} text-white text-xs font-semibold px-3 py-1 rounded-full">{{ badge.label }}</span>
-                                <h3 class="absolute bottom-4 left-4 right-4 text-2xl font-bold text-white drop-shadow-lg">{{ hunt.title }}</h3>
+                                <h3 class="absolute bottom-4 left-5 right-5 text-2xl font-bold text-white drop-shadow">{{ hunt.title }}</h3>
                             </div>
-                            <div class="p-6">
-                                <p class="text-gray-600 text-sm mb-4">{{ ui.excerpt(hunt.description, 150) }}</p>
-                                <div class="flex items-center justify-between text-sm text-gray-600 mb-4">
-                                    <span>{{ hunt.riddles|length }} énigme{{ hunt.riddles|length > 1 ? 's' }}</span>
-                                    {% set nbParticipations = participations[hunt.id]|default(0) %}
-                                    <span>{{ nbParticipations }} participation{{ nbParticipations > 1 ? 's' }}</span>
-                                    {{ ui.flames(hunt.difficulty) }}
-                                    <span>{{ hunt.designerTeam.name }}</span>
-                                </div>
-                                <div class="flex items-center justify-between pt-4 border-t border-gray-200 text-sm text-gray-500">
+                            <div class="p-5 flex-1 flex flex-col">
+                                <p class="text-slate-600 text-sm mb-4">{{ ui.excerpt(hunt.description, 150) }}</p>
+                                <ul class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-600 mb-4">
+                                    <li class="inline-flex items-center gap-1.5">
+                                        <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ icons.riddle }}"></path></svg>
+                                        <span class="tabular-nums">{{ nbRiddles }} énigme{{ nbRiddles > 1 ? 's' }}</span>
+                                    </li>
+                                    <li class="inline-flex items-center gap-1.5">
+                                        <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ icons.players }}"></path></svg>
+                                        <span class="tabular-nums">{{ nbParticipations }} participation{{ nbParticipations > 1 ? 's' }}</span>
+                                    </li>
+                                    <li class="inline-flex items-center gap-1.5">{{ ui.flames(hunt.difficulty) }}</li>
+                                    <li class="inline-flex items-center gap-1.5">
+                                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ icons.team }}"></path></svg>
+                                        <span>{{ hunt.designerTeam.name }}</span>
+                                    </li>
+                                </ul>
+                                <div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-100 text-sm text-slate-500">
                                     <span>{{ hunt.owner.firstname }} {{ hunt.owner.lastname }}</span>
                                     <span>Modifiée {{ hunt.updatedAt|ago }}</span>
                                 </div>
                             </div>
-                        </div>
+                        </article>
                     </a>
                 {% else %}
-                    <div class="lg:col-span-2 text-center py-16 bg-white rounded-2xl shadow-lg">
-                        <h3 class="text-xl font-semibold text-gray-600 mb-2">Aucune chasse pour le moment</h3>
-                        <p class="text-gray-500 mb-6">Créez votre première chasse au trésor pour commencer l'aventure.</p>
-                        <a href="{{ path('app_designer_hunt_create') }}" class="inline-flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transform transition hover:scale-105">
+                    <div class="lg:col-span-2 text-center py-16 px-6 bg-white rounded-2xl border-2 border-dashed border-slate-200">
+                        <div class="{{ iconBadge }} bg-green-100 text-green-600 mx-auto mb-4 w-12 h-12">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ icons.map }}"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-slate-700 mb-2">Aucune chasse pour le moment</h3>
+                        <p class="text-slate-500 mb-6">Créez votre première chasse au trésor pour commencer l'aventure.</p>
+                        <a href="{{ path('app_designer_hunt_create') }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="{{ icons.plus }}"></path></svg>
                             <span>Créer ma première chasse</span>
                         </a>
                     </div>
