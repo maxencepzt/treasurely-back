@@ -312,6 +312,11 @@ class TreasureHunt
         return $this->status;
     }
 
+    public function isOpened(): bool
+    {
+        return self::STATE_OPENED === $this->status;
+    }
+
     public function setStatus(string $status): static
     {
         $this->status = $status;

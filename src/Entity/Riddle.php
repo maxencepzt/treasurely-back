@@ -4,8 +4,12 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Dto\RiddleAttempt;
 use App\Repository\RiddleRepository;
+use App\State\RiddleProvider;
+use App\State\SolveRiddleProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -33,6 +37,20 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             normalizationContext: ['groups' => ['riddle:read']],
             security: "is_granted('ROLE_USER')",
+            provider: RiddleProvider::class,
+        ),
+        new Post(
+            uriTemplate: '/riddles/{id}/attempt',
+            status: 200,
+            openapi: new Operation(
+                summary: 'Submit an answer',
+                description: 'Submit a proposal for a riddle. The server decides whether it is correct, scores it, and never discloses the expected solution. The riddle must have been read first (GET), which starts the timer.'
+            ),
+            normalizationContext: ['groups' => ['participateRiddle:read']],
+            security: "is_granted('ROLE_USER')",
+            input: RiddleAttempt::class,
+            output: ParticipateRiddle::class,
+            processor: SolveRiddleProcessor::class,
         ),
     ]
 )]
@@ -252,6 +270,13 @@ abstract class Riddle
      */
     #[Groups(['treasureHunt:riddles', 'riddle:read'])]
     abstract public function getType(): string;
+
+    /**
+     * Arbitre une proposition. Chaque sous-type lit le champ de {@see RiddleAttempt} qui le
+     * concerne et lève une InvalidArgumentException s'il est absent : une proposition mal
+     * formée n'est pas une mauvaise réponse et ne consomme pas d'essai.
+     */
+    abstract public function accepts(RiddleAttempt $attempt): bool;
 
     /**
      * Nombre de bonnes réponses attendues, pour les seuls QCM dont le concepteur a

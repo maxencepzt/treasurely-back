@@ -2,9 +2,12 @@
 
 namespace App\Entity;
 
+use App\Dto\RiddleAttempt;
 use App\Repository\TextRiddleRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+
+use function Symfony\Component\String\u;
 
 #[ORM\Entity(repositoryClass: TextRiddleRepository::class)]
 class TextRiddle extends Riddle
@@ -29,5 +32,22 @@ class TextRiddle extends Riddle
         $this->answer = $answer;
 
         return $this;
+    }
+
+    /**
+     * Comparaison indulgente : casse, accents et espaces superflus ne comptent pas.
+     */
+    public function accepts(RiddleAttempt $attempt): bool
+    {
+        if (null === $attempt->proposal) {
+            throw new \InvalidArgumentException('Une réponse textuelle est attendue.');
+        }
+
+        return self::normalize($attempt->proposal) === self::normalize($this->answer);
+    }
+
+    private static function normalize(string $text): string
+    {
+        return u($text)->ascii()->lower()->collapseWhitespace()->toString();
     }
 }
