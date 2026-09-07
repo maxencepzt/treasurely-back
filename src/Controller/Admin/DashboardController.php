@@ -15,6 +15,9 @@ use App\Entity\TextRiddle;
 use App\Entity\TreasureHunt;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
@@ -34,6 +37,14 @@ class DashboardController extends AbstractDashboardController
     {
         return Dashboard::new()
             ->setTitle('Treasurely');
+    }
+
+    public function configureActions(): Actions
+    {
+        // Un seul bouton d'enregistrement sur la page de modification : « Sauvegarder les
+        // modifications » et « Sauvegarder et continuer » côte à côte prêtaient à confusion.
+        return parent::configureActions()
+            ->remove(Crud::PAGE_EDIT, Action::SAVE_AND_CONTINUE);
     }
 
     public function configureUserMenu(UserInterface $user): UserMenu
