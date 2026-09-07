@@ -4,7 +4,9 @@ framework:
     csrf_protection: true
 
     # Note that the session will be started ONLY if you read or write from it.
-    session: true
+    # Sessions en base : voir la définition de PdoSessionHandler dans services.yaml.
+    session:
+        handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler
 
     #esi: true
     #fragments: true
