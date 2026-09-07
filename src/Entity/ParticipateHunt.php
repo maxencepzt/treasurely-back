@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Repository\ParticipateHuntRepository;
 use App\State\JoinHuntProcessor;
+use App\State\ReplayHuntProcessor;
 use App\State\ScoreboardProvider;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -38,6 +39,19 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             normalizationContext: ['groups' => ['participateHunt:read']],
             security: "(is_granted('ROLE_USER') and object.getHunter() == user) or is_granted('ROLE_ADMIN')",
+        ),
+        new Post(
+            uriTemplate: '/participate_hunts/{id}/replay',
+            status: 200,
+            openapi: new Operation(
+                summary: 'Replay a finished treasure hunt',
+                description: 'Start your own finished participation over: back to the first riddle, score and time at zero, riddle clocks cleared. The previous score is not kept, the next one replaces it. The hunt must be opened.'
+            ),
+            normalizationContext: ['groups' => ['participateHunt:read', 'participateHunt:id']],
+            security: "is_granted('ROLE_USER')",
+            deserialize: false,
+            validate: false,
+            processor: ReplayHuntProcessor::class,
         ),
         new GetCollection(
             uriTemplate: '/treasure_hunts/{id}/scoreboard',
