@@ -4,6 +4,7 @@
    - huntId : identifiant de la chasse, pour le QR à imprimer des énigmes QR (page de détails)
    En mode formulaire, riddle-manager.js relit data-riddle-data et redessine la liste. #}
 {% import 'designer/_partials/macros.html.twig' as ui %}
+{% import 'designer/_partials/icons.html.twig' as icons %}
 {% set riddles = riddles|default([]) %}
 {% set readonly = readonly|default(false) %}
 {% set typeLabels = {text: 'Texte', gps: 'GPS', mcq: 'QCM', qr: 'QR Code'} %}
@@ -16,26 +17,22 @@
 } %}
 
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-bold text-gray-800 flex items-center space-x-2">
-            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <span>Énigmes (<span id="riddles_count">{{ riddles|length }}</span>)</span>
-        </h2>
+    <div class="flex items-center justify-between gap-4 mb-5">
+        <div class="flex items-center gap-3">
+            {{ ui.badge(icons.path('riddle'), 'bg-purple-100 text-purple-600') }}
+            <h2 class="text-lg font-bold text-slate-800">Énigmes (<span id="riddles_count">{{ riddles|length }}</span>)</h2>
+        </div>
         {% if not readonly %}
-            <button type="button" id="add_riddle_btn" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded-lg shadow transform transition hover:scale-105 flex items-center space-x-2 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
+            <button type="button" id="add_riddle_btn" class="{{ ui.btn('purple', 'sm') }} shrink-0">
+                {{ ui.icon(icons.path('plus'), 'w-4 h-4') }}
                 <span>Ajouter une énigme</span>
             </button>
         {% endif %}
     </div>
 
-    <div id="no_riddles_message" class="p-8 text-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 {% if riddles|length > 0 %}hidden{% endif %}">
-        <p class="text-gray-500 font-medium mb-2">Aucune énigme pour le moment</p>
-        <p class="text-gray-400 text-sm">
+    <div id="no_riddles_message" class="p-8 text-center bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 {% if riddles|length > 0 %}hidden{% endif %}">
+        <p class="text-slate-600 font-medium mb-1">Aucune énigme pour le moment</p>
+        <p class="text-slate-400 text-sm">
             {% if readonly %}Cette chasse ne contient pas encore d'énigmes.{% else %}Cliquez sur « Ajouter une énigme » pour composer le parcours.{% endif %}
         </p>
     </div>

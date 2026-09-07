@@ -127,13 +127,13 @@ class RiddleManager {
         const index = container.children.length;
 
         const row = document.createElement('div');
-        row.className = 'flex items-center space-x-2 mcq-choice-item';
+        row.className = 'flex items-center gap-2 mcq-choice-item';
         row.innerHTML = `
-            <input type="checkbox" class="mcq-choice-correct w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500" title="Bonne réponse">
-            <input type="text" class="mcq-choice-text flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Choix ${index + 1}">
-            <button type="button" class="remove-choice-btn text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition" title="Retirer ce choix">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            <input type="checkbox" class="mcq-choice-correct w-5 h-5 accent-green-600 shrink-0" title="Bonne réponse" aria-label="Bonne réponse">
+            <input type="text" class="mcq-choice-text flex-1 min-w-0 h-11 px-4 border border-slate-300 rounded-xl bg-white text-slate-900 placeholder:text-slate-400 transition focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Choix ${index + 1}" aria-label="Choix ${index + 1}">
+            <button type="button" class="remove-choice-btn w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-red-600 hover:bg-red-50 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500" title="Retirer ce choix" aria-label="Retirer ce choix">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
         `;
@@ -287,11 +287,12 @@ class RiddleManager {
     }
 
     getColorsByType(type) {
+        // Mêmes accents que riddle_section.html.twig, pour que la liste redessinée ressemble à la liste servie.
         const colorMap = {
-            text: { bg: 'from-blue-50 to-cyan-50 border-blue-200', number: 'bg-blue-600', tag: 'bg-blue-100 text-blue-700', edit: 'text-blue-600 hover:text-blue-800 hover:bg-blue-100' },
-            gps: { bg: 'from-green-50 to-emerald-50 border-green-200', number: 'bg-green-600', tag: 'bg-green-100 text-green-700', edit: 'text-green-600 hover:text-green-800 hover:bg-green-100' },
-            mcq: { bg: 'from-purple-50 to-pink-50 border-purple-200', number: 'bg-purple-600', tag: 'bg-purple-100 text-purple-700', edit: 'text-purple-600 hover:text-purple-800 hover:bg-purple-100' },
-            qr: { bg: 'from-orange-50 to-amber-50 border-orange-200', number: 'bg-orange-600', tag: 'bg-orange-100 text-orange-700', edit: 'text-orange-600 hover:text-orange-800 hover:bg-orange-100' },
+            text: { hover: 'hover:border-blue-300', number: 'bg-blue-600', tag: 'bg-blue-50 text-blue-700', edit: 'text-blue-600 hover:bg-blue-50 focus-visible:ring-blue-500' },
+            gps: { hover: 'hover:border-green-300', number: 'bg-green-600', tag: 'bg-green-50 text-green-700', edit: 'text-green-600 hover:bg-green-50 focus-visible:ring-green-500' },
+            mcq: { hover: 'hover:border-purple-300', number: 'bg-purple-600', tag: 'bg-purple-50 text-purple-700', edit: 'text-purple-600 hover:bg-purple-50 focus-visible:ring-purple-500' },
+            qr: { hover: 'hover:border-orange-300', number: 'bg-orange-600', tag: 'bg-orange-50 text-orange-700', edit: 'text-orange-600 hover:bg-orange-50 focus-visible:ring-orange-500' },
         };
 
         return colorMap[type] || colorMap.text;
@@ -303,30 +304,32 @@ class RiddleManager {
             '<svg class="w-4 h-4 inline text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.878A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"></path></svg>'
         ).join('');
 
+        const iconButton = 'w-10 h-10 rounded-xl flex items-center justify-center transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2';
+
         return `
-            <div class="p-4 bg-gradient-to-r ${colors.bg} rounded-xl border-2 group hover:shadow-md transition" data-riddle-index="${index}">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3 flex-1">
-                        <div class="w-8 h-8 ${colors.number} rounded-lg flex items-center justify-center text-white font-bold text-sm">${index + 1}</div>
-                        <div class="flex-1">
-                            <h3 class="font-bold text-gray-800">${this.escapeHtml(riddle.title)}</h3>
-                            <p class="text-xs text-gray-500 flex items-center space-x-2">
-                                <span class="${colors.tag} px-2 py-0.5 rounded">${this.getRiddleTypeInfo(riddle.type)}</span>
-                                <span>${flames}</span>
+            <div class="riddle-item bg-white p-4 rounded-xl border border-slate-200 ${colors.hover} hover:shadow-sm transition-all" data-riddle-index="${index}">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-start gap-3 flex-1 min-w-0">
+                        <div class="w-8 h-8 ${colors.number} rounded-lg flex items-center justify-center text-white font-bold text-sm tabular-nums shrink-0">${index + 1}</div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-semibold text-slate-800 truncate">${this.escapeHtml(riddle.title)}</h4>
+                            <div class="flex items-center flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-slate-500">
+                                <span class="${colors.tag} px-2 py-0.5 rounded-md font-semibold">${this.getRiddleTypeInfo(riddle.type)}</span>
+                                <span class="inline-flex items-center">${flames}</span>
                                 <span>${riddle.maxScoringAttempts ?? 3} essai(s) noté(s)</span>
                                 ${riddle.type === 'qr' && riddle.code ? `<span class="font-mono">${this.escapeHtml(riddle.code)}</span>` : ''}
-                            </p>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <button type="button" class="edit-riddle-btn ${colors.edit} p-2 rounded-lg transition" title="Modifier">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button type="button" class="edit-riddle-btn ${iconButton} ${colors.edit}" title="Modifier" aria-label="Modifier l'énigme ${index + 1}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                             </svg>
                         </button>
-                        <button type="button" class="delete-riddle-btn text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition" title="Supprimer">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        <button type="button" class="delete-riddle-btn ${iconButton} text-red-600 hover:bg-red-50 focus-visible:ring-red-500" title="Supprimer" aria-label="Supprimer l'énigme ${index + 1}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                             </svg>
                         </button>
                     </div>
