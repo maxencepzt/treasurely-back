@@ -93,10 +93,10 @@ export class MemberAutocomplete {
         if (users.length === 0) {
             this.autocompleteResults.innerHTML = `
                 <div class="p-6 text-center">
-                    <svg class="w-12 h-12 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    <svg class="w-8 h-8 text-slate-300 mx-auto mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
-                    <p class="text-gray-500">Aucun utilisateur trouvé</p>
+                    <p class="text-slate-500 text-sm">Aucun utilisateur trouvé</p>
                 </div>
             `;
             this.autocompleteResults.classList.remove('hidden');
@@ -124,22 +124,22 @@ export class MemberAutocomplete {
 
     createUserElement(user, isAlreadyAdded, colorClass, index, totalUsers) {
         const userElement = document.createElement('div');
-        userElement.className = `p-3 hover:bg-blue-50 cursor-pointer transition flex items-center space-x-3 ${
-            index < totalUsers - 1 ? 'border-b border-gray-100' : ''
+        userElement.className = `p-3 hover:bg-slate-50 cursor-pointer transition-colors flex items-center gap-3 ${
+            index < totalUsers - 1 ? 'border-b border-slate-100' : ''
         }`;
-        
+
         userElement.innerHTML = `
-            <div class="w-10 h-10 bg-gradient-to-br ${colorClass} rounded-full flex items-center justify-center text-white font-bold text-sm overflow-hidden">
-                <img src="/api/users/${user.id}/picture/" alt="${user.nickname}" />
+            <div class="w-10 h-10 bg-gradient-to-br ${colorClass} rounded-xl flex items-center justify-center text-white font-bold text-sm overflow-hidden shrink-0">
+                <img src="/api/users/${user.id}/picture/" alt="" class="w-full h-full object-cover" />
             </div>
-            <div class="flex-1">
-                <p class="font-semibold text-gray-800">${user.fullName}</p>
-                <p class="text-sm text-gray-500">@${user.nickname}</p>
+            <div class="flex-1 min-w-0">
+                <p class="font-semibold text-slate-800 truncate">${user.fullName}</p>
+                <p class="text-sm text-slate-500 truncate">@${user.nickname}</p>
             </div>
-            ${isAlreadyAdded ? 
-                '<span class="text-green-600 text-sm font-semibold">Déjà ajouté</span>' :
-                `<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            ${isAlreadyAdded ?
+                '<span class="text-green-700 text-sm font-semibold shrink-0">Déjà ajouté</span>' :
+                `<svg class="w-5 h-5 text-blue-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
                 </svg>`
             }
         `;
