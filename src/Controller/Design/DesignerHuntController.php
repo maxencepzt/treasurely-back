@@ -9,6 +9,7 @@ use App\Entity\TreasureHunt;
 use App\Entity\User;
 use App\Repository\DesignerTeamRepository;
 use App\Repository\HuntTypeRepository;
+use App\Repository\ParticipateHuntRepository;
 use App\Repository\RiddleRepository;
 use App\Repository\TreasureHuntRepository;
 use App\Security\TreasureHuntVoter;
@@ -40,12 +41,14 @@ final class DesignerHuntController extends AbstractController
     public const string CSRF_TOKEN_ID = 'designer_hunt';
 
     #[Route('', name: 'app_designer_hunt', methods: ['GET'])]
-    public function index(#[CurrentUser] User $user, TreasureHuntRepository $treasureHuntRepository): Response
+    public function index(#[CurrentUser] User $user, TreasureHuntRepository $treasureHuntRepository, ParticipateHuntRepository $participateHuntRepository): Response
     {
         $countByStatus = $treasureHuntRepository->countByStatusForOwner($user);
+        $treasureHunts = $treasureHuntRepository->findByOwner($user);
 
         return $this->render('designer/hunt/index.html.twig', [
-            'treasureHunts' => $treasureHuntRepository->findByOwner($user),
+            'treasureHunts' => $treasureHunts,
+            'participations' => $participateHuntRepository->countByHunt($treasureHunts),
             'nbDrafts' => $countByStatus[TreasureHunt::STATE_DRAFT] ?? 0,
             'nbOpened' => $countByStatus[TreasureHunt::STATE_OPENED] ?? 0,
             'nbClosed' => $countByStatus[TreasureHunt::STATE_CLOSED] ?? 0,
@@ -54,11 +57,13 @@ final class DesignerHuntController extends AbstractController
 
     #[Route('/{id}/details', name: 'app_designer_hunt_details', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[IsGranted(TreasureHuntVoter::VIEW, 'treasureHunt')]
-    public function details(TreasureHunt $treasureHunt, RiddleRepository $riddleRepository, RiddleMapper $riddleMapper, WorkflowInterface $treasureHuntWorkflow): Response
+    public function details(TreasureHunt $treasureHunt, RiddleRepository $riddleRepository, RiddleMapper $riddleMapper, ParticipateHuntRepository $participateHuntRepository, WorkflowInterface $treasureHuntWorkflow): Response
     {
         return $this->render('designer/hunt/details.html.twig', [
             'treasureHunt' => $treasureHunt,
             'riddles' => array_map($riddleMapper->toArray(...), $riddleRepository->findByTreasureHunt($treasureHunt)),
+            'stats' => $participateHuntRepository->statsForHunt($treasureHunt),
+            'ranking' => \array_slice($participateHuntRepository->findRanking($treasureHunt), 0, 10),
             'transitions' => array_map(
                 static fn ($transition): string => $transition->getName(),
                 $treasureHuntWorkflow->getEnabledTransitions($treasureHunt),

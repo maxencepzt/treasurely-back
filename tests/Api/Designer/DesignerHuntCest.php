@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Api\Designer;
 
 use App\Entity\MCQRiddle;
+use App\Entity\ParticipateHunt;
 use App\Entity\ParticipateRiddle;
 use App\Entity\QRRiddle;
 use App\Entity\Riddle;
@@ -590,5 +591,75 @@ final class DesignerHuntCest
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
         // Une énigme de la chasse qui n'est pas un QR n'a pas d'image non plus
         $I->assertNotInstanceOf(QRRiddle::class, $riddles[0]);
+    }
+
+    private function participation(ApiTester $I, TreasureHunt $hunt, Riddle $riddle, string $nickname, bool $finished, int $score = 0, int $time = 0): ParticipateHunt
+    {
+        $participation = (new ParticipateHunt())
+            ->setHunter(UserFactory::createOne(['nickname' => $nickname])->_real())
+            ->setHunt($hunt)
+            ->setCurrentRiddle($riddle)
+            ->setFinished($finished)
+            ->setScore($score)
+            ->setTime($time)
+            ->setLastParticipate(new \DateTimeImmutable());
+        $I->haveInRepository($participation);
+
+        return $participation;
+    }
+
+    public function theDetailsPageReportsParticipationsAndTheRanking(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        ['owner' => $owner, 'hunt' => $hunt, 'riddles' => $riddles] = $this->huntWithTwoRiddles();
+        $this->participation($I, $hunt, $riddles[1], 'beta-finisseur', true, 1000, 300);
+        $this->participation($I, $hunt, $riddles[1], 'alpha-finisseur', true, 3000, 100);
+        $this->participation($I, $hunt, $riddles[0], 'gamma-en-cours', false);
+
+        // 2. 'Act'
+        $I->amLoggedInAs($owner, 'main');
+        $I->sendGet('/designer/hunt/'.$hunt->getId().'/details');
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContains('data-stat="participations">3<');
+        $I->seeResponseContains('data-stat="finished">2<');
+        $I->seeResponseContains('data-stat="average-score">2000<');
+        $page = (string) $I->grabResponse();
+        $I->assertLessThan(strpos($page, 'beta-finisseur'), strpos($page, 'alpha-finisseur'), 'Le meilleur score est classé premier');
+        $I->dontSeeResponseContains('gamma-en-cours');
+    }
+
+    public function theHuntListCountsParticipations(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        ['owner' => $owner, 'hunt' => $hunt, 'riddles' => $riddles] = $this->huntWithTwoRiddles();
+        foreach (['un', 'deux', 'trois'] as $suffix) {
+            $this->participation($I, $hunt, $riddles[0], 'joueur-'.$suffix, false);
+        }
+
+        // 2. 'Act'
+        $I->amLoggedInAs($owner, 'main');
+        $I->sendGet('/designer/hunt');
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContains('3 participations');
+    }
+
+    public function theDashboardCountsParticipationsOfTheOwnedTeams(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        ['owner' => $owner, 'hunt' => $hunt, 'riddles' => $riddles] = $this->huntWithTwoRiddles();
+        $this->participation($I, $hunt, $riddles[0], 'inscrit-un', false);
+        $this->participation($I, $hunt, $riddles[1], 'inscrit-deux', true, 500, 60);
+
+        // 2. 'Act'
+        $I->amLoggedInAs($owner, 'main');
+        $I->sendGet('/designer/dashboard');
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContains('data-stat="participations">2<');
     }
 }
