@@ -128,7 +128,7 @@ abstract class Team
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups(['team:read', 'team:write', 'user:teams'])]
+    #[Groups(['team:read', 'team:write', 'user:teams', 'participateHunt:scoreboard'])]
     private string $name;
 
     #[ORM\Column(length: 500, nullable: true)]
