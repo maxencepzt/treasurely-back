@@ -4,6 +4,7 @@ namespace App\Controller\Design;
 
 use App\Entity\User;
 use App\Repository\DesignerTeamRepository;
+use App\Repository\ParticipateHuntRepository;
 use App\Repository\RiddleRepository;
 use App\Repository\TreasureHuntRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,6 +19,7 @@ final class DesignerDashboardController extends AbstractController
         DesignerTeamRepository $designerTeamRepository,
         TreasureHuntRepository $treasureHuntRepository,
         RiddleRepository $riddleRepository,
+        ParticipateHuntRepository $participateHuntRepository,
         Security $security,
     ): Response {
         /**
@@ -36,6 +38,7 @@ final class DesignerDashboardController extends AbstractController
             'nb_members' => $nbMembers,
             'nb_treasure_hunts' => $nbTreasureHunts,
             'nb_riddles' => $nbRiddles,
+            'nb_participations' => $participateHuntRepository->countByTeamOwner($user),
         ]);
     }
 }

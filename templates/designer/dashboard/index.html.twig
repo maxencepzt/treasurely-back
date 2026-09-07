@@ -113,7 +113,7 @@
             <!-- Statistiques rapides -->
             <div class="bg-white rounded-2xl shadow-lg p-8">
                 <h3 class="text-xl font-bold text-gray-800 mb-6">Statistiques Rapides</h3>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
                     <div class="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl" title="Nombre total d'équipes créées">
                         <div class="text-3xl font-bold text-blue-600">{{ nb_teams }}</div>
                         <div class="text-sm text-gray-600 mt-1">Équipes</div>
@@ -129,6 +129,10 @@
                     <div class="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl" title="Nombre total d'énigmes créées dans les chasses au trésor des équipes possédées">
                         <div class="text-3xl font-bold text-orange-600">{{ nb_riddles }}</div>
                         <div class="text-sm text-gray-600 mt-1">Énigmes</div>
+                    </div>
+                    <div class="text-center p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl" title="Nombre de joueurs inscrits aux chasses des équipes possédées">
+                        <div class="text-3xl font-bold text-emerald-600" data-stat="participations">{{ nb_participations }}</div>
+                        <div class="text-sm text-gray-600 mt-1">Participations</div>
                     </div>
                 </div>
             </div>

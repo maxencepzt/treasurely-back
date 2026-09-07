@@ -50,6 +50,8 @@
                                 <p class="text-gray-600 text-sm mb-4">{{ ui.excerpt(hunt.description, 150) }}</p>
                                 <div class="flex items-center justify-between text-sm text-gray-600 mb-4">
                                     <span>{{ hunt.riddles|length }} énigme{{ hunt.riddles|length > 1 ? 's' }}</span>
+                                    {% set nbParticipations = participations[hunt.id]|default(0) %}
+                                    <span>{{ nbParticipations }} participation{{ nbParticipations > 1 ? 's' }}</span>
                                     {{ ui.flames(hunt.difficulty) }}
                                     <span>{{ hunt.designerTeam.name }}</span>
                                 </div>
