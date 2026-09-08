@@ -5,8 +5,8 @@ namespace App\Controller\Admin;
 use App\Entity\TreasureHunt;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
@@ -28,19 +28,31 @@ class TreasureHuntCrudController extends AbstractCrudController
             IdField::new('id')->hideOnForm(),
             TextField::new('title', 'Titre'),
             TextareaField::new('description', 'Description'),
-            BooleanField::new('public', 'Public'),
+            // Le statut est piloté par le workflow (publish / close / republish), pas par l'admin.
+            ChoiceField::new('status', 'Statut')
+                ->setChoices([
+                    'Brouillon' => TreasureHunt::STATE_DRAFT,
+                    'Ouverte' => TreasureHunt::STATE_OPENED,
+                    'Fermée' => TreasureHunt::STATE_CLOSED,
+                ])
+                ->hideOnForm(),
+            TextField::new('location', 'Lieu'),
             ChoiceField::new('difficulty', 'Difficulté')
                 ->setChoices([
                     'Facile' => 1,
                     'Moyen' => 2,
                     'Difficile' => 3,
                 ]),
-            IntegerField::new('riddleCount', 'Nombre d\'énigmes'),
+            IntegerField::new('estimatedTime', 'Durée estimée (minutes)'),
+            // Recalculé par HuntEditor à chaque enregistrement des énigmes.
+            IntegerField::new('riddleCount', 'Nombre d\'énigmes')->hideOnForm(),
             AssociationField::new('owner', 'Propriétaire'),
-            AssociationField::new('team', 'Équipe'),
+            AssociationField::new('designerTeam', 'Équipe conceptrice'),
             AssociationField::new('huntType', 'Types de chasse'),
             AssociationField::new('image', 'Image'),
             AssociationField::new('riddles', 'Énigmes')->hideOnForm(),
+            DateTimeField::new('createdAt', 'Créée le')->hideOnForm(),
+            DateTimeField::new('updatedAt', 'Modifiée le')->hideOnForm(),
         ];
     }
 }

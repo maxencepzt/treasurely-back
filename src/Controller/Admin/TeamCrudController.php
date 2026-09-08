@@ -39,7 +39,7 @@ class TeamCrudController extends AbstractCrudController
             AssociationField::new('owner', 'Propriétaire'),
             AssociationField::new('members', 'Membres'),
             AssociationField::new('image', 'Image'),
-            AssociationField::new('treasureHunts', 'Chasses au trésor')->hideOnForm(),
+            TextField::new('type', 'Type')->hideOnForm(),
         ];
     }
 }
