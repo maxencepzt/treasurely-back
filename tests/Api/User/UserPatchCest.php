@@ -8,6 +8,8 @@ use App\Entity\User;
 use App\Enum\Gender;
 use App\Factory\UserFactory;
 use App\Tests\Support\ApiTester;
+use Codeception\Attribute\Examples;
+use Codeception\Example;
 use Codeception\Util\HttpCode;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -86,10 +88,12 @@ final class UserPatchCest
     {
         // 1. 'Arrange'
         $user = UserFactory::createOne([
+            'nickname' => 'motdepasse',
             'password' => 'oldpassword',
         ])->_real();
 
         $updatedData = [
+            'currentPassword' => 'oldpassword',
             'plainPassword' => 'newpassword123',
         ];
 
@@ -105,6 +109,63 @@ final class UserPatchCest
         $hasher = $I->grabService(UserPasswordHasherInterface::class);
         $I->assertTrue($hasher->isPasswordValid($fresh, 'newpassword123'));
         $I->assertFalse($hasher->isPasswordValid($fresh, 'oldpassword'));
+        $I->sendPost('/api/auth', ['nickname' => 'motdepasse', 'password' => 'newpassword123']);
+        $I->seeResponseCodeIs(HttpCode::OK);
+    }
+
+    /**
+     * @param Example<int, array<string, string>> $example
+     */
+    #[Examples([])]
+    #[Examples(['currentPassword' => ''])]
+    #[Examples(['currentPassword' => 'mauvais'])]
+    public function cannotChangeThePasswordWithoutTheCurrentOne(ApiTester $I, Example $example): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne(['password' => 'oldpassword'])->_real();
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendPatch('/api/users/'.$user->getId(), ['plainPassword' => 'newpassword123'] + $example[0]);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->assertContains('currentPassword', $I->grabDataFromResponseByJsonPath('$.violations[*].propertyPath'));
+        $I->grabService(EntityManagerInterface::class)->clear();
+        $fresh = $I->grabEntityFromRepository(User::class, ['id' => $user->getId()]);
+        $I->assertTrue($I->grabService(UserPasswordHasherInterface::class)->isPasswordValid($fresh, 'oldpassword'));
+    }
+
+    /**
+     * Un entier désigne une chaîne de cette longueur.
+     *
+     * @param Example<int, string|int> $example
+     */
+    #[Examples('nickname', '')]
+    #[Examples('nickname', 'ab')]
+    #[Examples('nickname', 51)]
+    #[Examples('firstname', '')]
+    #[Examples('firstname', 101)]
+    #[Examples('lastname', '')]
+    #[Examples('lastname', 101)]
+    #[Examples('email', '')]
+    #[Examples('email', 51)]
+    #[Examples('phone', 13)]
+    #[Examples('description', 151)]
+    #[Examples('plainPassword', 'court')]
+    public function cannotUpdateWithAValueOutOfBounds(ApiTester $I, Example $example): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne()->_real();
+        $value = is_int($example[1]) ? str_repeat('a', $example[1]) : $example[1];
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendPatch('/api/users/'.$user->getId(), [$example[0] => $value]);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->assertContains($example[0], $I->grabDataFromResponseByJsonPath('$.violations[*].propertyPath'));
     }
 
     public function canUpdateMultipleFields(ApiTester $I): void

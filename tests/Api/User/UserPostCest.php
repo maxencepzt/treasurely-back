@@ -8,6 +8,8 @@ use App\Entity\User;
 use App\Enum\Gender;
 use App\Factory\UserFactory;
 use App\Tests\Support\ApiTester;
+use Codeception\Attribute\Examples;
+use Codeception\Example;
 use Codeception\Util\HttpCode;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -126,6 +128,7 @@ final class UserPostCest
         // 3. 'Assert'
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
         $I->seeResponseIsJson();
+        $I->seeResponseContainsJson(['violations' => [['propertyPath' => 'email', 'message' => 'Cette adresse email n\'est pas valide.']]]);
     }
 
     public function cannotRegisterWithInvalidGender(ApiTester $I): void
@@ -287,6 +290,35 @@ final class UserPostCest
         // 3. 'Assert'
         $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
         $I->dontSeeInRepository(User::class, ['nickname' => 'sansmdp']);
+    }
+
+    /**
+     * Un entier désigne une chaîne de cette longueur.
+     *
+     * @param Example<int, string|int> $example
+     */
+    #[Examples('nickname', '')]
+    #[Examples('nickname', 'ab')]
+    #[Examples('nickname', 51)]
+    #[Examples('firstname', '')]
+    #[Examples('lastname', 101)]
+    #[Examples('email', 51)]
+    #[Examples('phone', 13)]
+    #[Examples('description', 151)]
+    #[Examples('plainPassword', 'court')]
+    public function cannotRegisterWithAValueOutOfBounds(ApiTester $I, Example $example): void
+    {
+        // 1. 'Arrange'
+        $registration = $this->registration('borne', 'borne@example.com');
+        $registration[$example[0]] = is_int($example[1]) ? str_repeat('a', $example[1]) : $example[1];
+
+        // 2. 'Act'
+        $I->sendPost('/api/register', $registration);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->assertContains($example[0], $I->grabDataFromResponseByJsonPath('$.violations[*].propertyPath'));
+        $I->dontSeeInRepository(User::class, ['email' => 'borne@example.com']);
     }
 
     /**

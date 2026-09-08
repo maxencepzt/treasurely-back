@@ -62,7 +62,8 @@ final class UserFactory extends PersistentProxyObjectFactory
             'lastname' => $lastname,
             'nickname' => $nickname,
             'password' => 'test',
-            'phone' => self::faker()->e164PhoneNumber(),
+            // Dix chiffres : la colonne fait 12 caractères et e164PhoneNumber() en produit jusqu'à 15.
+            'phone' => self::faker()->numerify('06########'),
             'profilePicture' => PictureFactory::new(),
             'public' => true,
             'roles' => [],
