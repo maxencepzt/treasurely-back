@@ -288,11 +288,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $participateHunts;
 
     #[ORM\Column]
-    #[Groups(['user:me', 'user:write', 'user:read'])]
+    #[Groups(['user:me', 'user:read'])]
     private int $totalScore;
 
     #[ORM\Column]
-    #[Groups(['user:me', 'user:write', 'user:read'])]
+    #[Groups(['user:me', 'user:read'])]
     private int $totalRiddles;
 
     public function __construct()

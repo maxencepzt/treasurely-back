@@ -150,6 +150,21 @@ final class UserPatchCest
         $I->dontSeeResponseJsonMatchesJsonPath('$.phone');
     }
 
+    public function theTotalsCannotBeWrittenThroughTheApi(ApiTester $I): void
+    {
+        // 1. 'Arrange': les totaux sont dénormalisés par les listeners, jamais saisis
+        $user = UserFactory::createOne(['totalScore' => 10, 'totalRiddles' => 2])->_real();
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendPatch('/api/users/'.$user->getId(), ['totalScore' => 99999, 'totalRiddles' => 500]);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeResponseContainsJson(['totalScore' => 10, 'totalRiddles' => 2]);
+        $I->seeInRepository(User::class, ['id' => $user->getId(), 'totalScore' => 10, 'totalRiddles' => 2]);
+    }
+
     public function cannotUpdateWithInvalidEmail(ApiTester $I): void
     {
         // 1. 'Arrange'
