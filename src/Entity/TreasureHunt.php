@@ -20,21 +20,23 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
+        // Un joueur ne liste que les chasses ouvertes (App\Doctrine\OpenedHuntsExtension)
         new GetCollection(
             openapi: new Operation(
                 summary: 'List of treasure hunts',
-                description: 'Retrieve all treasure hunt with their detailed informations '
+                description: 'Retrieve the opened treasure hunts with their detailed informations; administrators get every status.'
             ),
             normalizationContext: ['groups' => ['treasureHunt:read']],
             security: "is_granted('ROLE_USER')",
         ),
+        // Une chasse ouverte ou fermée se lit ; un brouillon, seulement par ses concepteurs (TreasureHuntVoter)
         new Get(
             openapi: new Operation(
                 summary: 'Treasure hunt details',
-                description: 'Retrieve detailed information about a specific treasure hunt by their ID. Requires ROLE_USER permission.'
+                description: 'Retrieve detailed information about a specific treasure hunt by their ID. A draft is only readable by its designers. Requires ROLE_USER permission.'
             ),
             normalizationContext: ['groups' => ['treasureHunt:read']],
-            security: "is_granted('ROLE_USER')",
+            security: "is_granted('ROLE_USER') and (object.getStatus() != 'draft' or is_granted('TREASURE_HUNT_VIEW', object))",
         ),
         new Get(
             uriTemplate: 'treasure_hunts/{id}/riddles',
