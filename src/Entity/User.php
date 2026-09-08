@@ -24,6 +24,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\Validator\Constraints as SecurityAssert;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -126,6 +127,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             normalizationContext: ['groups' => ['user:read', 'user:id']],
             denormalizationContext: ['groups' => ['user:write', 'user:password']],
+            validationContext: ['groups' => ['Default', 'user:update']],
             processor: UserPasswordProcessor::class,
             security: "is_granted('ROLE_USER') and object == user"
         ),
@@ -191,6 +193,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank(message: 'Le mot de passe est obligatoire.', groups: ['user:register'])]
     #[Assert\Length(min: 8, max: 4096, minMessage: 'Le mot de passe doit faire au moins {{ limit }} caractères.')]
     private ?string $plainPassword = null;
+
+    /**
+     * Le mot de passe actuel, exigé par PATCH /users/{id} pour en changer (groupe de validation
+     * user:update, que l'inscription n'active pas). Jamais persisté.
+     */
+    #[Groups(['user:password'])]
+    #[Assert\When(
+        expression: 'this.getPlainPassword() !== null',
+        constraints: [new SecurityAssert\UserPassword(message: 'Le mot de passe actuel est manquant ou incorrect.')],
+        groups: ['user:update'],
+    )]
+    private ?string $currentPassword = null;
 
     #[ORM\Column(length: 100)]
     #[Groups(['user:me', 'user:write'])]
@@ -387,6 +401,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // @deprecated, to be removed when upgrading to Symfony 8
         $this->plainPassword = null;
+        $this->currentPassword = null;
     }
 
     public function getPlainPassword(): ?string
@@ -397,6 +412,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPlainPassword(?string $plainPassword): static
     {
         $this->plainPassword = $plainPassword;
+
+        return $this;
+    }
+
+    public function getCurrentPassword(): ?string
+    {
+        return $this->currentPassword;
+    }
+
+    public function setCurrentPassword(?string $currentPassword): static
+    {
+        $this->currentPassword = $currentPassword;
 
         return $this;
     }

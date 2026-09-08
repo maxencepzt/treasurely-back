@@ -93,6 +93,7 @@ final class UserPatchCest
         ])->_real();
 
         $updatedData = [
+            'currentPassword' => 'oldpassword',
             'plainPassword' => 'newpassword123',
         ];
 
@@ -110,6 +111,29 @@ final class UserPatchCest
         $I->assertFalse($hasher->isPasswordValid($fresh, 'oldpassword'));
         $I->sendPost('/api/auth', ['nickname' => 'motdepasse', 'password' => 'newpassword123']);
         $I->seeResponseCodeIs(HttpCode::OK);
+    }
+
+    /**
+     * @param Example<int, array<string, string>> $example
+     */
+    #[Examples([])]
+    #[Examples(['currentPassword' => ''])]
+    #[Examples(['currentPassword' => 'mauvais'])]
+    public function cannotChangeThePasswordWithoutTheCurrentOne(ApiTester $I, Example $example): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne(['password' => 'oldpassword'])->_real();
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendPatch('/api/users/'.$user->getId(), ['plainPassword' => 'newpassword123'] + $example[0]);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->assertContains('currentPassword', $I->grabDataFromResponseByJsonPath('$.violations[*].propertyPath'));
+        $I->grabService(EntityManagerInterface::class)->clear();
+        $fresh = $I->grabEntityFromRepository(User::class, ['id' => $user->getId()]);
+        $I->assertTrue($I->grabService(UserPasswordHasherInterface::class)->isPasswordValid($fresh, 'oldpassword'));
     }
 
     /**
