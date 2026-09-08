@@ -32,6 +32,7 @@ final class AdminPagesCest
     #[Examples('participate-riddle', 'participateRiddle', 'Participations aux énigmes', 'Modifier la participation', HttpCode::FORBIDDEN)]
     #[Examples('user', 'player', 'Utilisateurs', "Modifier l'utilisateur", HttpCode::OK)]
     #[Examples('team', 'playerTeam', 'Équipes', "Modifier l'équipe", HttpCode::FORBIDDEN)]
+    #[Examples('team-join-request', 'joinRequest', "Demandes d'adhésion", 'Modifier la demande', HttpCode::FORBIDDEN)]
     #[Examples('picture', 'picture', 'Images', "Modifier l'image", HttpCode::OK)]
     public function everyPageOfTheCrudRenders(ApiTester $I, Example $example): void
     {

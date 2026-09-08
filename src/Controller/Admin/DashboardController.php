@@ -11,6 +11,7 @@ use App\Entity\Picture;
 use App\Entity\QRRiddle;
 use App\Entity\Riddle;
 use App\Entity\Team;
+use App\Entity\TeamJoinRequest;
 use App\Entity\TextRiddle;
 use App\Entity\TreasureHunt;
 use App\Entity\User;
@@ -91,6 +92,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('Général');
         yield MenuItem::linkToCrud('Utilisateurs', 'fa fa-user', User::class);
         yield MenuItem::linkToCrud('Équipes', 'fa fa-users', Team::class);
+        yield MenuItem::linkToCrud('Demandes d\'adhésion', 'fa fa-user-plus', TeamJoinRequest::class);
         yield MenuItem::linkToCrud('Images', 'fa fa-image', Picture::class);
     }
 }

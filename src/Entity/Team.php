@@ -19,6 +19,7 @@ use App\Repository\TeamRepository;
 use App\State\CreatePlayerTeamProcessor;
 use App\State\JoinTeamProcessor;
 use App\State\LeaveTeamProcessor;
+use App\State\RequestToJoinProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -85,6 +86,21 @@ use Symfony\Component\Serializer\Attribute\Groups;
                 summary: 'Leave a team',
                 description: 'Leave the team: 409 for its owner, who can only delete it, and for someone who is not a member. Requires ROLE_USER permission.'
             ),
+            security: "is_granted('ROLE_USER')",
+        ),
+        // Depuis l'annuaire : une demande que le propriétaire accepte ou refuse (TeamJoinRequest)
+        new Post(
+            uriTemplate: 'player_teams/{id}/requests',
+            status: 201,
+            output: TeamJoinRequest::class,
+            deserialize: false,
+            validate: false,
+            processor: RequestToJoinProcessor::class,
+            openapi: new Operation(
+                summary: 'Ask to join a player team',
+                description: 'Send a join request to the owner of the team: 409 for a member or when a request already exists, whatever its status.'
+            ),
+            normalizationContext: ['groups' => ['joinRequest:read']],
             security: "is_granted('ROLE_USER')",
         ),
         // Le code de jointure vaut invitation : seuls les membres le lisent
@@ -181,11 +197,11 @@ abstract class Team
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['team:id'])]
+    #[Groups(['team:id', 'joinRequest:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups(['team:read', 'team:write', 'user:teams', 'participateHunt:scoreboard'])]
+    #[Groups(['team:read', 'team:write', 'user:teams', 'participateHunt:scoreboard', 'joinRequest:read'])]
     private string $name;
 
     #[ORM\Column(length: 500, nullable: true)]
