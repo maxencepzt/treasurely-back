@@ -15,7 +15,7 @@ use Codeception\Util\HttpCode;
  */
 final class TeamGetCest
 {
-    public function aPlayerTeamAnnouncesItsTypeAndItsJoinCode(ApiTester $I): void
+    public function aPlayerTeamAnnouncesItsTypeAndKeepsItsCodeToItsMembers(ApiTester $I): void
     {
         $team = PlayerTeamFactory::createOne(['owner' => UserFactory::createOne(), 'code' => 'treasurely_42'])->_real();
 
@@ -23,7 +23,9 @@ final class TeamGetCest
         $I->sendGet('/api/teams/'.$team->getId());
 
         $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseContainsJson(['type' => 'player', 'code' => 'treasurely_42']);
+        $I->seeResponseContainsJson(['type' => 'player']);
+        $I->seeResponseJsonMatchesJsonPath('$.memberCount');
+        $I->dontSeeResponseJsonMatchesJsonPath('$.code');
     }
 
     public function aDesignerTeamAnnouncesItsTypeWithoutAnyCode(ApiTester $I): void
