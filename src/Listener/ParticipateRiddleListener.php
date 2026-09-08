@@ -82,6 +82,11 @@ class ParticipateRiddleListener implements EventSubscriber
         $this->usersToUpdate = [];
 
         foreach ($usersToProcess as $user) {
+            // Un utilisateur supprimé dans ce même flush (avec ses participations) n'a plus de statistiques à tenir.
+            if (!$entityManager->contains($user)) {
+                continue;
+            }
+
             // Refresh pour avoir les dernières données
             $entityManager->refresh($user);
 
