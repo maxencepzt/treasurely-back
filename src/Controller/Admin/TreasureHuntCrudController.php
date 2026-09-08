@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\TreasureHunt;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -41,6 +43,21 @@ class TreasureHuntCrudController extends AbstractCrudController
             ->setEntityLabelInSingular('Chasse au trésor')
             ->setEntityLabelInPlural('Chasses au trésor')
             ->setPageTitle(Crud::PAGE_EDIT, 'Modifier la chasse au trésor');
+    }
+
+    /**
+     * Une suppression refusée par la base (clé étrangère) revient à la liste avec un message,
+     * au lieu de la page d'erreur 409 qu'EasyAdmin lève par défaut.
+     *
+     * @param object $entityInstance
+     */
+    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        try {
+            parent::deleteEntity($entityManager, $entityInstance);
+        } catch (ForeignKeyConstraintViolationException) {
+            $this->addFlash('danger', sprintf('« %s » ne peut pas être supprimé : d\'autres éléments en dépendent encore.', (string) $entityInstance));
+        }
     }
 
     public function configureFields(string $pageName): iterable
