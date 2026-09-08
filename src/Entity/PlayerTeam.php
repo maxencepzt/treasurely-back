@@ -46,6 +46,12 @@ class PlayerTeam extends Team
         return $this->code;
     }
 
+    /** Un code de jointure neuf : `treasurely_` suivi de treize chiffres, tiré au sort. */
+    public static function generateCode(): string
+    {
+        return 'treasurely_'.str_pad((string) random_int(0, 9_999_999_999_999), 13, '0', STR_PAD_LEFT);
+    }
+
     public function getType(): string
     {
         return 'player';

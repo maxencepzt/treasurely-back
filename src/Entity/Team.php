@@ -2,15 +2,23 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Controller\Team\DeleteTeamPictureController;
 use App\Controller\Team\GetTeamPictureController;
+use App\Dto\JoinTeamInput;
+use App\Dto\PlayerTeamInput;
 use App\Repository\TeamRepository;
+use App\State\CreatePlayerTeamProcessor;
+use App\State\JoinTeamProcessor;
+use App\State\LeaveTeamProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -31,15 +39,63 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: ['groups' => ['team:read', 'team:id']],
             security: "is_granted('ROLE_USER')",
         ),
-        new Post(
-            uriTemplate: 'teams/new',
+        // L'annuaire des équipes de joueurs (App\Doctrine\PlayerTeamsExtension), cherchable par nom
+        new GetCollection(
+            uriTemplate: 'player_teams',
+            name: 'player_teams',
+            paginationItemsPerPage: 20,
             openapi: new Operation(
-                summary: 'Team creation',
-                description: 'Create a new team by providing necessary details. Requires ROLE_USER permission.'
+                summary: 'Player teams directory',
+                description: 'List the player teams, twenty per page, searchable by name (`?name=`). Requires ROLE_USER permission.'
             ),
             normalizationContext: ['groups' => ['team:read', 'team:id']],
-            denormalizationContext: ['groups' => ['team:write', 'team:owner']],
             security: "is_granted('ROLE_USER')",
+        ),
+        new Post(
+            uriTemplate: 'player_teams',
+            input: PlayerTeamInput::class,
+            processor: CreatePlayerTeamProcessor::class,
+            openapi: new Operation(
+                summary: 'Create a player team',
+                description: 'Create a player team from a name and a description. The current user becomes its owner and first member; the join code is generated. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['team:read', 'team:id']],
+            security: "is_granted('ROLE_USER')",
+        ),
+        new Post(
+            uriTemplate: 'player_teams/join',
+            status: 200,
+            input: JoinTeamInput::class,
+            processor: JoinTeamProcessor::class,
+            openapi: new Operation(
+                summary: 'Join a player team by its code',
+                description: 'Join the player team whose join code is given: 404 for an unknown code, 409 when already a member. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['team:read', 'team:id']],
+            security: "is_granted('ROLE_USER')",
+        ),
+        new Post(
+            uriTemplate: 'teams/{id}/leave',
+            status: 204,
+            output: false,
+            deserialize: false,
+            validate: false,
+            processor: LeaveTeamProcessor::class,
+            openapi: new Operation(
+                summary: 'Leave a team',
+                description: 'Leave the team: 409 for its owner, who can only delete it, and for someone who is not a member. Requires ROLE_USER permission.'
+            ),
+            security: "is_granted('ROLE_USER')",
+        ),
+        // Le code de jointure vaut invitation : seuls les membres le lisent
+        new Get(
+            uriTemplate: 'player_teams/{id}/code',
+            openapi: new Operation(
+                summary: 'Join code of a player team',
+                description: 'The join code of the team, for its members only. Requires ROLE_USER permission.'
+            ),
+            normalizationContext: ['groups' => ['team:code']],
+            security: "is_granted('ROLE_USER') and object.hasMember(user)",
         ),
         new Patch(
             openapi: new Operation(
@@ -112,6 +168,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
         ),
     ]
 )]
+#[ApiFilter(SearchFilter::class, properties: ['name' => 'ipartial'])]
 #[ORM\Entity(repositoryClass: TeamRepository::class)]
 #[InheritanceType('SINGLE_TABLE')]
 #[DiscriminatorColumn(name: 'discriminator', type: 'string')]
@@ -266,10 +323,16 @@ abstract class Team
         return new ArrayCollection();
     }
 
-    #[Groups(['team:read'])]
+    #[Groups(['team:code'])]
     public function getCode(): ?string
     {
         return null;
+    }
+
+    #[Groups(['team:read'])]
+    public function getMemberCount(): int
+    {
+        return $this->getMembers()->count();
     }
 
     /**
