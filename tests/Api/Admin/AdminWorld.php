@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Api\Admin;
 
 use App\Entity\ParticipateRiddle;
+use App\Entity\TeamJoinRequest;
 use App\Entity\User;
 use App\Factory\DesignerTeamFactory;
 use App\Factory\GPSRiddleFactory;
@@ -50,6 +51,9 @@ trait AdminWorld
             ->setLastParticipate(new \DateTime('2026-09-08 02:26:24'));
         $entityManager = $I->grabService(EntityManagerInterface::class);
         $entityManager->persist($participateRiddle);
+        // Un candidat créé après l'équipe : la factory ne l'y a pas mis, il peut demander à entrer
+        $joinRequest = new TeamJoinRequest($playerTeam, UserFactory::createOne()->_real());
+        $entityManager->persist($joinRequest);
         $entityManager->flush();
 
         $picture = PictureFactory::createOne(['image' => 'not really a png'])->_real();
@@ -66,6 +70,7 @@ trait AdminWorld
             'participateRiddle' => $participateRiddle,
             'player' => $player,
             'playerTeam' => $playerTeam,
+            'joinRequest' => $joinRequest,
             'picture' => $picture,
         ];
     }

@@ -163,11 +163,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:me', 'user:id', 'user:read'])]
+    #[Groups(['user:me', 'user:id', 'user:read', 'joinRequest:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['user:me', 'user:write', 'team:members', 'user:read', 'participateHunt:scoreboard'])]
+    #[Groups(['user:me', 'user:write', 'team:members', 'user:read', 'participateHunt:scoreboard', 'joinRequest:read'])]
     #[Assert\NotBlank(message: 'Le pseudo est obligatoire.')]
     #[Assert\Length(min: 3, max: 50, minMessage: 'Le pseudo doit faire au moins {{ limit }} caractères.', maxMessage: 'Le pseudo ne peut pas dépasser {{ limit }} caractères.')]
     private string $nickname;
