@@ -6,13 +6,14 @@ use App\Repository\PlayerTeamRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: PlayerTeamRepository::class)]
+// Le code de jointure identifie l'équipe auprès des joueurs : deux équipes ne peuvent pas le partager.
+#[UniqueEntity(fields: ['code'], message: 'Ce code est déjà utilisé par une autre équipe.')]
 class PlayerTeam extends Team
 {
     #[ORM\Column(length: 24)]
-    #[Assert\Unique]
     private string $code;
 
     /**

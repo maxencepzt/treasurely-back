@@ -25,12 +25,13 @@ class RiddleCrudController extends AbstractCrudController
     }
 
     /**
-     * `Riddle` est abstraite : une énigme se crée depuis le CRUD de son type (GPS, QCM, QR, texte).
-     * Ce CRUD liste et modifie toutes les énigmes, il n'en crée pas.
+     * `Riddle` est abstraite, et les énigmes se créent et se suppriment depuis la façade
+     * designer, dont HuntEditor tient à jour `riddleCount` et l'ordre des énigmes de la chasse.
+     * Ce CRUD liste et corrige toutes les énigmes, il n'en crée ni n'en supprime.
      */
     public function configureActions(Actions $actions): Actions
     {
-        return $actions->disable(Action::NEW);
+        return $actions->disable(Action::NEW, Action::DELETE, Action::BATCH_DELETE);
     }
 
     public function configureCrud(Crud $crud): Crud

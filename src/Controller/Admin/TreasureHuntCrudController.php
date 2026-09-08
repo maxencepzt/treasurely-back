@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\TreasureHunt;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -23,12 +25,21 @@ class TreasureHuntCrudController extends AbstractCrudController
         return TreasureHunt::class;
     }
 
+    /**
+     * Une chasse se construit dans la façade designer, dont HuntEditor pose le propriétaire,
+     * le nombre d'énigmes et le statut du workflow. L'admin consulte, corrige et supprime,
+     * il ne crée pas.
+     */
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions->disable(Action::NEW);
+    }
+
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
             ->setEntityLabelInSingular('Chasse au trésor')
             ->setEntityLabelInPlural('Chasses au trésor')
-            ->setPageTitle(Crud::PAGE_NEW, 'Nouvelle chasse au trésor')
             ->setPageTitle(Crud::PAGE_EDIT, 'Modifier la chasse au trésor');
     }
 
