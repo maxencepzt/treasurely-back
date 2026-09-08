@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\TreasureHunt;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -22,12 +23,21 @@ class TreasureHuntCrudController extends AbstractCrudController
         return TreasureHunt::class;
     }
 
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->setEntityLabelInSingular('Chasse au trésor')
+            ->setEntityLabelInPlural('Chasses au trésor')
+            ->setPageTitle(Crud::PAGE_NEW, 'Nouvelle chasse au trésor')
+            ->setPageTitle(Crud::PAGE_EDIT, 'Modifier la chasse au trésor');
+    }
+
     public function configureFields(string $pageName): iterable
     {
         return [
             IdField::new('id')->hideOnForm(),
             TextField::new('title', 'Titre'),
-            TextareaField::new('description', 'Description'),
+            TextareaField::new('description', 'Description')->hideOnIndex(),
             // Le statut est piloté par le workflow (publish / close / republish), pas par l'admin.
             ChoiceField::new('status', 'Statut')
                 ->setChoices([

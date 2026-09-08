@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\ParticipateHunt;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -19,6 +20,15 @@ class ParticipateHuntCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return ParticipateHunt::class;
+    }
+
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->setEntityLabelInSingular('Participation à une chasse')
+            ->setEntityLabelInPlural('Participations aux chasses')
+            ->setPageTitle(Crud::PAGE_NEW, 'Nouvelle participation à une chasse')
+            ->setPageTitle(Crud::PAGE_EDIT, 'Modifier la participation');
     }
 
     public function configureFields(string $pageName): iterable
