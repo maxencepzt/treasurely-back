@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Riddle;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -19,6 +21,15 @@ class RiddleCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return Riddle::class;
+    }
+
+    /**
+     * `Riddle` est abstraite : une énigme se crée depuis le CRUD de son type (GPS, QCM, QR, texte).
+     * Ce CRUD liste et modifie toutes les énigmes, il n'en crée pas.
+     */
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions->disable(Action::NEW);
     }
 
     public function configureFields(string $pageName): iterable
