@@ -5,7 +5,10 @@ namespace App\Controller\Admin;
 use App\Entity\User;
 use App\Enum\Gender;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -14,12 +17,21 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TelephoneField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
  * @extends AbstractCrudController<User>
  */
 class UserCrudController extends AbstractCrudController
 {
+    public function __construct(private readonly UserPasswordHasherInterface $passwordHasher)
+    {
+    }
+
     public static function getEntityFqcn(): string
     {
         return User::class;
@@ -35,11 +47,54 @@ class UserCrudController extends AbstractCrudController
             ->setDefaultSort(['id' => 'DESC']);
     }
 
+    /**
+     * @return FormBuilderInterface<User>
+     */
+    public function createNewFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface
+    {
+        return $this->hashPasswordOnSubmit(parent::createNewFormBuilder($entityDto, $formOptions, $context));
+    }
+
+    /**
+     * @return FormBuilderInterface<User>
+     */
+    public function createEditFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface
+    {
+        return $this->hashPasswordOnSubmit(parent::createEditFormBuilder($entityDto, $formOptions, $context));
+    }
+
+    /**
+     * Le mot de passe saisi n'est pas mappé sur l'entité : il est haché ici, et seulement
+     * s'il a été renseigné, pour qu'une modification sans saisie garde le mot de passe actuel.
+     *
+     * @param FormBuilderInterface<User> $formBuilder
+     *
+     * @return FormBuilderInterface<User>
+     */
+    private function hashPasswordOnSubmit(FormBuilderInterface $formBuilder): FormBuilderInterface
+    {
+        return $formBuilder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
+            $form = $event->getForm();
+            $plainPassword = $form->get('plainPassword')->getData();
+            if (!$form->isValid() || null === $plainPassword || '' === $plainPassword) {
+                return;
+            }
+
+            $user = $form->getData();
+            $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
+        });
+    }
+
     public function configureFields(string $pageName): iterable
     {
         return [
             IdField::new('id')->hideOnForm(),
             TextField::new('nickname', 'Pseudo'),
+            TextField::new('plainPassword', 'Mot de passe')
+                ->setFormType(PasswordType::class)
+                ->setFormTypeOptions(['mapped' => false, 'required' => Crud::PAGE_NEW === $pageName])
+                ->setHelp(Crud::PAGE_NEW === $pageName ? '' : 'Laisser vide pour conserver le mot de passe actuel.')
+                ->onlyOnForms(),
             TextField::new('firstname', 'Prénom'),
             TextField::new('lastname', 'Nom'),
             EmailField::new('email', 'Email'),
@@ -60,6 +115,7 @@ class UserCrudController extends AbstractCrudController
                     };
                 }),
             BooleanField::new('activated', 'Activé'),
+            BooleanField::new('public', 'Profil public'),
             ChoiceField::new('roles', 'Rôles')
                 ->setChoices([
                     'Admin' => 'ROLE_ADMIN',
