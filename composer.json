@@ -130,6 +130,7 @@
       "APP_ENV=test php bin/console doctrine:database:drop --force",
       "APP_ENV=test php bin/console doctrine:database:create",
       "APP_ENV=test php bin/console doctrine:schema:create --quiet",
+      "APP_ENV=test php bin/console lexik:jwt:generate-keypair --skip-if-exists --quiet",
       "php vendor/bin/codecept run --no-artifacts"
     ],
     "test:codeception_w": [
@@ -137,6 +138,7 @@
       "php bin/console doctrine:database:drop --force --env=test",
       "php bin/console doctrine:database:create --env=test",
       "php bin/console doctrine:schema:create --quiet --env=test",
+      "php bin/console lexik:jwt:generate-keypair --skip-if-exists --quiet --env=test",
       "php vendor/bin/codecept run --no-artifacts"
     ],
     "test" : [

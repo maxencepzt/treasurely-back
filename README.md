@@ -50,6 +50,9 @@ composer db
 composer jwt:generate
 ```
 
+La suite de tests n'utilise pas ces clés : `composer test:codeception` génère sa propre paire sous
+`var/jwt/test/` avec la passphrase de `.env.test`.
+
 #### Pour générer la documentation OpenAPI de API Platform
 
 ```bash
