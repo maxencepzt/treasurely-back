@@ -27,7 +27,7 @@ class TreasureHuntCrudController extends AbstractCrudController
         return [
             IdField::new('id')->hideOnForm(),
             TextField::new('title', 'Titre'),
-            TextareaField::new('description', 'Description'),
+            TextareaField::new('description', 'Description')->hideOnIndex(),
             // Le statut est piloté par le workflow (publish / close / republish), pas par l'admin.
             ChoiceField::new('status', 'Statut')
                 ->setChoices([
