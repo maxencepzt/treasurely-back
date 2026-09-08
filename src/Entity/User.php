@@ -166,6 +166,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 50)]
     #[Groups(['user:me', 'user:write', 'team:members', 'user:read', 'participateHunt:scoreboard'])]
+    #[Assert\NotBlank(message: 'Le pseudo est obligatoire.')]
+    #[Assert\Length(min: 3, max: 50, minMessage: 'Le pseudo doit faire au moins {{ limit }} caractères.', maxMessage: 'Le pseudo ne peut pas dépasser {{ limit }} caractères.')]
     private string $nickname;
 
     /**
@@ -186,33 +188,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * haché par UserPasswordProcessor avant l'enregistrement. Jamais persisté.
      */
     #[Groups(['user:password'])]
-    #[Assert\NotBlank(groups: ['user:register'])]
-    #[Assert\Length(max: 4096)]
+    #[Assert\NotBlank(message: 'Le mot de passe est obligatoire.', groups: ['user:register'])]
+    #[Assert\Length(min: 8, max: 4096, minMessage: 'Le mot de passe doit faire au moins {{ limit }} caractères.')]
     private ?string $plainPassword = null;
 
     #[ORM\Column(length: 100)]
     #[Groups(['user:me', 'user:write'])]
+    #[Assert\NotBlank(message: 'Le prénom est obligatoire.')]
+    #[Assert\Length(max: 100, maxMessage: 'Le prénom ne peut pas dépasser {{ limit }} caractères.')]
     private string $firstname;
 
     #[ORM\Column(length: 100)]
     #[Groups(['user:me', 'user:write'])]
+    #[Assert\NotBlank(message: 'Le nom est obligatoire.')]
+    #[Assert\Length(max: 100, maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères.')]
     private string $lastname;
 
     #[ORM\Column(length: 50)]
     #[Groups(['user:me', 'user:write'])]
-    #[Assert\Email(
-        message: 'The email {{ value }} is not a valid email.',
-    )]
+    #[Assert\NotBlank(message: 'L\'adresse email est obligatoire.')]
+    #[Assert\Length(max: 50, maxMessage: 'L\'adresse email ne peut pas dépasser {{ limit }} caractères.')]
+    #[Assert\Email(message: 'Cette adresse email n\'est pas valide.')]
     private string $email;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Groups(['user:me', 'user:write'])]
     #[Assert\Type(\DateTime::class)]
-    #[Assert\LessThan('today', message: 'The birth date cannot be in the future.')]
+    #[Assert\LessThan('today', message: 'La date de naissance ne peut pas être dans le futur.')]
     private \DateTime $birthDate;
 
     #[ORM\Column(length: 12)]
     #[Groups(['user:me', 'user:write'])]
+    #[Assert\Length(max: 12, maxMessage: 'Le numéro de téléphone ne peut pas dépasser {{ limit }} caractères.')]
     private string $phone;
 
     #[ORM\Column]
@@ -278,6 +285,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 150)]
     #[Groups(['user:me', 'user:write', 'user:read'])]
+    #[Assert\Length(max: 150, maxMessage: 'La description ne peut pas dépasser {{ limit }} caractères.')]
     private string $description = '';
 
     /**
