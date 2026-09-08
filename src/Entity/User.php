@@ -229,7 +229,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     #[Groups(['user:me', 'user:write', 'user:read'])]
-    private bool $public;
+    private bool $public = false;
 
     #[ORM\Column(type: 'string', enumType: Gender::class)]
     #[Groups(['user:me', 'user:write', 'user:read'])]

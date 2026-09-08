@@ -261,6 +261,20 @@ final class UserPostCest
         $I->assertTrue($I->grabService(UserPasswordHasherInterface::class)->isPasswordValid($stored, 'securepassword123'));
     }
 
+    public function aRegistrationWithoutVisibilityIsPrivate(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $registration = $this->registration('discret', 'discret@example.com');
+        unset($registration['public']);
+
+        // 2. 'Act'
+        $I->sendPost('/api/register', $registration);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::CREATED);
+        $I->seeResponseContainsJson(['nickname' => 'discret', 'public' => false]);
+    }
+
     public function cannotRegisterWithoutAPassword(ApiTester $I): void
     {
         // 1. 'Arrange'
