@@ -227,6 +227,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Groups(['user:me', 'user:write'])]
+    #[Assert\NotNull(message: 'La date de naissance est obligatoire.')]
     #[Assert\Type(\DateTime::class)]
     #[Assert\LessThan('today', message: 'La date de naissance ne peut pas être dans le futur.')]
     private \DateTime $birthDate;
@@ -254,6 +255,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'string', enumType: Gender::class)]
     #[Groups(['user:me', 'user:write', 'user:read'])]
+    #[Assert\NotNull(message: 'Le genre est obligatoire.')]
     private Gender $gender;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
