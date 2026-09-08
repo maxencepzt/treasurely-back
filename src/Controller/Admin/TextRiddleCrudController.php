@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\TextRiddle;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -22,12 +24,21 @@ class TextRiddleCrudController extends AbstractCrudController
         return TextRiddle::class;
     }
 
+    /**
+     * Les énigmes se créent et se suppriment depuis la façade designer, dont HuntEditor
+     * tient à jour `riddleCount` et l'ordre des énigmes de la chasse. Le CRUD corrige une
+     * énigme existante, il n'en crée ni n'en supprime.
+     */
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions->disable(Action::NEW, Action::DELETE, Action::BATCH_DELETE);
+    }
+
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
             ->setEntityLabelInSingular('Énigme texte')
             ->setEntityLabelInPlural('Énigmes texte')
-            ->setPageTitle(Crud::PAGE_NEW, 'Nouvelle énigme texte')
             ->setPageTitle(Crud::PAGE_EDIT, 'Modifier l\'énigme texte');
     }
 

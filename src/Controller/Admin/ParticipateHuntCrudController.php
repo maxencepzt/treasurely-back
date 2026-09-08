@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\ParticipateHunt;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -22,12 +24,21 @@ class ParticipateHuntCrudController extends AbstractCrudController
         return ParticipateHunt::class;
     }
 
+    /**
+     * Une participation naît quand un joueur rejoint une chasse (`JoinHuntProcessor`), qui
+     * pose l'énigme courante et l'horloge : elle ne se crée pas à la main. L'admin consulte,
+     * corrige et supprime, il ne crée pas.
+     */
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions->disable(Action::NEW);
+    }
+
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
             ->setEntityLabelInSingular('Participation à une chasse')
             ->setEntityLabelInPlural('Participations aux chasses')
-            ->setPageTitle(Crud::PAGE_NEW, 'Nouvelle participation à une chasse')
             ->setPageTitle(Crud::PAGE_EDIT, 'Modifier la participation');
     }
 

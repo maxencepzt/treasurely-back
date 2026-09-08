@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\GPSRiddle;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -23,12 +25,21 @@ class GPSRiddleCrudController extends AbstractCrudController
         return GPSRiddle::class;
     }
 
+    /**
+     * Les énigmes se créent et se suppriment depuis la façade designer, dont HuntEditor
+     * tient à jour `riddleCount` et l'ordre des énigmes de la chasse. Le CRUD corrige une
+     * énigme existante, il n'en crée ni n'en supprime.
+     */
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions->disable(Action::NEW, Action::DELETE, Action::BATCH_DELETE);
+    }
+
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
             ->setEntityLabelInSingular('Énigme GPS')
             ->setEntityLabelInPlural('Énigmes GPS')
-            ->setPageTitle(Crud::PAGE_NEW, 'Nouvelle énigme GPS')
             ->setPageTitle(Crud::PAGE_EDIT, 'Modifier l\'énigme GPS');
     }
 
