@@ -32,6 +32,11 @@ when@test:
         dbal:
             # "TEST_TOKEN" is typically set by ParaTest
             dbname_suffix: '_test%env(default::TEST_TOKEN)%'
+    # SQLite ignore les clés étrangères tant que le pragma n'est pas posé : le middleware DBAL les
+    # active sur chaque connexion, pour que la base de test refuse ce que Postgres refuse en prod.
+    services:
+        Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\EnableForeignKeys:
+            tags: [doctrine.middleware]
 
 when@prod:
     doctrine:
