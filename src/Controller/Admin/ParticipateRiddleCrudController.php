@@ -46,10 +46,11 @@ class ParticipateRiddleCrudController extends AbstractCrudController
             IdField::new('id')->hideOnForm(),
             AssociationField::new('hunter', 'Chasseur'),
             AssociationField::new('riddle', 'Énigme'),
-            DateTimeField::new('startTime', 'Heure de début'),
-            DateTimeField::new('finishTime', 'Heure de fin'),
+            // Horloges du jeu, posées par le serveur à la seconde : affichées, jamais saisies (le formulaire perdait les secondes, et startTime fait le score).
+            DateTimeField::new('startTime', 'Heure de début')->hideOnForm(),
+            DateTimeField::new('finishTime', 'Heure de fin')->hideOnForm(),
             IntegerField::new('score', 'Score'),
-            DateTimeField::new('lastParticipate', 'Dernière participation'),
+            DateTimeField::new('lastParticipate', 'Dernière participation')->hideOnForm(),
         ];
     }
 }

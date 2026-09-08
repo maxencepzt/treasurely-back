@@ -131,6 +131,7 @@ class ParticipateHunt
     #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'participateHunts')]
     #[Groups(['participateHunt:read', 'participateHunt:create', 'user:participations', 'participateHunt:scoreboard'])]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?PlayerTeam $playerTeam = null;
 
     #[MaxDepth(1)]

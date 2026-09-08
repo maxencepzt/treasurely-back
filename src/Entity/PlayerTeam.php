@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: PlayerTeamRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 // Le code de jointure identifie l'équipe auprès des joueurs : deux équipes ne peuvent pas le partager.
 #[UniqueEntity(fields: ['code'], message: 'Ce code est déjà utilisé par une autre équipe.')]
 class PlayerTeam extends Team
@@ -26,6 +27,18 @@ class PlayerTeam extends Team
     {
         parent::__construct();
         $this->participateHunts = new ArrayCollection();
+    }
+
+    /**
+     * Une participation survit à son équipe : elle est détachée avant la suppression, côté ORM,
+     * pour que le graphe reste cohérent quel que soit le SGBD (la base fait de même par `SET NULL`).
+     */
+    #[ORM\PreRemove]
+    public function detachParticipations(): void
+    {
+        foreach ($this->participateHunts as $participateHunt) {
+            $participateHunt->setPlayerTeam(null);
+        }
     }
 
     public function getCode(): string
