@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\ParticipateRiddle;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -17,6 +18,15 @@ class ParticipateRiddleCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return ParticipateRiddle::class;
+    }
+
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->setEntityLabelInSingular('Participation à une énigme')
+            ->setEntityLabelInPlural('Participations aux énigmes')
+            ->setPageTitle(Crud::PAGE_NEW, 'Nouvelle participation à une énigme')
+            ->setPageTitle(Crud::PAGE_EDIT, 'Modifier la participation');
     }
 
     public function configureFields(string $pageName): iterable

@@ -27,7 +27,10 @@ class PictureCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setPageTitle('index', 'Images')
+            ->setEntityLabelInSingular('Image')
+            ->setEntityLabelInPlural('Images')
+            ->setPageTitle(Crud::PAGE_NEW, 'Nouvelle image')
+            ->setPageTitle(Crud::PAGE_EDIT, 'Modifier l\'image')
             ->setPageTitle('detail', 'Image #%entity_id%')
             ->setHelp('index', 'Les images sont stockées en base de données (BLOB). Uploadez une image pour la stocker.')
             ->setHelp('detail', 'Utilisez le lien ci-dessous pour visualiser l\'image.')

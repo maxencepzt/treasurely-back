@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\TreasureHunt;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -20,6 +21,15 @@ class TreasureHuntCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return TreasureHunt::class;
+    }
+
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->setEntityLabelInSingular('Chasse au trésor')
+            ->setEntityLabelInPlural('Chasses au trésor')
+            ->setPageTitle(Crud::PAGE_NEW, 'Nouvelle chasse au trésor')
+            ->setPageTitle(Crud::PAGE_EDIT, 'Modifier la chasse au trésor');
     }
 
     public function configureFields(string $pageName): iterable

@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\QRRiddle;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -19,6 +20,15 @@ class QRRiddleCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return QRRiddle::class;
+    }
+
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->setEntityLabelInSingular('Énigme QR')
+            ->setEntityLabelInPlural('Énigmes QR')
+            ->setPageTitle(Crud::PAGE_NEW, 'Nouvelle énigme QR')
+            ->setPageTitle(Crud::PAGE_EDIT, 'Modifier l\'énigme QR');
     }
 
     public function configureFields(string $pageName): iterable
