@@ -324,6 +324,29 @@ final class UserPostCest
     /**
      * @return array<string, mixed>
      */
+    /**
+     * Sans contrainte, une propriété non nullable omise passait la validation et
+     * c'est la base qui refusait l'insertion : un 500 au lieu d'un 422.
+     *
+     * @param Example<int, string> $example
+     */
+    #[Examples('birthDate', 'La date de naissance est obligatoire.')]
+    #[Examples('gender', 'Le genre est obligatoire.')]
+    public function cannotRegisterWithoutRequiredField(ApiTester $I, Example $example): void
+    {
+        // 1. 'Arrange'
+        $userData = $this->registration('newuser', 'newuser@example.com');
+        unset($userData[$example[0]]);
+
+        // 2. 'Act'
+        $I->sendPost('/api/register', $userData);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->seeResponseContainsJson(['violations' => [['propertyPath' => $example[0], 'message' => $example[1]]]]);
+    }
+
+    /** @return array<string, mixed> */
     private function registration(string $nickname, string $email): array
     {
         return [
