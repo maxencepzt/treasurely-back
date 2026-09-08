@@ -9,6 +9,8 @@ use App\Enum\Gender;
 use App\Factory\UserFactory;
 use App\Tests\Support\ApiTester;
 use Codeception\Util\HttpCode;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class UserPatchCest
 {
@@ -88,7 +90,7 @@ final class UserPatchCest
         ])->_real();
 
         $updatedData = [
-            'password' => 'newpassword123',
+            'plainPassword' => 'newpassword123',
         ];
 
         // 2. 'Act'
@@ -98,6 +100,11 @@ final class UserPatchCest
         // 3. 'Assert'
         $I->seeResponseCodeIsSuccessful();
         $I->seeResponseIsJson();
+        $I->grabService(EntityManagerInterface::class)->clear();
+        $fresh = $I->grabEntityFromRepository(User::class, ['id' => $user->getId()]);
+        $hasher = $I->grabService(UserPasswordHasherInterface::class);
+        $I->assertTrue($hasher->isPasswordValid($fresh, 'newpassword123'));
+        $I->assertFalse($hasher->isPasswordValid($fresh, 'oldpassword'));
     }
 
     public function canUpdateMultipleFields(ApiTester $I): void
@@ -141,6 +148,21 @@ final class UserPatchCest
         $I->dontSeeResponseJsonMatchesJsonPath('$.lastname');
         $I->dontSeeResponseJsonMatchesJsonPath('$.email');
         $I->dontSeeResponseJsonMatchesJsonPath('$.phone');
+    }
+
+    public function theTotalsCannotBeWrittenThroughTheApi(ApiTester $I): void
+    {
+        // 1. 'Arrange': les totaux sont dénormalisés par les listeners, jamais saisis
+        $user = UserFactory::createOne(['totalScore' => 10, 'totalRiddles' => 2])->_real();
+
+        // 2. 'Act'
+        $I->amLoggedInAs($user);
+        $I->sendPatch('/api/users/'.$user->getId(), ['totalScore' => 99999, 'totalRiddles' => 500]);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIsSuccessful();
+        $I->seeResponseContainsJson(['totalScore' => 10, 'totalRiddles' => 2]);
+        $I->seeInRepository(User::class, ['id' => $user->getId(), 'totalScore' => 10, 'totalRiddles' => 2]);
     }
 
     public function cannotUpdateWithInvalidEmail(ApiTester $I): void
