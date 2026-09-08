@@ -41,10 +41,11 @@ class DashboardController extends AbstractDashboardController
 
     public function configureActions(): Actions
     {
-        // Un seul bouton d'enregistrement sur la page de modification : « Sauvegarder les
-        // modifications » et « Sauvegarder et continuer » côte à côte prêtaient à confusion.
+        // Un seul bouton d'enregistrement par formulaire : « Sauvegarder et continuer » et
+        // « Créer et ajouter un autre » à côté du bouton principal prêtaient à confusion.
         return parent::configureActions()
-            ->remove(Crud::PAGE_EDIT, Action::SAVE_AND_CONTINUE);
+            ->remove(Crud::PAGE_EDIT, Action::SAVE_AND_CONTINUE)
+            ->remove(Crud::PAGE_NEW, Action::SAVE_AND_ADD_ANOTHER);
     }
 
     public function configureUserMenu(UserInterface $user): UserMenu
