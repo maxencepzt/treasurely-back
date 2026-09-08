@@ -9,6 +9,8 @@ use App\Enum\Gender;
 use App\Factory\UserFactory;
 use App\Tests\Support\ApiTester;
 use Codeception\Util\HttpCode;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class UserPatchCest
 {
@@ -88,7 +90,7 @@ final class UserPatchCest
         ])->_real();
 
         $updatedData = [
-            'password' => 'newpassword123',
+            'plainPassword' => 'newpassword123',
         ];
 
         // 2. 'Act'
@@ -98,6 +100,11 @@ final class UserPatchCest
         // 3. 'Assert'
         $I->seeResponseCodeIsSuccessful();
         $I->seeResponseIsJson();
+        $I->grabService(EntityManagerInterface::class)->clear();
+        $fresh = $I->grabEntityFromRepository(User::class, ['id' => $user->getId()]);
+        $hasher = $I->grabService(UserPasswordHasherInterface::class);
+        $I->assertTrue($hasher->isPasswordValid($fresh, 'newpassword123'));
+        $I->assertFalse($hasher->isPasswordValid($fresh, 'oldpassword'));
     }
 
     public function canUpdateMultipleFields(ApiTester $I): void

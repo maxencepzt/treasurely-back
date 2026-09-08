@@ -9,6 +9,7 @@ use App\Enum\Gender;
 use App\Factory\UserFactory;
 use App\Tests\Support\ApiTester;
 use Codeception\Util\HttpCode;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class UserPostCest
 {
@@ -23,7 +24,7 @@ final class UserPostCest
             'email' => 'newuser@example.com',
             'birthDate' => $birthDate->format('Y-m-d'),
             'phone' => '0123456789',
-            'password' => 'securepassword123',
+            'plainPassword' => 'securepassword123',
             'public' => true,
             'gender' => Gender::MAN->value,
         ];
@@ -41,6 +42,7 @@ final class UserPostCest
         ]);
         $I->seeResponseJsonMatchesJsonPath('$.id');
         $I->dontSeeResponseJsonMatchesJsonPath('$.password');
+        $I->dontSeeResponseJsonMatchesJsonPath('$.plainPassword');
         // Les champs sensibles ne sont pas retournés après l'enregistrement (user:read seulement)
         $I->dontSeeResponseJsonMatchesJsonPath('$.firstname');
         $I->dontSeeResponseJsonMatchesJsonPath('$.lastname');
@@ -63,7 +65,7 @@ final class UserPostCest
             'email' => 'unique@example.com',
             'birthDate' => '1995-06-15',
             'phone' => '0123456789',
-            'password' => 'securepassword123',
+            'plainPassword' => 'securepassword123',
             'public' => true,
             'gender' => Gender::MAN->value,
         ];
@@ -90,7 +92,7 @@ final class UserPostCest
             'email' => 'existing@example.com',
             'birthDate' => '1995-06-15',
             'phone' => '0123456789',
-            'password' => 'securepassword123',
+            'plainPassword' => 'securepassword123',
             'public' => true,
             'gender' => Gender::MAN->value,
         ];
@@ -113,7 +115,7 @@ final class UserPostCest
             'email' => 'invalid-email-format',
             'birthDate' => '1995-06-15',
             'phone' => '0123456789',
-            'password' => 'securepassword123',
+            'plainPassword' => 'securepassword123',
             'public' => true,
             'gender' => Gender::MAN->value,
         ];
@@ -136,7 +138,7 @@ final class UserPostCest
             'email' => 'test@example.com',
             'birthDate' => '1995-06-15',
             'phone' => '0123456789',
-            'password' => 'securepassword123',
+            'plainPassword' => 'securepassword123',
             'public' => true,
             'gender' => 'INVALID_GENDER',
         ];
@@ -159,7 +161,7 @@ final class UserPostCest
             'email' => 'test@example.com',
             'birthDate' => 'invalid-date-format',
             'phone' => '0123456789',
-            'password' => 'securepassword123',
+            'plainPassword' => 'securepassword123',
             'public' => true,
             'gender' => Gender::MAN->value,
         ];
@@ -183,7 +185,7 @@ final class UserPostCest
             'email' => 'test@example.com',
             'birthDate' => $futureBirthDate,
             'phone' => '0123456789',
-            'password' => 'securepassword123',
+            'plainPassword' => 'securepassword123',
             'public' => true,
             'gender' => Gender::MAN->value,
         ];
@@ -206,7 +208,7 @@ final class UserPostCest
             'email' => 'date@example.com',
             'birthDate' => '1995-06-15',
             'phone' => '0123456789',
-            'password' => 'securepassword123',
+            'plainPassword' => 'securepassword123',
             'public' => true,
             'gender' => Gender::MAN->value,
         ];
@@ -230,7 +232,7 @@ final class UserPostCest
             'email' => 'role@example.com',
             'birthDate' => '1995-06-15',
             'phone' => '0123456789',
-            'password' => 'securepassword123',
+            'plainPassword' => 'securepassword123',
             'public' => true,
             'gender' => Gender::MAN->value,
         ];
@@ -245,5 +247,49 @@ final class UserPostCest
         // fetch the user from the test database and assert roles contain ROLE_USER
         $user = $I->grabEntityFromRepository(User::class, ['nickname' => 'roleuser']);
         $I->assertContains('ROLE_USER', $user->getRoles(), 'Default role must include ROLE_USER.');
+    }
+
+    public function theRegisteredPasswordIsHashed(ApiTester $I): void
+    {
+        // 1. 'Arrange' + 2. 'Act'
+        $I->sendPost('/api/register', $this->registration('connectable', 'connectable@example.com'));
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::CREATED);
+        $stored = $I->grabEntityFromRepository(User::class, ['nickname' => 'connectable']);
+        $I->assertNotSame('securepassword123', $stored->getPassword(), 'le mot de passe n\'est jamais stocké en clair');
+        $I->assertTrue($I->grabService(UserPasswordHasherInterface::class)->isPasswordValid($stored, 'securepassword123'));
+    }
+
+    public function cannotRegisterWithoutAPassword(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $registration = $this->registration('sansmdp', 'sansmdp@example.com');
+        unset($registration['plainPassword']);
+
+        // 2. 'Act'
+        $I->sendPost('/api/register', $registration);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
+        $I->dontSeeInRepository(User::class, ['nickname' => 'sansmdp']);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function registration(string $nickname, string $email): array
+    {
+        return [
+            'nickname' => $nickname,
+            'firstname' => 'New',
+            'lastname' => 'User',
+            'email' => $email,
+            'birthDate' => '1995-06-15',
+            'phone' => '0123456789',
+            'plainPassword' => 'securepassword123',
+            'public' => true,
+            'gender' => Gender::MAN->value,
+        ];
     }
 }

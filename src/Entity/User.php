@@ -15,6 +15,7 @@ use App\Controller\User\UploadUserPictureController;
 use App\Enum\Gender;
 use App\Repository\UserRepository;
 use App\State\MeProvider;
+use App\State\UserPasswordProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -113,6 +114,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             normalizationContext: ['groups' => ['user:read', 'user:id']],
             denormalizationContext: ['groups' => ['user:write', 'user:password']],
+            validationContext: ['groups' => ['Default', 'user:register']],
+            processor: UserPasswordProcessor::class,
             security: 'is_granted("PUBLIC_ACCESS")',
         ),
         // Update a specific user by ID (only the user themselves can update their information)
@@ -123,6 +126,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             normalizationContext: ['groups' => ['user:read', 'user:id']],
             denormalizationContext: ['groups' => ['user:write', 'user:password']],
+            processor: UserPasswordProcessor::class,
             security: "is_granted('ROLE_USER') and object == user"
         ),
         // Delete a specific user by ID (only the user themselves can delete their account)
@@ -175,8 +179,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
-    #[Groups(['user:password'])]
     private string $password;
+
+    /**
+     * Le mot de passe en clair, reçu par l'API à l'inscription et à la modification du profil,
+     * haché par UserPasswordProcessor avant l'enregistrement. Jamais persisté.
+     */
+    #[Groups(['user:password'])]
+    #[Assert\NotBlank(groups: ['user:register'])]
+    #[Assert\Length(max: 4096)]
+    private ?string $plainPassword = null;
 
     #[ORM\Column(length: 100)]
     #[Groups(['user:me', 'user:write'])]
@@ -366,6 +378,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // @deprecated, to be removed when upgrading to Symfony 8
+        $this->plainPassword = null;
+    }
+
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(?string $plainPassword): static
+    {
+        $this->plainPassword = $plainPassword;
+
+        return $this;
     }
 
     public function getFirstname(): string
