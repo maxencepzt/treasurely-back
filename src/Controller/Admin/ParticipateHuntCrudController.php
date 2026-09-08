@@ -10,7 +10,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 
@@ -61,7 +61,8 @@ class ParticipateHuntCrudController extends AbstractCrudController
             IntegerField::new('time', 'Temps (secondes)'),
             IntegerField::new('score', 'Score'),
             BooleanField::new('finished', 'Terminé'),
-            DateField::new('lastParticipate', 'Dernière participation'),
+            // Horloge du jeu, posée par le serveur : affichée, jamais saisie (un DateField la tronquait à minuit).
+            DateTimeField::new('lastParticipate', 'Dernière participation')->hideOnForm(),
         ];
     }
 }
