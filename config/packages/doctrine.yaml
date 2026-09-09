@@ -8,6 +8,11 @@ doctrine:
 
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
+        # Délai de connexion (PDO::ATTR_TIMEOUT = 2, connect_timeout pour pgsql) : une base qui ne
+        # répond pas donne une erreur tracée en quelques secondes, pas une requête qui pend
+        # jusqu'au délai de 300 s de Vercel (sept 504 de ce profil la semaine du 2026-09-02).
+        options:
+            2: 5
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true
