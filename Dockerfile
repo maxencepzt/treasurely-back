@@ -1,4 +1,4 @@
-ARG PHP_VERSION=8.3
+ARG PHP_VERSION=8.4
 ARG NGINX_VERSION=1.27.3
 
 FROM php:${PHP_VERSION}-fpm-alpine AS treasurely_php
@@ -10,7 +10,7 @@ RUN apk add --no-cache \
         gettext \
         postgresql-dev \
     ;
-ARG APCU_VERSION=5.1.21
+ARG APCU_VERSION=5.1.24
 RUN set -eux; \
     apk add --no-cache --virtual .build-deps \
         $PHPIZE_DEPS \
