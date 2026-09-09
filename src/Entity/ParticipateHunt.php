@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
@@ -11,6 +12,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Repository\ParticipateHuntRepository;
 use App\State\JoinHuntProcessor;
+use App\State\LeaveHuntProcessor;
 use App\State\ReplayHuntProcessor;
 use App\State\ScoreboardProvider;
 use Doctrine\DBAL\Types\Types;
@@ -64,6 +66,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             paginationEnabled: false,
             security: "is_granted('ROLE_USER')",
             provider: ScoreboardProvider::class,
+        ),
+        new Delete(
+            openapi: new Operation(
+                summary: 'Leave a treasure hunt',
+                description: 'Remove your own participation in a hunt you started, with the clocks of its riddles, as if you had never joined. A finished participation cannot be removed: its score stays on the scoreboard, replay it instead.'
+            ),
+            security: "is_granted('ROLE_USER')",
+            processor: LeaveHuntProcessor::class,
         ),
         new Patch(
             openapi: new Operation(
