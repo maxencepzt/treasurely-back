@@ -298,6 +298,25 @@ final class DesignerHuntCest
         $I->seeInRepository(MCQRiddle::class, ['title' => 'Capitale', 'maxScoringAttempts' => 2, 'revealAnswerCount' => false]);
     }
 
+    public function creatingAHuntWithAnImagePersistsIt(ApiTester $I): void
+    {
+        // 1. 'Arrange' : un PNG d'un pixel ; l'envoi d'une image flushe avant que les énigmes soient posées
+        $owner = UserFactory::createOne()->_real();
+        $team = DesignerTeamFactory::createOne(['owner' => $owner])->_real();
+        $hunt = (new TreasureHunt())->setTitle('Illustrée')->setDescription('Avec une image')->setDifficulty(1)->setDesignerTeam($team);
+        $png = tempnam(sys_get_temp_dir(), 'treasurely-');
+        file_put_contents($png, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='));
+
+        // 2. 'Act'
+        $I->amLoggedInAs($owner, 'main');
+        $I->sendFormPost('/designer/hunt/create', $this->payload($I, $hunt, [$this->newTextRiddle('Une seule')], ['action' => 'publish']), ['image' => $png]);
+        unlink($png);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::CREATED);
+        $I->seeInRepository(TreasureHunt::class, ['title' => 'Illustrée', 'status' => TreasureHunt::STATE_OPENED, 'riddleCount' => 1]);
+    }
+
     public function anInvalidRiddleIsRejectedWithItsMessage(ApiTester $I): void
     {
         // 1. 'Arrange'

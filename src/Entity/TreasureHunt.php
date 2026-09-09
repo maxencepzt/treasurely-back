@@ -109,7 +109,7 @@ class TreasureHunt
     #[ORM\Column]
     #[Assert\PositiveOrZero]
     #[Groups(['treasureHunt:read', 'designerTeam:treasureHunts'])]
-    private int $riddleCount;
+    private int $riddleCount = 0;
 
     /**
      * @var Collection<int, HuntType>
