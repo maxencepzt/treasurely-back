@@ -183,6 +183,48 @@ final class RiddleAttemptCest
         $I->assertSame(0, $I->grabNumRecords(ParticipateRiddle::class, ['riddle' => $second]));
     }
 
+    public function anAdminWhoJoinedTheHuntGetsAClockLikeAnyone(ApiTester $I): void
+    {
+        // Un administrateur lit tout sans chrono, sauf s'il a rejoint la chasse : il y joue alors comme les autres
+        [, $hunt] = $this->hunt();
+        $riddle = TextRiddleFactory::createOne(['hunt' => $hunt, 'orderNumber' => 1])->_real();
+        $admin = UserFactory::createOne(['roles' => ['ROLE_ADMIN']])->_real();
+        $this->join($I, $admin, $hunt, $riddle);
+
+        $I->amLoggedInAs($admin);
+        $I->sendGet('/api/riddles/'.$riddle->getId());
+
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->assertSame(1, $I->grabNumRecords(ParticipateRiddle::class, ['hunter' => $admin, 'riddle' => $riddle]));
+    }
+
+    public function anAdminWhoJoinedTheHuntCanAnswer(ApiTester $I): void
+    {
+        [, $hunt] = $this->hunt();
+        $riddle = TextRiddleFactory::createOne(['hunt' => $hunt, 'orderNumber' => 1, 'answer' => 'Reims'])->_real();
+        $admin = UserFactory::createOne(['roles' => ['ROLE_ADMIN']])->_real();
+        $this->join($I, $admin, $hunt, $riddle);
+        $this->start($I, $admin, $riddle);
+
+        $this->attempt($I, $admin, $riddle, ['proposal' => 'Reims']);
+
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson(['solved' => true]);
+    }
+
+    public function anAdminWhoDidNotJoinReadsWithoutAClock(ApiTester $I): void
+    {
+        [, $hunt] = $this->hunt();
+        $riddle = TextRiddleFactory::createOne(['hunt' => $hunt, 'orderNumber' => 1])->_real();
+        $admin = UserFactory::createOne(['roles' => ['ROLE_ADMIN']])->_real();
+
+        $I->amLoggedInAs($admin);
+        $I->sendGet('/api/riddles/'.$riddle->getId());
+
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->assertSame(0, $I->grabNumRecords(ParticipateRiddle::class, ['riddle' => $riddle]));
+    }
+
     /**
      * @param Example<int, string> $example
      */

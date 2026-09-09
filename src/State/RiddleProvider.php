@@ -49,12 +49,19 @@ final class RiddleProvider implements ProviderInterface
         $user = $this->security->getUser();
         $hunt = $riddle instanceof Riddle ? $riddle->getHunt() : null;
 
-        if (null === $hunt || !$user instanceof User || $this->security->isGranted('ROLE_ADMIN') || !$this->scoreCalculator->canUserPlay($user, $hunt)) {
+        if (null === $hunt || !$user instanceof User) {
             return $riddle;
         }
 
-        $progress = $this->huntParticipations->findOneBy(['hunter' => $user, 'hunt' => $hunt])
-            ?? throw new AccessDeniedHttpException('Rejoignez la chasse pour lire ses énigmes.');
+        // Un administrateur ou un concepteur lit tout sans chrono ; un administrateur qui a rejoint
+        // la chasse y joue comme les autres, avec le chrono et la participation que la réponse exige.
+        $progress = $this->huntParticipations->findOneBy(['hunter' => $user, 'hunt' => $hunt]);
+        if (null === $progress && ($this->security->isGranted('ROLE_ADMIN') || !$this->scoreCalculator->canUserPlay($user, $hunt))) {
+            return $riddle;
+        }
+        if (null === $progress) {
+            throw new AccessDeniedHttpException('Rejoignez la chasse pour lire ses énigmes.');
+        }
         $current = $progress->getCurrentRiddle();
         if ($riddle->getOrderNumber() > $current->getOrderNumber()) {
             throw new AccessDeniedHttpException("Cette énigme n'est pas encore accessible.");
