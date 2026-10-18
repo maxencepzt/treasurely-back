@@ -33,6 +33,12 @@ class SSOController extends AbstractController
     #[Route('/sso/login', name: 'sso_login', methods: ['POST'])]
     public function ssoLogin(Request $request): RedirectResponse|JsonResponse
     {
+        // Un formulaire d'un autre site ne peut pas envoyer de JSON sans pré-requête CORS : sans
+        // ce contrôle, il connecterait le visiteur au compte de l'attaquant (login CSRF).
+        if (!str_contains((string) $request->getContentTypeFormat(), 'json')) {
+            return new JsonResponse(['message' => 'JSON expected'], Response::HTTP_UNSUPPORTED_MEDIA_TYPE);
+        }
+
         $data = json_decode($request->getContent(), true);
         if (!isset($data['token'])) {
             return new JsonResponse(['message' => 'Token not provided'], Response::HTTP_BAD_REQUEST);
@@ -54,6 +60,10 @@ class SSOController extends AbstractController
         if (!$user) {
             return new JsonResponse(['message' => 'User not found'], Response::HTTP_UNAUTHORIZED);
         }
+
+        // Nouvel identifiant de session à la connexion : un cookie posé d'avance par un autre
+        // sous-domaine de maxencepzt.fr (fixation de session) ne désigne plus la session ouverte.
+        $request->getSession()->migrate(true);
 
         // Créer la session Symfony
         $symfonyToken = new UsernamePasswordToken($user, 'main', $user->getRoles());

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -85,7 +86,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 description: 'Retrieves all the teams where the user is present and/or is the owner.'
             ),
             normalizationContext: ['groups' => ['user:teams']],
-            security: "is_granted('ROLE_USER')"
+            security: "is_granted('ROLE_USER') and (object == user or object.isPublic() or is_granted('ROLE_ADMIN'))"
         ),
         new Get(
             uriTemplate: '/users/{id}/participate_hunts',
@@ -94,7 +95,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 description: 'Retrieves all treasure hunt participations for the specified user.'
             ),
             normalizationContext: ['groups' => ['user:participations'], 'enable_max_depth' => true],
-            security: "is_granted('ROLE_USER')",
+            security: "is_granted('ROLE_USER') and (object == user or is_granted('ROLE_ADMIN'))",
         ),
         new Post(
             uriTemplate: '/users/{id}/picture',
@@ -160,6 +161,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    /**
+     * Un profil privé ne montre aux autres joueurs que son pseudo et sa photo. `object` est nul
+     * à l'écriture (inscription, modification), que la sécurité de l'opération encadre déjà.
+     */
+    private const string VISIBLE_PROFILE = "object === null or object.isPublic() or object == user or is_granted('ROLE_ADMIN')";
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -243,6 +250,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     #[Gedmo\Timestampable(on: 'create')]
     #[Groups(['user:me', 'user:read'])]
+    #[ApiProperty(security: self::VISIBLE_PROFILE)]
     private \DateTimeImmutable $creationDate;
 
     // TODO Gérer comment connaitre la dernière fois que quelqu'un s'est connecté (peut pas fonctionner avec Timestampable)
@@ -256,19 +264,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', enumType: Gender::class)]
     #[Groups(['user:me', 'user:write', 'user:read'])]
     #[Assert\NotNull(message: 'Le genre est obligatoire.')]
+    #[ApiProperty(security: self::VISIBLE_PROFILE)]
     private Gender $gender;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    // L'ancienne photo est supprimée quand une autre la remplace : sinon chaque envoi reste en base.
+    #[ORM\OneToOne(cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\JoinColumn(nullable: true)]
     #[Groups(['user:picture'])]
     private ?Picture $profilePicture = null;
 
     #[ORM\Column]
     #[Groups(['user:me', 'user:read'])]
+    #[ApiProperty(security: self::VISIBLE_PROFILE)]
     private int $totalTime;
 
     #[ORM\Column]
     #[Groups(['user:me', 'user:read'])]
+    #[ApiProperty(security: self::VISIBLE_PROFILE)]
     private int $totalHunt;
 
     /**
@@ -302,6 +314,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 150)]
     #[Groups(['user:me', 'user:write', 'user:read'])]
     #[Assert\Length(max: 150, maxMessage: 'La description ne peut pas dépasser {{ limit }} caractères.')]
+    #[ApiProperty(security: self::VISIBLE_PROFILE)]
     private string $description = '';
 
     /**
@@ -313,10 +326,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     #[Groups(['user:me', 'user:read'])]
+    #[ApiProperty(security: self::VISIBLE_PROFILE)]
     private int $totalScore;
 
     #[ORM\Column]
     #[Groups(['user:me', 'user:read'])]
+    #[ApiProperty(security: self::VISIBLE_PROFILE)]
     private int $totalRiddles;
 
     public function __construct()

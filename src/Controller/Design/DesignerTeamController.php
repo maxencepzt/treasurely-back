@@ -20,6 +20,8 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class DesignerTeamController extends AbstractController
 {
+    public const string CSRF_TOKEN_ID = 'designer_team';
+
     public function __construct(private readonly Security $security)
     {
     }
@@ -126,15 +128,8 @@ final class DesignerTeamController extends AbstractController
 
         $users = $userRepository->searchUsersByQuery($query, $usersToExclude, $searchType);
 
-        $result = array_map(function (User $user) {
-            return [
-                'id' => $user->getId(),
-                'nickname' => $user->getNickname(),
-                'firstName' => $user->getFirstName(),
-                'lastName' => $user->getLastName(),
-                'fullName' => $user->getFirstName().' '.$user->getLastName(),
-            ];
-        }, $users);
+        // Le pseudo seul : tout joueur connecté peut ouvrir la façade, les noms réels restent privés.
+        $result = array_map(fn (User $user): array => ['id' => $user->getId(), 'nickname' => $user->getNickname()], $users);
 
         return $this->json($result);
     }
@@ -146,73 +141,68 @@ final class DesignerTeamController extends AbstractController
         UserRepository $userRepository,
         ImageUploadService $imageUploadService,
     ): JsonResponse {
-        try {
-            // Récupérer les données depuis FormData
-            $name = $request->request->get('name');
-            $description = $request->request->get('description');
-            $membersJson = $request->request->get('members');
+        $this->assertCsrfToken($request);
 
-            // Validation
-            if (empty($name)) {
-                return $this->json(['error' => 'Le nom de l\'équipe est requis'], Response::HTTP_BAD_REQUEST);
+        // Récupérer les données depuis FormData
+        $name = $request->request->get('name');
+        $description = $request->request->get('description');
+        $membersJson = $request->request->get('members');
+
+        // Validation
+        if (empty($name)) {
+            return $this->json(['error' => 'Le nom de l\'équipe est requis'], Response::HTTP_BAD_REQUEST);
+        }
+
+        /** @var User $currentUser */
+        $currentUser = $this->security->getUser();
+
+        // Créer la nouvelle équipe
+        $designerTeam = new DesignerTeam();
+        $designerTeam->setName($name);
+        $designerTeam->setDescription($description);
+        $designerTeam->setOwner($currentUser);
+        $designerTeam->addMember($currentUser);
+
+        // Gérer l'upload d'image si présente
+        /** @var UploadedFile|null $uploadedFile */
+        $uploadedFile = $request->files->get('image');
+
+        if ($uploadedFile) {
+            try {
+                $picture = $imageUploadService->uploadImage($uploadedFile);
+                $designerTeam->setImage($picture);
+            } catch (\InvalidArgumentException $e) {
+                return $this->json([
+                    'error' => 'Erreur lors de l\'upload de l\'image',
+                    'details' => $e->getMessage(),
+                ], Response::HTTP_BAD_REQUEST);
             }
+        }
 
-            /** @var User $currentUser */
-            $currentUser = $this->security->getUser();
-
-            // Créer la nouvelle équipe
-            $designerTeam = new DesignerTeam();
-            $designerTeam->setName($name);
-            $designerTeam->setDescription($description);
-            $designerTeam->setOwner($currentUser);
-            $designerTeam->addMember($currentUser);
-
-            // Gérer l'upload d'image si présente
-            /** @var UploadedFile|null $uploadedFile */
-            $uploadedFile = $request->files->get('image');
-
-            if ($uploadedFile) {
-                try {
-                    $picture = $imageUploadService->uploadImage($uploadedFile);
-                    $designerTeam->setImage($picture);
-                } catch (\InvalidArgumentException $e) {
-                    return $this->json([
-                        'error' => 'Erreur lors de l\'upload de l\'image',
-                        'details' => $e->getMessage(),
-                    ], Response::HTTP_BAD_REQUEST);
-                }
-            }
-
-            // Ajouter les membres
-            if (!empty($membersJson)) {
-                $memberIds = json_decode($membersJson, true);
-                if (is_array($memberIds)) {
-                    foreach ($memberIds as $memberId) {
-                        $member = $userRepository->find($memberId);
-                        if ($member) {
-                            $designerTeam->addMember($member);
-                        }
+        // Ajouter les membres
+        if (!empty($membersJson)) {
+            $memberIds = json_decode($membersJson, true);
+            if (is_array($memberIds)) {
+                foreach ($memberIds as $memberId) {
+                    $member = $userRepository->find($memberId);
+                    if ($member) {
+                        $designerTeam->addMember($member);
                     }
                 }
             }
-
-            $entityManager->persist($designerTeam);
-            $entityManager->flush();
-
-            return $this->json([
-                'success' => true,
-                'message' => 'Équipe créée avec succès',
-                'team' => [
-                    'id' => $designerTeam->getId(),
-                    'name' => $designerTeam->getName(),
-                ],
-            ], Response::HTTP_CREATED);
-        } catch (\Exception $e) {
-            return $this->json([
-                'error' => 'Une erreur est survenue lors de la création de l\'équipe',
-                'details' => $e->getMessage(),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        $entityManager->persist($designerTeam);
+        $entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Équipe créée avec succès',
+            'team' => [
+                'id' => $designerTeam->getId(),
+                'name' => $designerTeam->getName(),
+            ],
+        ], Response::HTTP_CREATED);
     }
 
     #[Route('/designer/team/{id}/edit', name: 'api_designer_team_update', requirements: ['id' => '\d+'], methods: ['POST'])]
@@ -223,6 +213,8 @@ final class DesignerTeamController extends AbstractController
         UserRepository $userRepository,
         ImageUploadService $imageUploadService,
     ): JsonResponse {
+        $this->assertCsrfToken($request);
+
         if (!$designerTeam) {
             return $this->json(['error' => 'Équipe non trouvée'], Response::HTTP_NOT_FOUND);
         }
@@ -230,93 +222,89 @@ final class DesignerTeamController extends AbstractController
         // Vérifier les permissions de modification
         $this->denyAccessUnlessGranted(DesignerTeamVoter::EDIT, $designerTeam);
 
-        try {
-            // Récupérer les données depuis FormData
-            $name = $request->request->get('name');
-            $description = $request->request->get('description');
-            $membersJson = $request->request->get('members');
+        // Récupérer les données depuis FormData
+        $name = $request->request->get('name');
+        $description = $request->request->get('description');
+        $membersJson = $request->request->get('members');
 
-            // Validation
-            if (empty($name)) {
-                return $this->json(['error' => 'Le nom de l\'équipe est requis'], Response::HTTP_BAD_REQUEST);
-            }
-
-            $designerTeam->setName($name);
-            $designerTeam->setDescription($description);
-
-            // Gérer l'upload d'image si présente
-            /** @var UploadedFile|null $uploadedFile */
-            $uploadedFile = $request->files->get('image');
-
-            if ($uploadedFile) {
-                try {
-                    $picture = $imageUploadService->uploadImage($uploadedFile);
-                    $designerTeam->setImage($picture);
-                } catch (\InvalidArgumentException $e) {
-                    return $this->json([
-                        'error' => 'Erreur lors de l\'upload de l\'image',
-                        'details' => $e->getMessage(),
-                    ], Response::HTTP_BAD_REQUEST);
-                }
-            }
-
-            // Mettre à jour les membres
-            if (!empty($membersJson)) {
-                $memberIds = json_decode($membersJson, true);
-                if (is_array($memberIds)) {
-                    $owner = $designerTeam->getOwner();
-                    $currentMembers = $designerTeam->getMembers()->toArray();
-
-                    // Identifier les membres à retirer (sauf le propriétaire)
-                    $membersToRemove = array_filter($currentMembers, function (User $member) use ($memberIds, $owner) {
-                        return $member !== $owner && !in_array($member->getId(), $memberIds, true);
-                    });
-
-                    // Réassigner les chasses aux membres retirés
-                    foreach ($membersToRemove as $member) {
-                        foreach ($member->getTreasureHunts() as $hunt) {
-                            if ($hunt->getDesignerTeam() === $designerTeam) {
-                                $hunt->setOwner($owner);
-                            }
-                        }
-                        $designerTeam->removeMember($member);
-                    }
-
-                    // Ajouter les nouveaux membres
-                    foreach ($memberIds as $memberId) {
-                        if (!in_array($memberId, array_map(fn ($m) => $m->getId(), $currentMembers), true)) {
-                            $member = $userRepository->find($memberId);
-                            if ($member) {
-                                $designerTeam->addMember($member);
-                            }
-                        }
-                    }
-                }
-            }
-
-            $entityManager->flush();
-
-            return $this->json([
-                'success' => true,
-                'message' => 'Équipe modifiée avec succès',
-                'team' => [
-                    'id' => $designerTeam->getId(),
-                    'name' => $designerTeam->getName(),
-                ],
-            ], Response::HTTP_OK);
-        } catch (\Exception $e) {
-            return $this->json([
-                'error' => 'Une erreur est survenue lors de la modification de l\'équipe',
-                'details' => $e->getMessage(),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        // Validation
+        if (empty($name)) {
+            return $this->json(['error' => 'Le nom de l\'équipe est requis'], Response::HTTP_BAD_REQUEST);
         }
+
+        $designerTeam->setName($name);
+        $designerTeam->setDescription($description);
+
+        // Gérer l'upload d'image si présente
+        /** @var UploadedFile|null $uploadedFile */
+        $uploadedFile = $request->files->get('image');
+
+        if ($uploadedFile) {
+            try {
+                $picture = $imageUploadService->uploadImage($uploadedFile);
+                $designerTeam->setImage($picture);
+            } catch (\InvalidArgumentException $e) {
+                return $this->json([
+                    'error' => 'Erreur lors de l\'upload de l\'image',
+                    'details' => $e->getMessage(),
+                ], Response::HTTP_BAD_REQUEST);
+            }
+        }
+
+        // Mettre à jour les membres
+        if (!empty($membersJson)) {
+            $memberIds = json_decode($membersJson, true);
+            if (is_array($memberIds)) {
+                $owner = $designerTeam->getOwner();
+                $currentMembers = $designerTeam->getMembers()->toArray();
+
+                // Identifier les membres à retirer (sauf le propriétaire)
+                $membersToRemove = array_filter($currentMembers, function (User $member) use ($memberIds, $owner) {
+                    return $member !== $owner && !in_array($member->getId(), $memberIds, true);
+                });
+
+                // Réassigner les chasses aux membres retirés
+                foreach ($membersToRemove as $member) {
+                    foreach ($member->getTreasureHunts() as $hunt) {
+                        if ($hunt->getDesignerTeam() === $designerTeam) {
+                            $hunt->setOwner($owner);
+                        }
+                    }
+                    $designerTeam->removeMember($member);
+                }
+
+                // Ajouter les nouveaux membres
+                foreach ($memberIds as $memberId) {
+                    if (!in_array($memberId, array_map(fn ($m) => $m->getId(), $currentMembers), true)) {
+                        $member = $userRepository->find($memberId);
+                        if ($member) {
+                            $designerTeam->addMember($member);
+                        }
+                    }
+                }
+            }
+        }
+
+        $entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Équipe modifiée avec succès',
+            'team' => [
+                'id' => $designerTeam->getId(),
+                'name' => $designerTeam->getName(),
+            ],
+        ], Response::HTTP_OK);
     }
 
     #[Route('/designer/team/{id}/delete', name: 'api_designer_team_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     public function deleteTeam(
+        Request $request,
         ?DesignerTeam $designerTeam,
         EntityManagerInterface $entityManager,
     ): JsonResponse {
+        $this->assertCsrfToken($request);
+
         if (!$designerTeam) {
             return $this->json(['error' => 'Équipe non trouvée'], Response::HTTP_NOT_FOUND);
         }
@@ -324,28 +312,24 @@ final class DesignerTeamController extends AbstractController
         // Vérifier les permissions de suppression
         $this->denyAccessUnlessGranted(DesignerTeamVoter::DELETE, $designerTeam);
 
-        try {
-            $teamName = $designerTeam->getName();
-            $entityManager->remove($designerTeam);
-            $entityManager->flush();
+        $teamName = $designerTeam->getName();
+        $entityManager->remove($designerTeam);
+        $entityManager->flush();
 
-            return $this->json([
-                'success' => true,
-                'message' => sprintf('L\'équipe "%s" a été supprimée avec succès', $teamName),
-            ], Response::HTTP_OK);
-        } catch (\Exception $e) {
-            return $this->json([
-                'error' => 'Une erreur est survenue lors de la suppression de l\'équipe',
-                'details' => $e->getMessage(),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return $this->json([
+            'success' => true,
+            'message' => sprintf('L\'équipe "%s" a été supprimée avec succès', $teamName),
+        ], Response::HTTP_OK);
     }
 
     #[Route('/designer/team/{id}/leave', name: 'api_designer_team_leave', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function leaveTeam(
+        Request $request,
         ?DesignerTeam $designerTeam,
         EntityManagerInterface $entityManager,
     ): JsonResponse {
+        $this->assertCsrfToken($request);
+
         if (!$designerTeam) {
             return $this->json(['error' => 'Équipe non trouvée'], Response::HTTP_NOT_FOUND);
         }
@@ -363,36 +347,32 @@ final class DesignerTeamController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        try {
-            $designerTeam->removeMember($currentUser);
+        $designerTeam->removeMember($currentUser);
 
-            foreach ($currentUser->getTreasureHunts() as $hunt) {
-                if ($hunt->getDesignerTeam() === $designerTeam) {
-                    $hunt->setOwner($designerTeam->getOwner());
-                }
+        foreach ($currentUser->getTreasureHunts() as $hunt) {
+            if ($hunt->getDesignerTeam() === $designerTeam) {
+                $hunt->setOwner($designerTeam->getOwner());
             }
-
-            $entityManager->flush();
-
-            return $this->json([
-                'success' => true,
-                'message' => 'Vous avez quitté l\'équipe avec succès',
-            ], Response::HTTP_OK);
-        } catch (\Exception $e) {
-            return $this->json([
-                'error' => 'Une erreur est survenue',
-                'details' => $e->getMessage(),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        $entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Vous avez quitté l\'équipe avec succès',
+        ], Response::HTTP_OK);
     }
 
     #[Route('/designer/team/{id}/add-member/{userId}', name: 'api_designer_team_add_member', requirements: ['id' => '\d+', 'userId' => '\d+'], methods: ['POST'])]
     public function addMemberToTeam(
+        Request $request,
         ?DesignerTeam $designerTeam,
         int $userId,
         UserRepository $userRepository,
         EntityManagerInterface $entityManager,
     ): JsonResponse {
+        $this->assertCsrfToken($request);
+
         if (!$designerTeam) {
             return $this->json(['error' => 'Équipe non trouvé'], Response::HTTP_NOT_FOUND);
         }
@@ -421,11 +401,14 @@ final class DesignerTeamController extends AbstractController
 
     #[Route('/designer/team/{id}/remove-member/{userId}', name: 'api_designer_team_remove_member', requirements: ['id' => '\d+', 'userId' => '\d+'], methods: ['POST'])]
     public function removeMemberFromTeam(
+        Request $request,
         ?DesignerTeam $designerTeam,
         int $userId,
         UserRepository $userRepository,
         EntityManagerInterface $entityManager,
     ): JsonResponse {
+        $this->assertCsrfToken($request);
+
         if (!$designerTeam) {
             return $this->json(['error' => 'Équipe non trouvé'], Response::HTTP_NOT_FOUND);
         }
@@ -466,11 +449,14 @@ final class DesignerTeamController extends AbstractController
 
     #[Route('/designer/team/{id}/transfer-ownership/{userId}', name: 'api_designer_team_transfer_ownership', requirements: ['id' => '\d+', 'userId' => '\d+'], methods: ['POST'])]
     public function transferTeamOwnership(
+        Request $request,
         ?DesignerTeam $designerTeam,
         int $userId,
         UserRepository $userRepository,
         EntityManagerInterface $entityManager,
     ): JsonResponse {
+        $this->assertCsrfToken($request);
+
         if (!$designerTeam) {
             return $this->json(['error' => 'Équipe non trouvé'], Response::HTTP_NOT_FOUND);
         }
@@ -495,5 +481,14 @@ final class DesignerTeamController extends AbstractController
             'success' => true,
             'message' => 'Propriété transférée avec succès',
         ], Response::HTTP_OK);
+    }
+
+    /** Le jeton vient de l'en-tête X-CSRF-Token, posé par team-form.js et team-details.js. */
+    private function assertCsrfToken(Request $request): void
+    {
+        $token = $request->headers->get('X-CSRF-Token');
+        if (null === $token || !$this->isCsrfTokenValid(self::CSRF_TOKEN_ID, $token)) {
+            throw $this->createAccessDeniedException('Jeton CSRF invalide.');
+        }
     }
 }

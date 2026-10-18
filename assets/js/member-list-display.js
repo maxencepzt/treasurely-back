@@ -1,3 +1,5 @@
+import { escapeHtml } from 'modal-manager';
+
 export class MemberListDisplay {
     constructor(options = {}) {
         this.container = options.container;
@@ -116,12 +118,12 @@ export class MemberListDisplay {
                     <img src="/api/users/${user.id}/picture/" alt="" class="w-full h-full object-cover" />
                 </div>
                 <div class="min-w-0">
-                    <p class="font-semibold text-slate-800 truncate">${user.fullName}</p>
-                    <p class="text-sm text-slate-500 truncate">@${user.nickname}</p>
+                    <p class="font-semibold text-slate-800 truncate">${escapeHtml(user.fullName || user.nickname)}</p>
+                    <p class="text-sm text-slate-500 truncate">@${escapeHtml(user.nickname)}</p>
                 </div>
             </div>
             ${this.showRemoveButton ? `
-                <button type="button" class="remove-member w-10 h-10 rounded-xl flex items-center justify-center text-red-600 hover:bg-red-50 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500" title="Retirer" aria-label="Retirer ${user.nickname}" data-user-id="${user.id}">
+                <button type="button" class="remove-member w-10 h-10 rounded-xl flex items-center justify-center text-red-600 hover:bg-red-50 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500" title="Retirer" aria-label="Retirer ${escapeHtml(user.nickname)}" data-user-id="${escapeHtml(user.id)}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>

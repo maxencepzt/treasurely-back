@@ -1,3 +1,5 @@
+import { escapeHtml } from 'modal-manager';
+
 /**
  * Gère la liste d'énigmes d'un formulaire de chasse : ouverture du modal, saisie par
  * type, et constitution de la charge utile envoyée au serveur. Une énigme existante
@@ -312,12 +314,12 @@ class RiddleManager {
                     <div class="flex items-start gap-3 flex-1 min-w-0">
                         <div class="w-8 h-8 ${colors.number} rounded-lg flex items-center justify-center text-white font-bold text-sm tabular-nums shrink-0">${index + 1}</div>
                         <div class="flex-1 min-w-0">
-                            <h4 class="font-semibold text-slate-800 truncate">${this.escapeHtml(riddle.title)}</h4>
+                            <h4 class="font-semibold text-slate-800 truncate">${escapeHtml(riddle.title)}</h4>
                             <div class="flex items-center flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-slate-500">
                                 <span class="${colors.tag} px-2 py-0.5 rounded-md font-semibold">${this.getRiddleTypeInfo(riddle.type)}</span>
                                 <span class="inline-flex items-center">${flames}</span>
                                 <span>${riddle.maxScoringAttempts ?? 3} essai(s) noté(s)</span>
-                                ${riddle.type === 'qr' && riddle.code ? `<span class="font-mono">${this.escapeHtml(riddle.code)}</span>` : ''}
+                                ${riddle.type === 'qr' && riddle.code ? `<span class="font-mono">${escapeHtml(riddle.code)}</span>` : ''}
                             </div>
                         </div>
                     </div>
@@ -361,11 +363,6 @@ class RiddleManager {
     getRiddleTypeInfo(type) {
         const types = { text: 'Texte', gps: 'GPS', mcq: 'QCM', qr: 'QR Code' };
         return types[type] || types.text;
-    }
-
-    escapeHtml(text) {
-        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-        return String(text).replace(/[&<>"']/g, (m) => map[m]);
     }
 
     getRiddlesData() {

@@ -11,6 +11,7 @@ use App\Repository\HuntTypeRepository;
 use App\Service\Designer\Exception\HuntValidationException;
 use App\Service\ImageUploadService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -29,6 +30,7 @@ final class HuntEditor
         private readonly HuntTypeRepository $huntTypeRepository,
         private readonly ImageUploadService $imageUploadService,
         private readonly HuntRiddleSynchronizer $riddleSynchronizer,
+        #[Target('treasure_hunt_workflow')]
         private readonly WorkflowInterface $treasureHuntWorkflow,
     ) {
     }

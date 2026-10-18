@@ -1,5 +1,8 @@
-import { ModalManager, ToastManager } from 'modal-manager';
+import { ModalManager, ToastManager, escapeHtml } from 'modal-manager';
 import { MemberAutocomplete } from 'member-autocomplete';
+
+// Jeton CSRF de la page, exigé par chaque action de DesignerTeamController
+const csrfToken = document.querySelector('[data-csrf-token]')?.dataset.csrfToken ?? '';
 
 // Initialiser les gestionnaires
 const modal = new ModalManager('globalModal');
@@ -23,13 +26,13 @@ if (transferOwnershipBtn) {
             message: `
                 <div class="text-center">
                     <label for="modal_member_search" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Transférer la propriété de ${teamName} à :
+                        Transférer la propriété de ${escapeHtml(teamName)} à :
                     </label>
                     <div class="relative">
                         <input 
                             type="text" 
                             id="modal_member_search" 
-                            placeholder="Nom, prénom ou pseudo..." 
+                            placeholder="Pseudo..." 
                             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                             autocomplete="off"
                         />
@@ -43,7 +46,6 @@ if (transferOwnershipBtn) {
                                 </div>
                                 <div>
                                     <p id="modal_selected_name" class="font-semibold text-gray-800"></p>
-                                    <p id="modal_selected_nickname" class="text-sm text-gray-500"></p>
                                 </div>
                             </div>
                             <button type="button" id="modal_remove_selection" class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition" title="Retirer">
@@ -68,6 +70,7 @@ if (transferOwnershipBtn) {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken,
                     }
                 })
                 .then(response => response.json())
@@ -107,8 +110,7 @@ if (transferOwnershipBtn) {
                         // Afficher l'utilisateur sélectionné
                         document.getElementById('modal_selected_avatar').src = `/api/users/${user.id}/picture/`;
                         document.getElementById('modal_selected_avatar').alt = user.nickname;
-                        document.getElementById('modal_selected_name').textContent = user.fullName;
-                        document.getElementById('modal_selected_nickname').textContent = `@${user.nickname}`;
+                        document.getElementById('modal_selected_name').textContent = `@${user.nickname}`;
 
                         selectedMemberDiv.classList.remove('hidden');
                         searchInput.value = '';
@@ -146,7 +148,7 @@ if (deleteTeamBtn) {
         modal.show({
             type: 'danger',
             title: 'Supprimer l\'équipe ?',
-            message: `Êtes-vous sûr de vouloir supprimer l'équipe <strong>${teamName}</strong> ?`,
+            message: `Êtes-vous sûr de vouloir supprimer l'équipe <strong>${escapeHtml(teamName)}</strong> ?`,
             warning: '⚠️ Cette action est irréversible et supprimera également toutes les chasses au trésor associées.',
             confirmText: 'Supprimer',
             customIcon: {
@@ -160,6 +162,7 @@ if (deleteTeamBtn) {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken,
                     }
                 })
                 .then(response => response.json())
@@ -195,7 +198,7 @@ if (leaveTeamBtn) {
         modal.show({
             type: 'warning',
             title: 'Quitter l\'équipe ?',
-            message: `Êtes-vous sûr de vouloir quitter l'équipe <strong>${teamName}</strong> ?<br><br>Vous n'aurez plus accès aux chasses au trésor de cette équipe.`,
+            message: `Êtes-vous sûr de vouloir quitter l'équipe <strong>${escapeHtml(teamName)}</strong> ?<br><br>Vous n'aurez plus accès aux chasses au trésor de cette équipe.`,
             confirmText: 'Quitter',
             onConfirm: (modalInstance) => {
                 modalInstance.setLoading('En cours...');
@@ -204,6 +207,7 @@ if (leaveTeamBtn) {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken,
                     }
                 })
                 .then(response => response.json())
@@ -250,7 +254,7 @@ if (addMemberBtn) {
                         <input 
                             type="text" 
                             id="modal_member_search" 
-                            placeholder="Nom, prénom ou pseudo..." 
+                            placeholder="Pseudo..." 
                             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                             autocomplete="off"
                         />
@@ -264,7 +268,6 @@ if (addMemberBtn) {
                                 </div>
                                 <div>
                                     <p id="modal_selected_name" class="font-semibold text-gray-800"></p>
-                                    <p id="modal_selected_nickname" class="text-sm text-gray-500"></p>
                                 </div>
                             </div>
                             <button type="button" id="modal_remove_selection" class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition" title="Retirer">
@@ -295,6 +298,7 @@ if (addMemberBtn) {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken,
                     }
                 })
                 .then(response => response.json())
@@ -334,8 +338,7 @@ if (addMemberBtn) {
                         // Afficher l'utilisateur sélectionné
                         document.getElementById('modal_selected_avatar').src = `/api/users/${user.id}/picture/`;
                         document.getElementById('modal_selected_avatar').alt = user.nickname;
-                        document.getElementById('modal_selected_name').textContent = user.fullName;
-                        document.getElementById('modal_selected_nickname').textContent = `@${user.nickname}`;
+                        document.getElementById('modal_selected_name').textContent = `@${user.nickname}`;
 
                         selectedMemberDiv.classList.remove('hidden');
                         searchInput.value = '';
@@ -373,7 +376,7 @@ removeMemberButtons.forEach(button => {
         modal.show({
             type: 'warning',
             title: 'Retirer le membre de l\'équipe ?',
-            message: `Êtes-vous sûr de vouloir retirer <strong>${userName}</strong> de l'équipe ?`,
+            message: `Êtes-vous sûr de vouloir retirer <strong>${escapeHtml(userName)}</strong> de l'équipe ?`,
             warning: 'Il n\'aura plus accès aux chasses au trésor de cette équipe.',
             confirmText: 'Retirer',
             onConfirm: (modalInstance) => {
@@ -383,6 +386,7 @@ removeMemberButtons.forEach(button => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken,
                     }
                 })
                 .then(response => response.json())
