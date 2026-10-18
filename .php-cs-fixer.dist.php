@@ -7,6 +7,7 @@ $finder = (new PhpCsFixer\Finder())
         'vendor',
         'tests/Support/_generated',
     ])
+    ->notPath('config/reference.php') // généré par Symfony à chaque démarrage en debug
 ;
 
 return (new PhpCsFixer\Config())

@@ -23,6 +23,7 @@ use Endroid\QrCode\Writer\SvgWriter;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -57,7 +58,7 @@ final class DesignerHuntController extends AbstractController
 
     #[Route('/{id}/details', name: 'app_designer_hunt_details', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[IsGranted(TreasureHuntVoter::VIEW, 'treasureHunt')]
-    public function details(TreasureHunt $treasureHunt, RiddleRepository $riddleRepository, RiddleMapper $riddleMapper, ParticipateHuntRepository $participateHuntRepository, WorkflowInterface $treasureHuntWorkflow): Response
+    public function details(TreasureHunt $treasureHunt, RiddleRepository $riddleRepository, RiddleMapper $riddleMapper, ParticipateHuntRepository $participateHuntRepository, #[Target('treasure_hunt_workflow')] WorkflowInterface $treasureHuntWorkflow): Response
     {
         return $this->render('designer/hunt/details.html.twig', [
             'treasureHunt' => $treasureHunt,
@@ -171,7 +172,7 @@ final class DesignerHuntController extends AbstractController
      */
     #[Route('/{id}/transition/{transition}', name: 'api_designer_hunt_transition', requirements: ['id' => '\d+', 'transition' => 'close|republish'], methods: ['POST'])]
     #[IsGranted(TreasureHuntVoter::EDIT, 'treasureHunt')]
-    public function transition(TreasureHunt $treasureHunt, string $transition, Request $request, WorkflowInterface $treasureHuntWorkflow, EntityManagerInterface $entityManager): JsonResponse
+    public function transition(TreasureHunt $treasureHunt, string $transition, Request $request, #[Target('treasure_hunt_workflow')] WorkflowInterface $treasureHuntWorkflow, EntityManagerInterface $entityManager): JsonResponse
     {
         $this->assertCsrfToken($request);
 

@@ -52,7 +52,7 @@ agrégats recalculés par des écouteurs Doctrine.
 
 ## Pile technique
 
-PHP 8.4, Symfony 7.3, API Platform 4.2, Doctrine ORM, PostgreSQL 16 (Postgres 17 en production),
+PHP 8.4, Symfony 7.4 (LTS), API Platform 4.2, Doctrine ORM, PostgreSQL 16 (Postgres 17 en production),
 Lexik JWT, EasyAdmin, Twig avec Tailwind (`symfonycasts/tailwind-bundle`), Codeception pour les
 tests, PHPStan (niveau 6), PHP CS Fixer, GrumPHP en pré-commit. En production, FrankenPHP dans un
 conteneur.
