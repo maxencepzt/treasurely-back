@@ -59,6 +59,47 @@ final class TokenRefreshPostCest
         $I->dontSeeResponseJsonMatchesJsonPath('$.token');
     }
 
+    public function changingThePasswordRevokesTheRefreshTokens(ApiTester $I): void
+    {
+        // 1. 'Arrange' : un refresh token, volé par exemple, puis le mot de passe changé
+        $user = UserFactory::createOne(['nickname' => 'chasseur', 'password' => 'Secret123!'])->_real();
+        $refreshToken = $this->login($I);
+        $I->amBearerAuthenticated($I->grabDataFromResponseByJsonPath('$.token')[0]);
+        $I->sendPatch('/api/users/'.$user->getId(), ['currentPassword' => 'Secret123!', 'plainPassword' => 'Nouveau456!']);
+        $I->seeResponseCodeIs(HttpCode::OK);
+
+        // 2. 'Act'
+        $I->unsetHttpHeader('Authorization');
+        $I->sendPost('/api/token/refresh', ['refresh_token' => $refreshToken]);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
+        $I->dontSeeResponseJsonMatchesJsonPath('$.token');
+    }
+
+    /**
+     * Le refresh token désigne un pseudo : après un changement de pseudo, il ne doit pas ouvrir
+     * le compte de celui qui reprend l'ancien.
+     */
+    public function aReleasedNicknameDoesNotInheritTheRefreshTokens(ApiTester $I): void
+    {
+        // 1. 'Arrange'
+        $user = UserFactory::createOne(['nickname' => 'chasseur', 'password' => 'Secret123!'])->_real();
+        $refreshToken = $this->login($I);
+        $I->amBearerAuthenticated($I->grabDataFromResponseByJsonPath('$.token')[0]);
+        $I->sendPatch('/api/users/'.$user->getId(), ['nickname' => 'renomme']);
+        $I->seeResponseCodeIs(HttpCode::OK);
+        UserFactory::createOne(['nickname' => 'chasseur']);
+
+        // 2. 'Act'
+        $I->unsetHttpHeader('Authorization');
+        $I->sendPost('/api/token/refresh', ['refresh_token' => $refreshToken]);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
+        $I->dontSeeResponseJsonMatchesJsonPath('$.token');
+    }
+
     /**
      * Connecte « chasseur » et rend son refresh token.
      */

@@ -26,6 +26,11 @@ security:
             password_path: password
             success_handler: lexik_jwt_authentication.handler.authentication_success
             failure_handler: lexik_jwt_authentication.handler.authentication_failure
+          # 5 échecs par minute pour un pseudo depuis une IP, 25 pour une IP ; une réussite remet à zéro.
+          # shortcut: compteurs dans cache.app, donc par instance du conteneur ; passer à un pool
+          # partagé (Redis, base) si la force brute se répartit sur plusieurs instances.
+          login_throttling:
+            max_attempts: 5
           jwt: ~
           refresh_jwt:
             check_path: /api/token/refresh
@@ -45,9 +50,8 @@ security:
       - { path: ^/api/auth, roles: PUBLIC_ACCESS }
       - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
       - { path: ^/api/register, roles: PUBLIC_ACCESS }
+      # Chaque opération d'API Platform, et chaque contrôleur sous /api, porte sa propre règle d'accès.
       - { path: ^/api, roles: PUBLIC_ACCESS }
-      - { path: ^/api/docs, roles: PUBLIC_ACCESS }
-      - { path: ^/api/~, roles: IS_AUTHENTICATED_FULLY }
       - { path: ^/admin, roles: ROLE_ADMIN }
       - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 

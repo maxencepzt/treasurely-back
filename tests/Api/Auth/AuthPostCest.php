@@ -33,6 +33,23 @@ final class AuthPostCest
         $I->seeResponseMatchesJsonType(['token' => 'string', 'refresh_token' => 'string']);
     }
 
+    public function repeatedFailuresAreThrottled(ApiTester $I): void
+    {
+        // 1. 'Arrange' : cinq essais ratés sur le même pseudo
+        UserFactory::createOne(['nickname' => 'cible', 'password' => 'Secret123!']);
+        for ($attempt = 1; $attempt <= 5; ++$attempt) {
+            $I->sendPost('/api/auth', ['nickname' => 'cible', 'password' => 'essai'.$attempt]);
+            $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
+        }
+
+        // 2. 'Act' : le bon mot de passe arrive trop tard
+        $I->sendPost('/api/auth', ['nickname' => 'cible', 'password' => 'Secret123!']);
+
+        // 3. 'Assert'
+        $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
+        $I->dontSeeResponseJsonMatchesJsonPath('$.token');
+    }
+
     public function theTokenAuthenticatesTheNextRequest(ApiTester $I): void
     {
         // 1. 'Arrange'
