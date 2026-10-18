@@ -267,7 +267,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ApiProperty(security: self::VISIBLE_PROFILE)]
     private Gender $gender;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    // L'ancienne photo est supprimée quand une autre la remplace : sinon chaque envoi reste en base.
+    #[ORM\OneToOne(cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\JoinColumn(nullable: true)]
     #[Groups(['user:picture'])]
     private ?Picture $profilePicture = null;

@@ -31,24 +31,19 @@ final class UploadUserPictureController extends AbstractController
 
         try {
             $picture = $imageUploadService->uploadImage($uploadedFile);
-
-            $data->setProfilePicture($picture);
-            $em->persist($data);
-            $em->flush();
-
-            return $this->json([
-                'message' => 'Image mise à jour avec succès',
-                'id' => $picture->getId(),
-            ], Response::HTTP_CREATED);
         } catch (\InvalidArgumentException $e) {
             return $this->json([
                 'error' => $e->getMessage(),
             ], Response::HTTP_BAD_REQUEST);
-        } catch (\Exception $e) {
-            return $this->json([
-                'error' => 'Une erreur est survenue lors du traitement.',
-                'details' => $e->getMessage(),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        $data->setProfilePicture($picture);
+        $em->persist($data);
+        $em->flush();
+
+        return $this->json([
+            'message' => 'Image mise à jour avec succès',
+            'id' => $picture->getId(),
+        ], Response::HTTP_CREATED);
     }
 }

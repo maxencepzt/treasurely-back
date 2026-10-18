@@ -213,7 +213,8 @@ abstract class Team
     #[Groups(['team:read', 'team:owner'])]
     private User $owner;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    // L'ancienne image est supprimée quand une autre la remplace : sinon chaque envoi reste en base.
+    #[ORM\OneToOne(cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[Groups(['team:picture'])]
     private ?Picture $image = null;
 
