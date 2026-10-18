@@ -132,6 +132,8 @@ même pull request.
 - **Base de données** sur Supabase, jointe par son session pooler (le conteneur n'a pas d'IPv6
   sortant). Les migrations et les fixtures se lancent depuis un poste de travail avec la
   `DATABASE_URL` de production exportée, jamais au démarrage du conteneur.
+- **En-têtes de sécurité** posés par Caddy (`docker/frankenphp/Caddyfile`) : aucune page dans un
+  cadre, pas de devinette de type de contenu ; `expose_php` est coupé (`docker/php/conf.d/config.ini`).
 - **Sessions en base** (`PdoSessionHandler`) : plusieurs instances du conteneur servent les
   requêtes successives, un fichier de session ne les suivrait pas.
 - Le `Dockerfile` historique (php-fpm et nginx, services `prod` de `docker-compose.yaml`) reste

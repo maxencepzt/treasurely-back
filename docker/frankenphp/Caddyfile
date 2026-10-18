@@ -3,5 +3,17 @@
 :{$PORT:80} {
     root * /app/public
     encode zstd gzip
+
+    # Les sous-domaines de maxencepzt.fr forment un même site : aucune page de l'API, de la
+    # façade ou du back office ne s'affiche dans un cadre, ni ne laisse deviner un type de contenu.
+    # Vercel pose déjà Strict-Transport-Security.
+    header {
+        ?X-Content-Type-Options nosniff
+        ?X-Frame-Options DENY
+        Referrer-Policy strict-origin-when-cross-origin
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+        Content-Security-Policy "frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
+    }
+
     php_server
 }
