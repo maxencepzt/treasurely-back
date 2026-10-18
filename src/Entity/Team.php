@@ -29,6 +29,7 @@ use Doctrine\ORM\Mapping\DiscriminatorMap;
 use Doctrine\ORM\Mapping\InheritanceType;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
@@ -202,10 +203,13 @@ abstract class Team
 
     #[ORM\Column(length: 100)]
     #[Groups(['team:read', 'team:write', 'user:teams', 'participateHunt:scoreboard', 'joinRequest:read'])]
+    #[Assert\NotBlank(message: 'Le nom de l\'équipe est obligatoire.')]
+    #[Assert\Length(max: 100, maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères.')]
     private string $name;
 
     #[ORM\Column(length: 500, nullable: true)]
     #[Groups(['team:read', 'team:write'])]
+    #[Assert\Length(max: 500, maxMessage: 'La description ne peut pas dépasser {{ limit }} caractères.')]
     private ?string $description = null;
 
     #[ORM\ManyToOne(inversedBy: 'ownedTeams')]
