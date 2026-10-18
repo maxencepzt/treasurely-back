@@ -134,6 +134,11 @@ même pull request.
   `DATABASE_URL` de production exportée, jamais au démarrage du conteneur.
 - **En-têtes de sécurité** posés par Caddy (`docker/frankenphp/Caddyfile`) : aucune page dans un
   cadre, pas de devinette de type de contenu ; `expose_php` est coupé (`docker/php/conf.d/config.ini`).
+- **Comptes inactifs** : la dernière activité est datée à chaque JWT émis, et un compte sans
+  connexion depuis trois ans est supprimé par `bin/console app:users:purge-inactive` (`--dry-run`
+  pour la liste seule), à lancer au moins une fois par an avec la `DATABASE_URL` de production,
+  comme les migrations. Les administrateurs et les propriétaires d'équipes ou de chasses sont
+  listés pour être traités à la main.
 - **Sessions en base** (`PdoSessionHandler`) : plusieurs instances du conteneur servent les
   requêtes successives, un fichier de session ne les suivrait pas.
 - Le `Dockerfile` historique (php-fpm et nginx, services `prod` de `docker-compose.yaml`) reste
