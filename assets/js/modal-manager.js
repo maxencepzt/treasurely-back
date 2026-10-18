@@ -280,5 +280,11 @@ class ToastManager {
     }
 }
 
-export { ModalManager, ToastManager };
+/** Échappe un texte avant de l'insérer dans du HTML : noms, pseudos et titres viennent des joueurs. */
+function escapeHtml(text) {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return String(text).replace(/[&<>"']/g, (m) => map[m]);
+}
+
+export { ModalManager, ToastManager, escapeHtml };
 

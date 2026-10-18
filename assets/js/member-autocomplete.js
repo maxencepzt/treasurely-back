@@ -1,3 +1,5 @@
+import { escapeHtml } from 'modal-manager';
+
 export class MemberAutocomplete {
     /**
      * @param {Object} options
@@ -133,8 +135,7 @@ export class MemberAutocomplete {
                 <img src="/api/users/${user.id}/picture/" alt="" class="w-full h-full object-cover" />
             </div>
             <div class="flex-1 min-w-0">
-                <p class="font-semibold text-slate-800 truncate">${user.fullName}</p>
-                <p class="text-sm text-slate-500 truncate">@${user.nickname}</p>
+                <p class="font-semibold text-slate-800 truncate">@${escapeHtml(user.nickname)}</p>
             </div>
             ${isAlreadyAdded ?
                 '<span class="text-green-700 text-sm font-semibold shrink-0">Déjà ajouté</span>' :

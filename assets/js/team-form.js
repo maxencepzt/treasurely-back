@@ -146,6 +146,7 @@ class TeamFormManager {
         try {
             const response = await fetch(url, {
                 method: 'POST',
+                headers: { 'X-CSRF-Token': this.teamForm.dataset.csrfToken },
                 body: formData
             });
 

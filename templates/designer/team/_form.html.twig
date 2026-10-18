@@ -6,7 +6,7 @@
 {% import 'designer/_partials/macros.html.twig' as ui %}
 {% import 'designer/_partials/icons.html.twig' as icons %}
 
-<form class="space-y-6" data-team-form data-mode="{{ mode }}">
+<form class="space-y-6" data-team-form data-mode="{{ mode }}" data-csrf-token="{{ csrf_token(constant('App\\Controller\\Design\\DesignerTeamController::CSRF_TOKEN_ID')) }}">
     <div class="{{ ui.card('p-6') }}">
         <div class="mb-5">{{ ui.card_title('Informations de base', icons.path('info'), 'bg-blue-100 text-blue-600') }}</div>
         <div class="space-y-5">
