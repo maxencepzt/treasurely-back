@@ -37,7 +37,19 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
-     * Search users by a query string matching nickname, firstname or lastname.
+     * @return User[]
+     */
+    public function findLastLoginBefore(\DateTimeInterface $limit): array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.lastLogin < :limit')
+            ->setParameter('limit', $limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Search users by a query string matching their nickname.
      *
      * @param User[]|null $usersToFilter
      *

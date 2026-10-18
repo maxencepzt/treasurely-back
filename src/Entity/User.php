@@ -253,7 +253,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ApiProperty(security: self::VISIBLE_PROFILE)]
     private \DateTimeImmutable $creationDate;
 
-    // TODO Gérer comment connaitre la dernière fois que quelqu'un s'est connecté (peut pas fonctionner avec Timestampable)
+    // Posée à chaque JWT émis (App\Listener\LastLoginListener) ; au-delà de trois ans, le compte est purgé.
     #[ORM\Column]
     private \DateTime $lastLogin;
 
